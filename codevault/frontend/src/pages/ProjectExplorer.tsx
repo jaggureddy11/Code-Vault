@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Search, Github, Star, GitFork, ExternalLink, TrendingUp, Heart } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Search, Github, Star, GitFork, ExternalLink, TrendingUp, Heart, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
@@ -25,6 +25,11 @@ export default function ProjectExplorer() {
     const [loading, setLoading] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [language, setLanguage] = useState('javascript');
+    const contentRef = useRef<HTMLDivElement>(null);
+
+    const scrollToContent = () => {
+        contentRef.current?.scrollIntoView({ behavior: 'smooth' });
+    };
 
     const fetchTrendingRepos = async (query = '', lang = 'javascript') => {
         setLoading(true);
@@ -62,25 +67,35 @@ export default function ProjectExplorer() {
         <div className="min-h-screen pt-32 pb-20 px-4 sm:px-6 lg:px-8 bg-white dark:bg-black transition-colors duration-500">
             <div className="max-w-7xl mx-auto">
                 {/* Adidas-Style Hero - High Impact */}
-                <div className="relative overflow-hidden bg-black text-white px-8 py-20 mb-20 border-b-8 border-white/20">
-                    <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-12">
-                        <div className="flex-1 space-y-8 text-left">
+                <div className="relative overflow-hidden bg-black text-white px-4 sm:px-8 py-10 sm:py-20 mb-10 sm:mb-20 border-b-8 border-white/20">
+                    <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8 sm:gap-12">
+                        <div className="flex-1 space-y-4 sm:space-y-8 text-left">
                             <div className="inline-flex items-center gap-2 px-3 py-1 bg-white dark:bg-black text-black dark:text-white text-[10px] font-black uppercase italic tracking-widest leading-none">
                                 <Github className="h-3.5 w-3.5" />
                                 GitHub Explorer
                             </div>
-                            <h1 className="text-6xl md:text-9xl font-black italic tracking-tighter leading-[0.8] uppercase">
+                            <h1 className="text-4xl sm:text-6xl md:text-9xl font-black italic tracking-tighter leading-[0.8] uppercase">
                                 Explore <br />Open <br /><span className="underline decoration-8 underline-offset-8 text-emerald-500">Source.</span>
                             </h1>
-                            <p className="text-xl font-bold uppercase italic max-w-xl leading-tight opacity-70">
+                            <p className="text-lg sm:text-xl font-bold uppercase italic max-w-xl leading-tight opacity-70">
                                 Discover popular open source projects from around the world.
                             </p>
                         </div>
                     </div>
                 </div>
 
+                {/* Scroll Down Arrow */}
+                <div className="flex justify-center mb-12 -mt-12 relative z-20">
+                    <button
+                        onClick={scrollToContent}
+                        className="animate-bounce bg-white dark:bg-black border-2 border-black dark:border-white p-2 rounded-full shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] hover:translate-y-1 transition-all"
+                    >
+                        <ChevronDown className="h-6 w-6" />
+                    </button>
+                </div>
+
                 {/* Search & Filter Bar */}
-                <div className="mb-16 space-y-12">
+                <div className="mb-16 space-y-12" ref={contentRef}>
                     <form onSubmit={handleSearch} className="relative group">
                         <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-6 w-6 opacity-30 group-focus-within:opacity-100 transition-opacity" />
                         <Input
@@ -118,9 +133,9 @@ export default function ProjectExplorer() {
                 </div>
 
                 {/* Brand Tagline */}
-                <div className="flex items-center gap-4 mb-20 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+                <div className="flex items-center gap-2 sm:gap-4 mb-10 sm:mb-20 animate-in fade-in slide-in-from-bottom-4 duration-1000">
                     <div className="h-px flex-1 bg-black/10 dark:bg-white/10" />
-                    <div className="text-[10px] font-black italic uppercase tracking-[0.5em] opacity-60">
+                    <div className="text-[8px] sm:text-[10px] font-black italic uppercase tracking-[0.3em] sm:tracking-[0.5em] opacity-60">
                         master your <span className="text-emerald-500">craft.</span>
                     </div>
                     <div className="h-px flex-1 bg-black/10 dark:bg-white/10" />

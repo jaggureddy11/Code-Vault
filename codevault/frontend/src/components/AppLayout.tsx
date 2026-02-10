@@ -176,18 +176,18 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             >
                 <div className="space-y-12">
                     <div className="h-px bg-black/10 dark:bg-white/10 w-full" />
-                    <nav className="flex flex-col gap-4">
+                    <nav className="flex flex-col gap-3 sm:gap-4">
                         {[...navLinks, { name: 'Profile', path: '/profile', icon: User }].map((link) => (
                             <NavLink
                                 key={link.path}
                                 to={link.path}
                                 className={({ isActive }) => cn(
-                                    "flex items-center gap-8 p-8 text-4xl font-black uppercase italic tracking-tighter transition-all border-4",
+                                    "flex items-center gap-6 sm:gap-8 p-6 sm:p-8 text-2xl sm:text-4xl font-black uppercase italic tracking-tighter transition-all border-4",
                                     isActive ? "bg-black text-white border-black dark:bg-white dark:text-black dark:border-white" : "border-black/5 dark:border-white/5"
                                 )}
                             >
                                 <>
-                                    <link.icon className="h-8 w-8" />
+                                    <link.icon className="h-6 w-6 sm:h-8 sm:w-8" />
                                     {link.name}
                                 </>
                             </NavLink>
@@ -208,8 +208,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                     </div>
                 </div>
 
-                <div className="mt-20 mb-12">
-                    <Button onClick={signOut} className="adidas-button w-full h-24 text-2xl bg-red-600 text-white border-none">
+                <div className="mt-10 sm:mt-20 mb-8 sm:mb-12">
+                    <Button onClick={signOut} className="adidas-button w-full h-16 sm:h-24 text-xl sm:text-2xl bg-red-600 text-white border-none">
                         Logout
                     </Button>
                 </div>
@@ -221,12 +221,12 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             </main>
 
             {/* Performance Footer */}
-            <footer className="bg-neutral-100 dark:bg-neutral-900 py-32 border-t-8 border-black dark:border-white">
+            <footer className="bg-neutral-100 dark:bg-neutral-900 py-16 sm:py-32 border-t-8 border-black dark:border-white">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-20 mb-20">
-                        <div className="col-span-1 md:col-span-2 space-y-10">
-                            <Logo className="gap-6 scale-125 origin-left" />
-                            <p className="text-xl font-bold max-w-sm leading-tight uppercase opacity-70 italic">
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-12 sm:gap-20 mb-12 sm:mb-20">
+                        <div className="col-span-1 md:col-span-2 space-y-6 sm:space-y-10">
+                            <Logo className="gap-4 sm:gap-6 scale-100 sm:scale-125 origin-left" />
+                            <p className="text-lg sm:text-xl font-bold max-w-sm leading-tight uppercase opacity-70 italic">
                                 High performance snippet management for every developer.
                             </p>
                             <div className="flex gap-4">

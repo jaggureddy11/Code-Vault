@@ -76,7 +76,7 @@ export default function SignupPage() {
               <ShieldCheck className="h-3 w-3" />
               New Registration
             </div>
-            <h2 className="text-6xl font-black italic tracking-tighter uppercase leading-none">
+            <h2 className="text-4xl sm:text-6xl font-black italic tracking-tighter uppercase leading-none">
               Create Account
             </h2>
             <p className="text-sm font-medium opacity-60">
@@ -156,7 +156,7 @@ export default function SignupPage() {
             <div className="pt-4">
               <Button
                 type="submit"
-                className="adidas-button w-full h-20 text-2xl"
+                className="adidas-button w-full h-16 sm:h-20 text-xl sm:text-2xl"
                 disabled={loading}
               >
                 {loading ? (

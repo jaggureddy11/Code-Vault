@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Search, Heart, Cloud, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Search, Heart, Cloud, CheckCircle2, AlertCircle, ChevronDown } from 'lucide-react';
 import { useSnippets } from '@/hooks/useSnippets';
 import SnippetCard from '@/components/SnippetCard';
 import { Button } from '@/components/ui/button';
@@ -27,6 +27,11 @@ export default function FavoritesPage() {
     const [syncStatus, setSyncStatus] = useState<'SYNCED' | 'SYNCING' | 'OFFLINE' | 'ERROR'>('SYNCED');
     const { toast } = useToast();
     const searchInputRef = useRef<HTMLInputElement>(null);
+    const contentRef = useRef<HTMLDivElement>(null);
+
+    const scrollToContent = () => {
+        contentRef.current?.scrollIntoView({ behavior: 'smooth' });
+    };
 
     // Local search state for smoothness
     const [localSearch, setLocalSearch] = useState(searchFilters.query || '');
@@ -94,10 +99,10 @@ export default function FavoritesPage() {
         <div className="min-h-screen pt-32 pb-20 px-4 sm:px-6 lg:px-8 bg-white dark:bg-black transition-colors duration-500">
             <div className="max-w-7xl mx-auto">
                 {/* Header Section */}
-                <div className="relative overflow-hidden bg-black text-white px-8 py-20 mb-20 border-b-8 border-white/20">
-                    <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-12">
-                        <div className="flex-1 space-y-8 text-left">
-                            <div className="flex items-center gap-6">
+                <div className="relative overflow-hidden bg-black text-white px-4 sm:px-8 py-10 sm:py-20 mb-10 sm:mb-20 border-b-8 border-white/20">
+                    <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8 sm:gap-12">
+                        <div className="flex-1 space-y-4 sm:space-y-8 text-left">
+                            <div className="flex items-center gap-4 sm:gap-6">
                                 <div className="inline-flex items-center gap-2 px-3 py-1 bg-black text-white text-[10px] font-bold italic tracking-widest leading-none border border-white/20">
                                     <Heart className="h-3.5 w-3.5 fill-pink-500 text-pink-500" />
                                     Favorites
@@ -114,18 +119,28 @@ export default function FavoritesPage() {
                                     {syncStatus}
                                 </div>
                             </div>
-                            <h1 className="text-6xl md:text-9xl font-black italic tracking-tighter leading-[0.8] uppercase">
+                            <h1 className="text-4xl sm:text-6xl md:text-9xl font-black italic tracking-tighter leading-[0.8] uppercase">
                                 Elite <br />Pinned <br /><span className="underline decoration-8 underline-offset-8 text-pink-500">Favorites.</span>
                             </h1>
-                            <p className="text-xl font-bold italic max-w-xl leading-tight opacity-70">
+                            <p className="text-lg sm:text-xl font-bold italic max-w-xl leading-tight opacity-70">
                                 Curated high-performance code snippets for rapid deployment.
                             </p>
                         </div>
                     </div>
                 </div>
 
+                {/* Scroll Down Arrow */}
+                <div className="flex justify-center mb-12 -mt-12 relative z-20">
+                    <button
+                        onClick={scrollToContent}
+                        className="animate-bounce bg-white dark:bg-black border-2 border-black dark:border-white p-2 rounded-full shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] hover:translate-y-1 transition-all"
+                    >
+                        <ChevronDown className="h-6 w-6" />
+                    </button>
+                </div>
+
                 {/* Search Bar */}
-                <div className="mb-16">
+                <div className="mb-16" ref={contentRef}>
                     <div className="relative group">
                         <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-6 w-6 opacity-30 group-focus-within:opacity-100 transition-opacity" />
                         <Input
@@ -144,9 +159,9 @@ export default function FavoritesPage() {
                 </div>
 
                 {/* Brand Tagline */}
-                <div className="flex items-center gap-4 mb-20 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+                <div className="flex items-center gap-2 sm:gap-4 mb-10 sm:mb-20 animate-in fade-in slide-in-from-bottom-4 duration-1000">
                     <div className="h-px flex-1 bg-black/10 dark:bg-white/10" />
-                    <div className="text-[10px] font-black italic uppercase tracking-[0.5em] opacity-60">
+                    <div className="text-[8px] sm:text-[10px] font-black italic uppercase tracking-[0.3em] sm:tracking-[0.5em] opacity-60">
                         master your <span className="text-pink-500">craft.</span>
                     </div>
                     <div className="h-px flex-1 bg-black/10 dark:bg-white/10" />

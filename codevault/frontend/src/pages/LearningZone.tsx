@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Search, Star, Eye, TrendingUp, Clock, Trash2 } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Search, Star, Eye, TrendingUp, Clock, Trash2, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useLearning } from '@/hooks/useLearning';
@@ -81,6 +81,11 @@ export default function LearningZone() {
     const [searchResults, setSearchResults] = useState<Video[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [hasSearched, setHasSearched] = useState(false);
+    const contentRef = useRef<HTMLDivElement>(null);
+
+    const scrollToContent = () => {
+        contentRef.current?.scrollIntoView({ behavior: 'smooth' });
+    };
 
     const { recentlyViewed, saveVideoSession, deleteRecentlyViewed, isDeletingRecent } = useLearning();
 
@@ -161,8 +166,18 @@ export default function LearningZone() {
                     </div>
                 </div>
 
+                {/* Scroll Down Arrow */}
+                <div className="flex justify-center mb-12 -mt-12 relative z-20">
+                    <button
+                        onClick={scrollToContent}
+                        className="animate-bounce bg-white dark:bg-black border-2 border-black dark:border-white p-2 rounded-full shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] hover:translate-y-1 transition-all"
+                    >
+                        <ChevronDown className="h-6 w-6" />
+                    </button>
+                </div>
+
                 {/* Search Bar Section */}
-                <div className="mb-16">
+                <div className="mb-16" ref={contentRef}>
                     <form onSubmit={handleSearch} className="relative group">
                         <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-6 w-6 opacity-30 group-focus-within:opacity-100 transition-opacity" />
                         <Input

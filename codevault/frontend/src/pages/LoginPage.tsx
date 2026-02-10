@@ -61,7 +61,7 @@ export default function LoginPage() {
               <Zap className="h-3 w-3" />
               Member Access
             </div>
-            <h2 className="text-6xl font-black italic tracking-tighter uppercase leading-none">
+            <h2 className="text-4xl sm:text-6xl font-black italic tracking-tighter uppercase leading-none">
               Welcome Back
             </h2>
             <p className="text-sm font-medium opacity-60">
@@ -111,7 +111,7 @@ export default function LoginPage() {
             <div className="pt-4">
               <Button
                 type="submit"
-                className="adidas-button w-full h-20 text-2xl"
+                className="adidas-button w-full h-16 sm:h-20 text-xl sm:text-2xl"
                 disabled={loading}
               >
                 {loading ? (
