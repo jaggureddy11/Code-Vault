@@ -1,0 +1,11 @@
+{
+    "name": "codevault-monorepo",
+    "private": true,
+    "scripts": {
+        "dev:frontend": "npm run dev --prefix codevault/frontend",
+        "dev:backend": "npm run dev --prefix codevault/backend",
+        "dev": "npm run dev:frontend & npm run dev:backend",
+        "install:all": "npm install --prefix codevault/frontend && npm install --prefix codevault/backend",
+        "build": "npm run build --prefix codevault/frontend"
+    }
+}

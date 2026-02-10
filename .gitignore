@@ -1,0 +1,39 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Testing
+coverage/
+
+# Production
+dist/
+build/
+
+# Environment Variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.sample
+codevault/frontend/.env.local
+codevault/backend/.env
+codevault/backend/.env.example
+
+# IDEs and Tools
+.vscode/
+.idea/
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Project specific
+.agent/
+.gemini/
+.background_processes/
+*.webp
+package-lock.json
