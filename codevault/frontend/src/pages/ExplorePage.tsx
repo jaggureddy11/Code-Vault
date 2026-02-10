@@ -80,7 +80,7 @@ export default function ExplorePage() {
                         <Input
                             ref={searchInputRef}
                             placeholder="Search community snippets..."
-                            className="h-20 pl-16 rounded-none border-b-4 border-black dark:border-white bg-transparent text-xl font-bold italic tracking-widest focus:ring-0 placeholder:opacity-40"
+                            className="h-20 pl-16 pr-32 rounded-none border-b-4 border-black dark:border-white bg-transparent text-xl font-bold italic tracking-widest focus:ring-0 placeholder:opacity-40"
                             value={localSearch}
                             onChange={(e) => setLocalSearch(e.target.value)}
                         />

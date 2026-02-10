@@ -279,7 +279,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
             {/* Speed Line Transition Overlay */}
             <div className={cn(
-                "fixed inset-0 z-[200] pointer-events-none flex flex-col",
+                "fixed inset-0 z-[9999] pointer-events-none flex flex-col",
                 isTransitioning ? "opacity-100" : "opacity-0 transition-opacity delay-700 duration-0"
             )}>
                 <div className={cn(
