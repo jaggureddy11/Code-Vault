@@ -1,4 +1,4 @@
-import { lazy, Suspense, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { CreateSnippetInput, POPULAR_LANGUAGES } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -10,13 +10,12 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { useTheme } from '@/contexts/ThemeContext';
-import { Sparkles, Loader2, Tag as TagIcon, Code2, Type, FileCode, Zap, ShieldCheck, AlertTriangle } from 'lucide-react';
+
+import { Sparkles, Loader2, Tag as TagIcon, Code2, Type, FileCode, Zap, ShieldCheck, AlertTriangle, Globe, Lock } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import TagInput from '@/components/TagInput';
-import { fetchJson, getApiBaseUrl } from '@/lib/utils';
-
-const MonacoEditor = lazy(() => import('@monaco-editor/react')) as unknown as React.ComponentType<any>;
+import { fetchJson, getApiBaseUrl, cn } from '@/lib/utils';
+import CodeEditor from '@/components/CodeEditor';
 
 interface SnippetFormProps {
     initialData?: Partial<CreateSnippetInput>;
@@ -31,7 +30,7 @@ export default function SnippetForm({
     onCancel,
     isLoading,
 }: SnippetFormProps) {
-    const { theme } = useTheme();
+
     const { toast } = useToast();
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [isScanning, setIsScanning] = useState(false);
@@ -42,13 +41,14 @@ export default function SnippetForm({
         code: initialData?.code || '',
         language: initialData?.language || 'javascript',
         tags: initialData?.tags?.map((t: any) => typeof t === 'string' ? t : t.name) || [],
+        is_public: initialData?.is_public ?? false,
     });
 
     const handleAIAnalyze = async () => {
         if (!formData.code) {
             toast({
-                title: 'ERROR',
-                description: 'INPUT REQUIRED FOR SCAN.',
+                title: 'Error',
+                description: 'Input required for scan.',
                 variant: 'destructive',
             });
             return;
@@ -120,14 +120,93 @@ export default function SnippetForm({
         }, 1500);
     };
 
+    const [isPreview, setIsPreview] = useState(false);
+
+    // Auto-save draft to localStorage
+    useEffect(() => {
+        const draft = localStorage.getItem('snippet_draft');
+        if (draft && !initialData) {
+            try {
+                const parsed = JSON.parse(draft);
+                setFormData(prev => ({ ...prev, ...parsed }));
+            } catch (e) {
+                console.error('Failed to load draft');
+            }
+        }
+    }, [initialData]);
+
+    useEffect(() => {
+        if (!initialData) {
+            localStorage.setItem('snippet_draft', JSON.stringify(formData));
+        }
+    }, [formData, initialData]);
+
+    // Keyboard shortcuts
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if ((e.metaKey || e.ctrlKey) && e.key === 's') {
+                e.preventDefault();
+                handleSubmit(e as any);
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [formData]);
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!formData.title || !formData.code) return;
+        if (!formData.title || !formData.code) {
+            toast({
+                title: 'Input Required',
+                description: 'Title and code are mandatory fields.',
+                variant: 'destructive'
+            });
+            return;
+        }
         await onSubmit(formData);
+        if (!initialData) {
+            localStorage.removeItem('snippet_draft');
+        }
     };
+
+    if (isPreview) {
+        return (
+            <div className="space-y-12">
+                <div className="flex justify-between items-center bg-black text-white p-8">
+                    <div>
+                        <h2 className="text-4xl font-black italic uppercase tracking-tighter">{formData.title || 'Untitled'}</h2>
+                        <p className="text-xs font-bold uppercase tracking-widest opacity-60 mt-2">{formData.language} // {formData.tags?.length} tags</p>
+                    </div>
+                    <Button onClick={() => setIsPreview(false)} className="adidas-button bg-white text-black hover:invert">Edit Mode</Button>
+                </div>
+
+                <div className="border-4 border-black dark:border-white p-8 bg-neutral-50 dark:bg-neutral-900">
+                    <pre className="font-mono text-sm leading-relaxed whitespace-pre-wrap">
+                        {formData.code}
+                    </pre>
+                </div>
+
+                <div className="flex justify-end pt-12">
+                    <Button onClick={handleSubmit} disabled={isLoading} className="adidas-button h-16 px-20">
+                        {isLoading ? <Loader2 className="h-6 w-6 animate-spin" /> : 'Confirm & Save'}
+                    </Button>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <form onSubmit={handleSubmit} className="space-y-12">
+            <div className="flex justify-end mb-4">
+                <Button
+                    type="button"
+                    variant="ghost"
+                    onClick={() => setIsPreview(true)}
+                    className="text-[10px] font-black uppercase tracking-widest italic hover:underline"
+                >
+                    Switch to Preview
+                </Button>
+            </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
                 <div className="space-y-8">
                     <div className="space-y-3">
@@ -181,6 +260,32 @@ export default function SnippetForm({
                         </div>
                     </div>
 
+                    <div className="flex items-center gap-4 p-4 border-4 border-black dark:border-white">
+                        <div className="flex-1">
+                            <Label className="text-[10px] font-black uppercase tracking-[0.3em] flex items-center gap-2 italic mb-1">
+                                Visibility
+                            </Label>
+                            <p className="text-[10px] opacity-60 italic">
+                                {formData.is_public ? 'Visible to the community' : 'Private to your vault'}
+                            </p>
+                        </div>
+                        <Button
+                            type="button"
+                            onClick={() => setFormData({ ...formData, is_public: !formData.is_public })}
+                            className={cn(
+                                "h-12 px-6 rounded-none font-black italic uppercase tracking-widest transition-all",
+                                formData.is_public
+                                    ? "bg-emerald-500 text-white hover:bg-emerald-600"
+                                    : "bg-black text-white dark:bg-white dark:text-black hover:opacity-80"
+                            )}
+                        >
+                            <div className="flex items-center gap-2">
+                                {formData.is_public ? <Globe className="h-4 w-4" /> : <Lock className="h-4 w-4" />}
+                                {formData.is_public ? 'Public' : 'Private'}
+                            </div>
+                        </Button>
+                    </div>
+
                     <div className="space-y-3">
                         <Label htmlFor="description" className="text-[10px] font-black uppercase tracking-[0.3em] flex items-center gap-2 italic">
                             <Code2 className="h-4 w-4" />
@@ -225,7 +330,7 @@ export default function SnippetForm({
                                 disabled={isScanning || !formData.code}
                             >
                                 {isScanning ? <Loader2 className="h-3 w-3 animate-spin" /> : <ShieldCheck className="h-3 w-3" />}
-                                SECURITY
+                                Security
                             </Button>
                             <Button
                                 type="button"
@@ -241,41 +346,13 @@ export default function SnippetForm({
                         </div>
                     </div>
                     <div className="border-2 border-black dark:border-white overflow-hidden shadow-[8px_8px_0px_0px_rgba(0,0,0,0.05)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,0.05)]">
-                        <Suspense
-                            fallback={
-                                <div className="h-[500px] flex items-center justify-center bg-neutral-50 dark:bg-neutral-900">
-                                    <Loader2 className="h-6 w-6 animate-spin" />
-                                </div>
-                            }
-                        >
-                            <MonacoEditor
-                                height="500px"
-                                language={formData.language}
-                                value={formData.code}
-                                theme={theme === 'dark' ? 'vs-dark' : 'light'}
-                                onChange={(value: string | undefined) => setFormData({ ...formData, code: value || '' })}
-                                options={{
-                                    minimap: { enabled: false },
-                                    fontSize: 13,
-                                    fontFamily: "'JetBrains Mono', monospace",
-                                    scrollBeyondLastLine: false,
-                                    automaticLayout: true,
-                                    padding: { top: 32, bottom: 32 },
-                                    lineNumbers: 'on',
-                                    roundedSelection: false,
-                                    cursorSmoothCaretAnimation: 'on',
-                                    smoothScrolling: true,
-                                    wordWrap: 'on',
-                                    lineDecorationsWidth: 20,
-                                    scrollbar: {
-                                        vertical: 'visible',
-                                        horizontal: 'visible',
-                                        verticalScrollbarSize: 10,
-                                        horizontalScrollbarSize: 10,
-                                    },
-                                }}
-                            />
-                        </Suspense>
+                        <CodeEditor
+                            height="500px"
+                            language={formData.language}
+                            value={formData.code}
+                            onChange={(value: string) => setFormData({ ...formData, code: value })}
+                            onLanguageChange={(lang) => setFormData({ ...formData, language: lang })}
+                        />
                     </div>
                 </div>
             </div>

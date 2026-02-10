@@ -62,11 +62,7 @@ export default function ProjectExplorer() {
         <div className="min-h-screen pt-32 pb-20 px-4 sm:px-6 lg:px-8 bg-white dark:bg-black transition-colors duration-500">
             <div className="max-w-7xl mx-auto">
                 {/* Adidas-Style Hero - High Impact */}
-                <div className="relative overflow-hidden bg-neutral-900 dark:bg-neutral-100 text-white dark:text-black px-8 py-20 mb-20 border-b-8 border-black dark:border-white">
-                    <div className="absolute top-0 right-0 w-32 h-full opacity-10 pointer-events-none">
-                        <div className="h-full w-full stripe-bg" />
-                    </div>
-
+                <div className="relative overflow-hidden bg-black text-white px-8 py-20 mb-20 border-b-8 border-white/20">
                     <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-12">
                         <div className="flex-1 space-y-8 text-left">
                             <div className="inline-flex items-center gap-2 px-3 py-1 bg-white dark:bg-black text-black dark:text-white text-[10px] font-black uppercase italic tracking-widest leading-none">
@@ -80,41 +76,54 @@ export default function ProjectExplorer() {
                                 Discover popular open source projects from around the world.
                             </p>
                         </div>
-
-                        <form onSubmit={handleSearch} className="w-full md:w-[450px] space-y-4">
-                            <div className="relative group">
-                                <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-6 w-6 text-white dark:text-black opacity-30 group-focus-within:opacity-100 transition-opacity" />
-                                <Input
-                                    placeholder="Search for projects..."
-                                    className="h-20 pl-16 rounded-none border-2 border-white dark:border-black bg-white/10 dark:bg-black/10 text-white dark:text-black placeholder:opacity-40 text-lg font-bold uppercase italic tracking-widest focus:ring-0"
-                                    value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
-                                />
-                            </div>
-                            <Button type="submit" disabled={loading} className="adidas-button w-full h-20 text-2xl font-black italic">
-                                {loading ? "Searching..." : "Search Projects"}
-                            </Button>
-                        </form>
                     </div>
                 </div>
 
-                {/* Performance Filters */}
-                <div className="mb-16 border-y-2 border-black/10 dark:border-white/10 py-4 overflow-x-auto scrollbar-hide">
-                    <div className="flex items-center space-x-1 shrink-0">
-                        {languages.map((lang) => (
-                            <Button
-                                key={lang.value}
-                                variant={language === lang.value ? "default" : "ghost"}
-                                className={cn(
-                                    "h-12 px-8 rounded-none font-black italic uppercase tracking-widest transition-all text-xs",
-                                    language === lang.value ? "bg-black text-white dark:bg-white dark:text-black" : "hover:underline opacity-60"
-                                )}
-                                onClick={() => setLanguage(lang.value)}
-                            >
-                                {lang.name}
-                            </Button>
-                        ))}
+                {/* Search & Filter Bar */}
+                <div className="mb-16 space-y-12">
+                    <form onSubmit={handleSearch} className="relative group">
+                        <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-6 w-6 opacity-30 group-focus-within:opacity-100 transition-opacity" />
+                        <Input
+                            placeholder="Search for projects..."
+                            className="h-20 pl-16 rounded-none border-b-4 border-black dark:border-white bg-transparent text-xl font-bold italic tracking-widest focus:ring-0 placeholder:opacity-40"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                        />
+                        <Button
+                            type="submit"
+                            disabled={loading}
+                            className="absolute right-2 top-1/2 -translate-y-1/2 h-14 px-8 rounded-none bg-black dark:bg-white text-white dark:text-black font-black italic uppercase tracking-widest text-xs hover:scale-[1.02] transition-transform active:scale-95"
+                        >
+                            {loading ? "..." : "Search"}
+                        </Button>
+                    </form>
+
+                    <div className="border-y-2 border-black/10 dark:border-white/10 py-4 overflow-x-auto scrollbar-hide">
+                        <div className="flex items-center space-x-1 shrink-0">
+                            {languages.map((lang) => (
+                                <Button
+                                    key={lang.value}
+                                    variant={language === lang.value ? "default" : "ghost"}
+                                    className={cn(
+                                        "h-12 px-8 rounded-none font-black italic uppercase tracking-widest transition-all text-xs",
+                                        language === lang.value ? "bg-black text-white dark:bg-white dark:text-black" : "hover:underline opacity-60"
+                                    )}
+                                    onClick={() => setLanguage(lang.value)}
+                                >
+                                    {lang.name}
+                                </Button>
+                            ))}
+                        </div>
                     </div>
+                </div>
+
+                {/* Brand Tagline */}
+                <div className="flex items-center gap-4 mb-20 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+                    <div className="h-px flex-1 bg-black/10 dark:bg-white/10" />
+                    <div className="text-[10px] font-black italic uppercase tracking-[0.5em] opacity-60">
+                        master your <span className="text-emerald-500">craft.</span>
+                    </div>
+                    <div className="h-px flex-1 bg-black/10 dark:bg-white/10" />
                 </div>
 
                 {/* Repos Grid */}
@@ -129,10 +138,6 @@ export default function ProjectExplorer() {
                         {repos.map((repo) => (
                             <Card key={repo.id} className="rounded-none bg-white dark:bg-black border border-black/10 dark:border-white/10 transition-all duration-300 group hover:border-black dark:hover:border-white hover:shadow-[12px_12px_0px_0px_rgba(0,0,0,0.05)] dark:hover:shadow-[12px_12px_0px_0px_rgba(255,255,255,0.05)] flex flex-col">
                                 <CardHeader className="pb-6 relative pt-10 px-8">
-                                    <div className="absolute top-0 right-0 w-24 h-24 opacity-5 pointer-events-none group-hover:opacity-10 transition-opacity">
-                                        <div className="h-full w-full stripe-bg" />
-                                    </div>
-
                                     <div className="flex items-center space-x-4 mb-6">
                                         <div className="bg-black dark:bg-white p-2 rounded-none">
                                             <Github className="h-5 w-5 text-white dark:text-black" />

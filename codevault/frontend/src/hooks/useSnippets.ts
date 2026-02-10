@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { Snippet, CreateSnippetInput, UpdateSnippetInput, Tag } from '@/types';
@@ -18,48 +19,119 @@ export function useSnippets() {
     };
   };
 
-  const fetchSnippets = async (): Promise<Snippet[]> => {
+  const fetchSnippets = async (filters?: { query?: string; tags?: string[]; language?: string }): Promise<Snippet[]> => {
     if (!user) return [];
 
-    const { data, error } = await supabase
+    let query = supabase
       .from('snippets')
-      .select('*, profiles(username), snippet_tags(tag_id, tags(*))')
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: false });
+      .select('*, snippet_tags(tag_id, tags(*))')
+      .eq('user_id', user.id);
+
+    if (filters?.query) {
+      query = query.or(`title.ilike.%${filters.query}%,description.ilike.%${filters.query}%,code.ilike.%${filters.query}%`);
+    }
+
+    if (filters?.language && filters.language !== 'all' && filters.language !== '') {
+      query = query.eq('language', filters.language);
+    }
+
+    const { data, error } = await query.order('created_at', { ascending: false });
 
     if (error) throw error;
-    return (data || []).map(normalizeSnippet);
+
+    let results = (data || []).map(normalizeSnippet);
+
+    if (filters?.tags && filters.tags.length > 0) {
+      results = results.filter(snippet =>
+        filters.tags?.every(tagName =>
+          snippet.tags?.some(t => t.name.toLowerCase() === tagName.toLowerCase())
+        )
+      );
+    }
+
+    return results;
   };
 
+  const [searchFilters, setSearchFilters] = useState<{ query?: string; tags?: string[]; language?: string }>({});
+
   const snippetsQuery = useQuery({
-    queryKey: ['snippets', user?.id],
-    queryFn: fetchSnippets,
+    queryKey: ['snippets', user?.id, searchFilters],
+    queryFn: () => fetchSnippets(searchFilters),
     enabled: !!user,
     refetchOnWindowFocus: true,
   });
 
-  const fetchExploreSnippets = async (): Promise<Snippet[]> => {
+  // Real-time synchronization
+  useEffect(() => {
+    if (!user) return;
+
+    const channel = supabase
+      .channel('snippets-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'snippets',
+          filter: `user_id=eq.${user.id}`,
+        },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ['snippets', user.id] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user, queryClient]);
+
+  const fetchExploreSnippets = async (filters?: { query?: string; tags?: string[]; language?: string }): Promise<Snippet[]> => {
     if (!user) return [];
 
     try {
-      const { data, error } = await supabase
+      let query = supabase
         .from('snippets')
-        .select('*, profiles(username), snippet_tags(tag_id, tags(*))')
-        .neq('user_id', user.id)
-        .order('created_at', { ascending: false });
+        .select('*, snippet_tags(tag_id, tags(*)), profiles(username)')
+        .eq('is_public', true);
+
+      if (filters?.query) {
+        query = query.or(`title.ilike.%${filters.query}%,description.ilike.%${filters.query}%,code.ilike.%${filters.query}%`);
+      }
+
+      if (filters?.language && filters.language !== 'all' && filters.language !== '') {
+        query = query.eq('language', filters.language);
+      }
+
+      const { data, error } = await query.order('created_at', { ascending: false });
 
       if (error) {
-        // Fallback: fetch without profiles if join fails
         const { data: fallbackData, error: fallbackError } = await supabase
           .from('snippets')
           .select('*, snippet_tags(tag_id, tags(*))')
-          .neq('user_id', user.id)
+          .eq('is_public', true)
           .order('created_at', { ascending: false });
 
         if (fallbackError) throw fallbackError;
-        return (fallbackData || []).map(normalizeSnippet);
+        let results = (fallbackData || []).map(normalizeSnippet);
+        if (filters?.tags && filters.tags.length > 0) {
+          results = results.filter(snippet =>
+            filters.tags?.every(tagName =>
+              snippet.tags?.some(t => t.name.toLowerCase() === tagName.toLowerCase())
+            )
+          );
+        }
+        return results;
       }
-      return (data || []).map(normalizeSnippet);
+      let results = (data || []).map(normalizeSnippet);
+      if (filters?.tags && filters.tags.length > 0) {
+        results = results.filter(snippet =>
+          filters.tags?.every(tagName =>
+            snippet.tags?.some(t => t.name.toLowerCase() === tagName.toLowerCase())
+          )
+        );
+      }
+      return results;
     } catch (err) {
       console.error('Explore fetch failed:', err);
       return [];
@@ -67,8 +139,8 @@ export function useSnippets() {
   };
 
   const exploreSnippetsQuery = useQuery({
-    queryKey: ['explore-snippets', user?.id],
-    queryFn: fetchExploreSnippets,
+    queryKey: ['explore-snippets', user?.id, searchFilters],
+    queryFn: () => fetchExploreSnippets(searchFilters),
     enabled: !!user,
     refetchOnWindowFocus: true,
   });
@@ -77,7 +149,6 @@ export function useSnippets() {
     mutationFn: async (input: CreateSnippetInput) => {
       if (!user) throw new Error('Not authenticated');
 
-      // 1. Create the snippet
       const { data: snippet, error: snippetError } = await supabase
         .from('snippets')
         .insert([
@@ -88,6 +159,7 @@ export function useSnippets() {
             code: input.code,
             language: input.language,
             is_favorite: false,
+            is_public: input.is_public ?? false,
           },
         ])
         .select()
@@ -95,9 +167,7 @@ export function useSnippets() {
 
       if (snippetError) throw snippetError;
 
-      // 2. Handle tags if any
       if (input.tags && input.tags.length > 0) {
-        // Find existing tags for these names
         const { data: existingTags, error: tagsError } = await supabase
           .from('tags')
           .select('id, name')
@@ -134,7 +204,6 @@ export function useSnippets() {
     mutationFn: async ({ id, ...input }: UpdateSnippetInput & { id: string }) => {
       if (!user) throw new Error('Not authenticated');
 
-      // 1. Update snippet basic info
       const { data: snippet, error: snippetError } = await supabase
         .from('snippets')
         .update({
@@ -142,6 +211,7 @@ export function useSnippets() {
           description: input.description,
           code: input.code,
           language: input.language,
+          is_public: input.is_public ?? false,
           updated_at: new Date().toISOString(),
         })
         .eq('id', id)
@@ -151,9 +221,7 @@ export function useSnippets() {
 
       if (snippetError) throw snippetError;
 
-      // 2. Sync tags if provided
       if (input.tags) {
-        // Delete existing associations
         const { error: deleteError } = await supabase
           .from('snippet_tags')
           .delete()
@@ -162,7 +230,6 @@ export function useSnippets() {
         if (deleteError) throw deleteError;
 
         if (input.tags.length > 0) {
-          // Get tag IDs for names
           const { data: existingTags, error: tagsError } = await supabase
             .from('tags')
             .select('id, name')
@@ -246,5 +313,7 @@ export function useSnippets() {
     deleteSnippet: deleteSnippetMutation.mutateAsync,
     isDeleting: deleteSnippetMutation.isPending,
     toggleFavorite: toggleFavoriteMutation.mutateAsync,
+    setSearchFilters,
+    searchFilters,
   };
 }

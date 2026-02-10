@@ -135,7 +135,7 @@ export default function ProfilePage() {
     }
 
     return (
-        <div className="min-h-screen bg-white dark:bg-black pt-28 pb-20 px-4 sm:px-6 lg:px-8 font-sans">
+        <div className="min-h-screen bg-white dark:bg-black pt-32 pb-20 px-4 sm:px-6 lg:px-8 font-sans">
             <div className="max-w-xl mx-auto">
                 <h1 className="text-3xl font-black italic uppercase tracking-tighter mb-10 text-black dark:text-white">
                     My profile

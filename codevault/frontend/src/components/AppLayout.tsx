@@ -6,10 +6,11 @@ import { useProfile } from '@/hooks/useProfile';
 import {
     Code2, Compass, Youtube, User,
     HelpCircle, MessageSquare, Heart, LogOut,
-    Sun, Moon, Menu, X, Sparkles, Zap, Activity
+    Sun, Moon, Menu, X, Sparkles, Zap, Activity, Globe
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { Logo } from '@/components/Logo';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -54,6 +55,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     };
 
     const navLinks = [
+        { name: 'Vault', path: '/', icon: Code2 },
+        { name: 'Explore', path: '/explore', icon: Globe },
+        { name: 'Favorites', path: '/favorites', icon: Heart },
         { name: 'Projects', path: '/projects', icon: Compass },
         { name: 'Learn', path: '/learn', icon: Youtube },
     ];
@@ -75,23 +79,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             >
                 <div className="max-w-7xl mx-auto flex justify-between items-center">
                     {/* Logo Area */}
-                    <NavLink to="/" className="flex items-center space-x-4 group cursor-pointer z-[110]">
-                        <div className="relative">
-                            <div className="bg-black dark:bg-white p-2.5 rounded-none group-hover:rotate-12 transition-transform duration-300">
-                                <Code2 className="h-6 w-6 text-white dark:text-black" />
-                            </div>
-                            {/* Adidas Stripe Motif */}
-                            <div className="absolute -bottom-1 -left-1 w-full h-1 flex gap-0.5">
-                                <div className="h-full w-1/3 bg-black dark:bg-white" />
-                                <div className="h-full w-1/3 bg-black dark:bg-white" />
-                                <div className="h-full w-1/3 bg-black dark:bg-white" />
-                            </div>
-                        </div>
-                        <div className="flex flex-col">
-                            <h1 className="text-2xl font-black text-black dark:text-white leading-none italic uppercase tracking-tighter">
-                                CodeVault
-                            </h1>
-                        </div>
+                    <NavLink to="/" className="z-[110]">
+                        <Logo />
                     </NavLink>
 
                     {/* Desktop Navigation */}
@@ -146,9 +135,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent className="w-72 mt-2 rounded-none bg-white dark:bg-black border-4 border-black dark:border-white p-0 shadow-none overflow-hidden" align="end">
                                     <DropdownMenuLabel className="flex flex-col p-8 bg-black text-white dark:bg-white dark:text-black relative overflow-hidden">
-                                        <div className="absolute top-0 right-0 w-32 h-full opacity-10 pointer-events-none">
-                                            <div className="h-full w-full stripe-bg" />
-                                        </div>
                                         <span className="text-2xl font-black italic tracking-tighter uppercase">{user?.user_metadata?.username || user?.email?.split('@')[0]}</span>
                                         <span className="text-[10px] font-black uppercase tracking-widest opacity-60 mt-1">{user?.email}</span>
                                     </DropdownMenuLabel>
@@ -239,12 +225,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-20 mb-20">
                         <div className="col-span-1 md:col-span-2 space-y-10">
-                            <div className="flex items-center space-x-4">
-                                <div className="bg-black dark:bg-white p-3 rounded-none">
-                                    <Code2 className="h-8 w-8 text-white dark:text-black" />
-                                </div>
-                                <h1 className="text-5xl font-black uppercase italic tracking-tighter">CodeVault</h1>
-                            </div>
+                            <Logo className="gap-6 scale-125 origin-left" />
                             <p className="text-xl font-bold max-w-sm leading-tight uppercase opacity-70 italic">
                                 High performance snippet management for every developer.
                             </p>
@@ -283,11 +264,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
                     <div className="pt-20 border-t border-black/10 dark:border-white/10 flex flex-col lg:flex-row justify-between items-center gap-12">
                         <div className="flex items-center gap-4">
-                            <div className="h-2 w-20 flex gap-1">
-                                <div className="h-full w-1/3 bg-black dark:bg-white" />
-                                <div className="h-full w-1/3 bg-black dark:bg-white" />
-                                <div className="h-full w-1/3 bg-black dark:bg-white" />
-                            </div>
                             <p className="text-[10px] font-bold uppercase tracking-[0.3em] opacity-50">
                                 © {new Date().getFullYear()} CodeVault
                             </p>

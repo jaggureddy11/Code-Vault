@@ -139,40 +139,55 @@ export default function LearningZone() {
     };
 
     return (
-        <div className="min-h-screen bg-white dark:bg-black pt-24 pb-20 px-4 sm:px-6 lg:px-8 transition-colors duration-500">
+        <div className="min-h-screen bg-white dark:bg-black pt-32 pb-20 px-4 sm:px-6 lg:px-8 transition-colors duration-500">
             <div className="max-w-7xl mx-auto">
 
-                {/* Hero Search Section */}
-                <div className="relative mb-20 overflow-hidden bg-neutral-50 dark:bg-neutral-900 px-6 py-16 md:py-24 border-b-8 border-black dark:border-white">
-                    <div className="absolute top-0 right-0 w-32 h-full opacity-5 pointer-events-none">
-                        <div className="h-full w-full stripe-bg" />
-                    </div>
-
-                    <div className="relative z-10 flex flex-col items-start gap-10">
-                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-black text-white dark:bg-white dark:text-black text-[10px] font-bold italic tracking-widest uppercase">
-                            <TrendingUp className="h-3 w-3" />
-                            Featured Courses
-                        </div>
-
-                        <h1 className="text-6xl md:text-9xl font-black italic tracking-tighter leading-none mb-4 uppercase">
-                            Master <br />Your Craft.
-                        </h1>
-
-                        <form onSubmit={handleSearch} className="w-full max-w-2xl relative">
-                            <div className="relative group">
-                                <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-6 w-6 opacity-40 group-focus-within:opacity-100 transition-opacity" />
-                                <Input
-                                    placeholder="Search for tutorials (e.g. React, Python)"
-                                    className="h-20 pl-16 rounded-none border-4 border-black dark:border-white text-xl font-bold italic tracking-widest placeholder:opacity-30 focus:ring-0 bg-white dark:bg-black"
-                                    value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
-                                />
+                {/* Hero Section */}
+                <div className="relative mb-20 overflow-hidden bg-black text-white px-8 py-20 border-b-8 border-white/20">
+                    <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-12">
+                        <div className="flex-1 space-y-8 text-left">
+                            <div className="inline-flex items-center gap-2 px-3 py-1 bg-white text-black text-[10px] font-bold italic tracking-widest uppercase">
+                                <TrendingUp className="h-3 w-3" />
+                                Featured Courses
                             </div>
-                            <Button type="submit" disabled={isLoading} className="absolute right-2 top-2 h-16 px-10 rounded-none bg-black dark:bg-white text-white dark:text-black font-black italic text-lg hover:scale-[1.02] transition-transform active:scale-95">
-                                {isLoading ? "Searching..." : "Search"}
-                            </Button>
-                        </form>
+
+                            <h1 className="text-6xl md:text-9xl font-black italic tracking-tighter leading-[0.8] uppercase">
+                                Level <br />Up your <br /><span className="underline decoration-8 underline-offset-8 text-amber-500">Craft.</span>
+                            </h1>
+                            <p className="text-xl font-bold italic max-w-xl leading-tight opacity-70">
+                                Deep-dive engineering tutorials and performance masterclasses.
+                            </p>
+                        </div>
                     </div>
+                </div>
+
+                {/* Search Bar Section */}
+                <div className="mb-16">
+                    <form onSubmit={handleSearch} className="relative group">
+                        <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-6 w-6 opacity-30 group-focus-within:opacity-100 transition-opacity" />
+                        <Input
+                            placeholder="Search for tutorials (e.g. React, Python)"
+                            className="h-20 pl-16 rounded-none border-b-4 border-black dark:border-white bg-transparent text-xl font-bold italic tracking-widest placeholder:opacity-40 focus:ring-0"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                        />
+                        <Button
+                            type="submit"
+                            disabled={isLoading}
+                            className="absolute right-2 top-1/2 -translate-y-1/2 h-14 px-8 rounded-none bg-black dark:bg-white text-white dark:text-black font-black italic uppercase tracking-widest text-xs hover:scale-[1.02] transition-transform active:scale-95"
+                        >
+                            {isLoading ? "..." : "Search"}
+                        </Button>
+                    </form>
+                </div>
+
+                {/* Brand Tagline */}
+                <div className="flex items-center gap-4 mb-20 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+                    <div className="h-px flex-1 bg-black/10 dark:bg-white/10" />
+                    <div className="text-[10px] font-black italic uppercase tracking-[0.5em] opacity-60">
+                        master your <span className="text-amber-500">craft.</span>
+                    </div>
+                    <div className="h-px flex-1 bg-black/10 dark:bg-white/10" />
                 </div>
 
                 {/* Main Selected Player */}

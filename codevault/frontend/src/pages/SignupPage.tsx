@@ -2,7 +2,9 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { Code2, Activity, ArrowRight, ShieldCheck } from 'lucide-react';
+import { Activity, ArrowRight, ShieldCheck } from 'lucide-react';
+import { Starfield } from '@/components/Starfield';
+import { Logo } from '@/components/Logo';
 
 export default function SignupPage() {
   const [email, setEmail] = useState('');
@@ -43,29 +45,17 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row bg-white dark:bg-black overflow-hidden font-sans">
+    <div className="min-h-screen flex flex-col lg:flex-row bg-white dark:bg-black overflow-hidden font-sans relative">
+      <Starfield />
+
       {/* Visual Side */}
       <div className="hidden lg:flex lg:w-1/2 bg-black dark:bg-white relative overflow-hidden items-center justify-center p-24">
-        <div className="absolute inset-0 opacity-20">
-          <div className="h-full w-full stripe-bg invert dark:invert-0" />
-        </div>
-
         <div className="relative z-10 space-y-12">
           <div className="flex items-center gap-6">
-            <div className="bg-white dark:bg-black p-5">
-              <Code2 className="h-16 w-16 text-black dark:text-white" />
-            </div>
-            <h1 className="text-8xl font-black italic tracking-tighter text-white dark:text-black uppercase leading-none">
-              JOIN<br />VAULT
-            </h1>
+            <Logo className="scale-[2.5] origin-left" />
           </div>
 
-          <div className="space-y-6 max-w-xl">
-            <div className="h-2 w-32 flex gap-2">
-              <div className="h-full w-1/3 bg-white dark:bg-black" />
-              <div className="h-full w-1/3 bg-white dark:bg-black" />
-              <div className="h-full w-1/3 bg-white dark:bg-black" />
-            </div>
+          <div className="space-y-6 max-w-xl pt-12">
             <p className="text-4xl font-black italic tracking-tight text-white dark:text-black uppercase leading-tight">
               Build your personal <span className="underline decoration-8 underline-offset-[12px]">knowledge.</span>
             </p>
@@ -188,10 +178,7 @@ export default function SignupPage() {
           </form>
         </div>
 
-        {/* Background Stripes for mobile */}
-        <div className="lg:hidden absolute top-0 right-0 w-32 h-64 opacity-5 pointer-events-none">
-          <div className="h-full w-full stripe-bg" />
-        </div>
+
       </div>
     </div>
   );

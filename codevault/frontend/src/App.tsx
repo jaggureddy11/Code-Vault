@@ -10,10 +10,14 @@ import SignupPage from '@/pages/SignupPage';
 import SnippetDetailPage from '@/pages/SnippetDetailPage';
 import ProjectExplorer from '@/pages/ProjectExplorer';
 import LearningZone from '@/pages/LearningZone';
+import DashboardPage from '@/pages/DashboardPage';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 import ProfilePage from '@/pages/ProfilePage';
 import AboutPage from '@/pages/AboutPage';
 import ContactPage from '@/pages/ContactPage';
 import SupportPage from '@/pages/SupportPage';
+import FavoritesPage from '@/pages/FavoritesPage';
+import ExplorePage from '@/pages/ExplorePage';
 import './index.css';
 
 const queryClient = new QueryClient({
@@ -72,90 +76,108 @@ function App() {
       <ThemeProvider>
         <AuthProvider>
           <BrowserRouter>
-            <Routes>
-              <Route
-                path="/login"
-                element={
-                  <PublicRoute>
-                    <LoginPage />
-                  </PublicRoute>
-                }
-              />
-              <Route
-                path="/signup"
-                element={
-                  <PublicRoute>
-                    <SignupPage />
-                  </PublicRoute>
-                }
-              />
-              <Route
-                path="/"
-                element={
-                  <ProtectedRoute>
-                    <Navigate to="/projects" replace />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/projects"
-                element={
-                  <ProtectedRoute>
-                    <ProjectExplorer />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/learn"
-                element={
-                  <ProtectedRoute>
-                    <LearningZone />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/profile"
-                element={
-                  <ProtectedRoute>
-                    <ProfilePage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/about"
-                element={
-                  <ProtectedRoute>
-                    <AboutPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/contact"
-                element={
-                  <ProtectedRoute>
-                    <ContactPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/support"
-                element={
-                  <ProtectedRoute>
-                    <SupportPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/snippet/:id"
-                element={
-                  <ProtectedRoute>
-                    <SnippetDetailPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-            <Toaster />
+            <ErrorBoundary>
+              <Routes>
+                <Route
+                  path="/login"
+                  element={
+                    <PublicRoute>
+                      <LoginPage />
+                    </PublicRoute>
+                  }
+                />
+                <Route
+                  path="/signup"
+                  element={
+                    <PublicRoute>
+                      <SignupPage />
+                    </PublicRoute>
+                  }
+                />
+                <Route
+                  path="/"
+                  element={
+                    <ProtectedRoute>
+                      <DashboardPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/favorites"
+                  element={
+                    <ProtectedRoute>
+                      <FavoritesPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/explore"
+                  element={
+                    <ProtectedRoute>
+                      <ExplorePage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/projects"
+                  element={
+                    <ProtectedRoute>
+                      <ProjectExplorer />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/learn"
+                  element={
+                    <ProtectedRoute>
+                      <LearningZone />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/profile"
+                  element={
+                    <ProtectedRoute>
+                      <ProfilePage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/about"
+                  element={
+                    <ProtectedRoute>
+                      <AboutPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/contact"
+                  element={
+                    <ProtectedRoute>
+                      <ContactPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/support"
+                  element={
+                    <ProtectedRoute>
+                      <SupportPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/snippet/:id"
+                  element={
+                    <ProtectedRoute>
+                      <SnippetDetailPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+              <Toaster />
+            </ErrorBoundary>
           </BrowserRouter>
         </AuthProvider>
       </ThemeProvider>

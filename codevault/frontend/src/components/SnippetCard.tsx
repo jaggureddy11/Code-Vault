@@ -22,9 +22,10 @@ function formatRelativeTime(dateString: string) {
 interface SnippetCardProps {
     snippet: Snippet;
     onDelete?: (id: string) => void;
+    isExploreMode?: boolean;
 }
 
-export default function SnippetCard({ snippet, onDelete }: SnippetCardProps) {
+export default function SnippetCard({ snippet, onDelete, isExploreMode }: SnippetCardProps) {
     const { toast } = useToast();
     const { user } = useAuth();
     const { toggleFavorite } = useSnippets();
@@ -68,17 +69,13 @@ export default function SnippetCard({ snippet, onDelete }: SnippetCardProps) {
     return (
         <Card className="rounded-none bg-white dark:bg-black border border-black/10 dark:border-white/10 hover:border-black dark:hover:border-white transition-all duration-300 group flex flex-col h-full overflow-hidden">
             <CardHeader className="pb-4 relative pt-10 px-8">
-                <div className="absolute top-0 right-0 w-24 h-24 opacity-5 pointer-events-none group-hover:opacity-10 transition-opacity">
-                    <div className="h-full w-full stripe-bg" />
-                </div>
-
                 <div className="flex justify-between items-start mb-6">
                     <div className="bg-black dark:bg-white text-white dark:text-black px-2 py-0.5 text-[8px] font-bold italic tracking-widest uppercase">
                         {snippet.language}
                     </div>
                     {!isOwner && (
                         <div className="flex items-center gap-1 text-[8px] font-black italic text-red-600 bg-red-50 dark:bg-red-950/20 px-2 py-0.5 border border-red-200 dark:border-red-900/50">
-                            <User className="h-2 w-2" /> VIEW ONLY
+                            <User className="h-2 w-2" /> View Only
                         </div>
                     )}
                 </div>
@@ -118,12 +115,6 @@ export default function SnippetCard({ snippet, onDelete }: SnippetCardProps) {
 
             <CardFooter className="px-8 py-6 border-t border-black/5 dark:border-white/5 flex justify-between items-center bg-neutral-50/50 dark:bg-neutral-950/50">
                 <div className="flex items-center gap-4 text-[8px] font-bold opacity-40 uppercase italic tracking-widest">
-                    {snippet.profiles?.username && (
-                        <div className="flex items-center gap-1.5 text-black dark:text-white opacity-80 border-r border-black/10 dark:border-white/10 pr-3">
-                            <User className="h-3 w-3" />
-                            {snippet.profiles.username}
-                        </div>
-                    )}
                     <div className="flex items-center gap-2">
                         <Calendar className="h-3 w-3" />
                         {formatRelativeTime(snippet.updated_at)}
@@ -131,7 +122,7 @@ export default function SnippetCard({ snippet, onDelete }: SnippetCardProps) {
                 </div>
 
                 <div className="flex items-center gap-4">
-                    {isOwner && (
+                    {isOwner && !isExploreMode && (
                         <button
                             onClick={handleToggleFavorite}
                             disabled={isUpdating}
@@ -153,7 +144,7 @@ export default function SnippetCard({ snippet, onDelete }: SnippetCardProps) {
                     <Link to={`/snippet/${snippet.id}`} className="group/link flex items-center gap-1 text-[10px] font-black italic uppercase tracking-widest hover:underline">
                         Open <ArrowUpRight className="h-3 w-3 transition-transform group-hover/link:-translate-y-0.5 group-hover/link:translate-x-0.5" />
                     </Link>
-                    {isOwner && (
+                    {isOwner && !isExploreMode && (
                         <button
                             onClick={(e) => {
                                 e.preventDefault();

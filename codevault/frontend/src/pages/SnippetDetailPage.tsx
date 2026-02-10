@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSnippets } from '@/hooks/useSnippets';
-import { Activity, ShieldCheck, User } from 'lucide-react';
+import { Activity, ShieldCheck } from 'lucide-react';
 import SnippetForm from '@/components/SnippetForm';
 import { useToast } from '@/components/ui/use-toast';
 import { supabase } from '@/lib/supabase';
@@ -24,7 +24,7 @@ export default function SnippetDetailPage() {
       try {
         const { data, error } = await supabase
           .from('snippets')
-          .select('*, profiles(username), snippet_tags(tag_id, tags(*))')
+          .select('*, snippet_tags(tag_id, tags(*))')
           .eq('id', id)
           .single();
 
@@ -141,12 +141,6 @@ export default function SnippetDetailPage() {
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <h3 className="text-4xl font-black italic uppercase tracking-tighter">{snippet.title}</h3>
-                  {snippet.profiles?.username && (
-                    <div className="flex items-center gap-2 bg-black dark:bg-white text-white dark:text-black px-4 py-2 text-[10px] font-bold uppercase italic tracking-widest">
-                      <User className="h-3 w-3" />
-                      {snippet.profiles.username}
-                    </div>
-                  )}
                 </div>
                 <p className="text-lg opacity-60 font-medium italic">{snippet.description}</p>
                 <div className="flex gap-2">

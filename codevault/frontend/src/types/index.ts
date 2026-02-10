@@ -20,6 +20,7 @@ export interface Snippet {
   created_at: string;
   updated_at: string;
   is_favorite: boolean;
+  is_public: boolean;
   tags?: Tag[];
   profiles?: Profile;
 }
@@ -42,6 +43,7 @@ export interface CreateSnippetInput {
   code: string;
   language: string;
   tags?: string[];
+  is_public?: boolean;
 }
 
 export interface UpdateSnippetInput {
@@ -50,6 +52,7 @@ export interface UpdateSnippetInput {
   code?: string;
   language?: string;
   tags?: string[];
+  is_public?: boolean;
 }
 
 export interface SearchFilters {
