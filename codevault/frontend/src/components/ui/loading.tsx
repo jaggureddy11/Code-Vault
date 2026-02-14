@@ -1,5 +1,5 @@
 import { cn } from '@/lib/utils';
-import { Loader2 } from 'lucide-react';
+// Loader2 removed as it was unused
 
 export function LoadingSpinner({ className }: { className?: string }) {
     return (

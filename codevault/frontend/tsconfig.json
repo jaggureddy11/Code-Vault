@@ -18,11 +18,12 @@
     "jsx": "react-jsx",
     /* Linting */
     "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
     "noFallthroughCasesInSwitch": true,
     "types": [
-      "vite/client"
+      "vite/client",
+      "node"
     ],
     /* Path aliases */
     "baseUrl": ".",

@@ -1,5 +1,5 @@
 import { useState, KeyboardEvent } from 'react';
-import { X, Tag as TagIcon, Palette } from 'lucide-react';
+import { X, Palette } from 'lucide-react';
 import { useTags } from '@/hooks/useTags';
 import { cn } from '@/lib/utils';
 import { TAG_COLORS } from '@/types';

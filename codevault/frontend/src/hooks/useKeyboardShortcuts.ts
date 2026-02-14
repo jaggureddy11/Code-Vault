@@ -1,5 +1,4 @@
 import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 interface ShortcutConfig {
     key: string;
@@ -15,7 +14,6 @@ export function useKeyboardShortcuts(shortcuts: ShortcutConfig[]) {
         const handleKeyDown = (e: KeyboardEvent) => {
             shortcuts.forEach((shortcut) => {
                 const keyMatch = e.key.toLowerCase() === shortcut.key.toLowerCase();
-                const ctrlMatch = shortcut.ctrlKey ? (e.ctrlKey || e.metaKey) : true;
 
                 // If shortcut specifies ctrlKey: true, it MUST be pressed.
                 // If not specified, we don't care or assume false? 

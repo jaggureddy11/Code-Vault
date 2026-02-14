@@ -1,6 +1,6 @@
 import { Suspense, lazy, useState } from 'react';
 import { useTheme } from '@/contexts/ThemeContext';
-import { Loader2, Copy, Maximize2, Minimize2, Check, Wand2 } from 'lucide-react';
+import { Loader2, Copy, Maximize2, Minimize2, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { POPULAR_LANGUAGES } from '@/types';
