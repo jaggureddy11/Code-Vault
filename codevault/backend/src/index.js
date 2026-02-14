@@ -4,6 +4,11 @@ import morgan from 'morgan';
 import dotenv from 'dotenv';
 import aiRoutes from './routes/ai.js';
 import youtubeRoutes from './routes/youtube.js';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 dotenv.config();
 
@@ -41,8 +46,18 @@ app.use(morgan('dev'));
 app.use('/api/ai', aiRoutes);
 app.use('/api/youtube', youtubeRoutes);
 
+// Unified Deployment: Serve frontend static files
+const frontendDist = path.join(__dirname, '../../frontend/dist');
+app.use(express.static(frontendDist));
+
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
+// Catch-all route for React Router
+app.get('*', (req, res) => {
+  if (req.path.startsWith('/api')) return res.status(404).json({ error: 'API route not found' });
+  res.sendFile(path.join(frontendDist, 'index.html'));
 });
 
 // Error handler (keep last)
