@@ -6,7 +6,7 @@
         "dev:backend": "npm run dev --prefix codevault/backend",
         "dev": "npm run dev:frontend & npm run dev:backend",
         "install:all": "npm install --prefix codevault/frontend && npm install --prefix codevault/backend",
-        "build": "npm install --prefix codevault/frontend && npm run build --prefix codevault/frontend && npm install --prefix codevault/backend",
+        "build": "npm install --prefix codevault/frontend --include=dev && npm run build --prefix codevault/frontend && npm install --prefix codevault/backend",
         "start": "NODE_ENV=production node codevault/backend/src/index.js"
     }
 }
