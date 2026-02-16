@@ -6,7 +6,8 @@ import { useProfile } from '@/hooks/useProfile';
 import {
     Code2, Compass, Youtube, User,
     HelpCircle, MessageSquare, Heart, LogOut,
-    Sun, Moon, Menu, X, Sparkles, Zap, Activity, Globe
+    Sun, Moon, Menu, X, Sparkles, Zap, Activity, Globe,
+    StickyNote
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -60,6 +61,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         { name: 'Favorites', path: '/favorites', icon: Heart },
         { name: 'Projects', path: '/projects', icon: Compass },
         { name: 'Learn', path: '/learn', icon: Youtube },
+        { name: 'Notes', path: '/notes', icon: StickyNote },
     ];
 
     const footerLinks = [

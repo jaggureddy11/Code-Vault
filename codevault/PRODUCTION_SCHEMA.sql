@@ -188,3 +188,26 @@ CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
 
+-- 6) Notes table with PDF support
+CREATE TABLE IF NOT EXISTS public.notes (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+  title VARCHAR(255) NOT NULL,
+  content TEXT,
+  pdf_url TEXT,
+  pdf_name TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+ALTER TABLE public.notes ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "notes_crud_own" ON public.notes;
+CREATE POLICY "notes_crud_own"
+  ON public.notes FOR ALL
+  USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);
+
+DROP TRIGGER IF EXISTS ensure_user_id_notes ON public.notes;
+CREATE TRIGGER ensure_user_id_notes BEFORE INSERT OR UPDATE ON public.notes
+FOR EACH ROW EXECUTE FUNCTION public.handle_set_user_id();

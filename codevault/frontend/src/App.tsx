@@ -18,6 +18,7 @@ import ContactPage from '@/pages/ContactPage';
 import SupportPage from '@/pages/SupportPage';
 import FavoritesPage from '@/pages/FavoritesPage';
 import ExplorePage from '@/pages/ExplorePage';
+import NotesPage from '@/pages/NotesPage';
 import './index.css';
 
 const queryClient = new QueryClient({
@@ -163,6 +164,14 @@ function App() {
                   element={
                     <ProtectedRoute>
                       <SupportPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/notes"
+                  element={
+                    <ProtectedRoute>
+                      <NotesPage />
                     </ProtectedRoute>
                   }
                 />
