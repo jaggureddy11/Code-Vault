@@ -12,7 +12,7 @@ export const Starfield: React.FC = () => {
 
         let animationFrameId: number;
         let particles: Particle[] = [];
-        const particleCount = 350;
+        const particleCount = 120;
         let mouse = { x: -100, y: -100 };
 
         class Particle {

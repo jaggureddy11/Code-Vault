@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Zap, Activity, ArrowRight } from 'lucide-react';
 import { Starfield } from '@/components/Starfield';
 import { Logo } from '@/components/Logo';
+import { CursorHologram } from '@/components/CursorHologram';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -35,14 +36,16 @@ export default function LoginPage() {
 
       {/* Visual Side */}
       <div className="hidden lg:flex lg:w-1/2 bg-black dark:bg-white relative overflow-hidden items-center justify-center p-24">
-        <div className="relative z-10 space-y-12">
-          <div className="flex items-center gap-6">
-            <Logo className="scale-[2.5] origin-left" />
-          </div>
+        <div className="relative z-10 flex flex-col items-center text-center space-y-16">
+          <CursorHologram />
 
-          <div className="space-y-6 max-w-xl pt-12">
-            <p className="text-4xl font-black italic tracking-tight text-white dark:text-black uppercase leading-tight">
-              Unlock your technical <span className="underline decoration-8 underline-offset-[12px]">potential.</span>
+          <div className="space-y-6 max-w-xl">
+            <h1 className="text-5xl font-black italic tracking-tighter text-white dark:text-black uppercase leading-[0.9]">
+              Access the <br />
+              <span className="text-red-600 underline decoration-8 underline-offset-[12px]">Vault.</span>
+            </h1>
+            <p className="text-sm font-bold uppercase tracking-widest text-white/40 dark:text-black/40 italic">
+              Your engineering library awaits.
             </p>
           </div>
         </div>
