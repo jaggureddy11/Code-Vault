@@ -73,7 +73,7 @@ export default function SignupPage() {
           <div className="space-y-4">
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-black dark:bg-white text-white dark:text-black text-[10px] font-black uppercase italic tracking-widest leading-none">
               <ShieldCheck className="h-3 w-3" />
-              New Registration
+              Sign Up
             </div>
             <h2 className="text-4xl sm:text-6xl font-black italic tracking-tighter uppercase leading-none">
               Create Account
