@@ -67,6 +67,14 @@ BEGIN
   END IF;
 END $$;
 
+-- Ensure snippet_tags has user_id (missing in some earlier setup guides)
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'snippet_tags' AND column_name = 'user_id') THEN
+    ALTER TABLE public.snippet_tags ADD COLUMN user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE;
+  END IF;
+END $$;
+
 -- 2) Indexes
 CREATE INDEX IF NOT EXISTS idx_snippets_user_id ON public.snippets(user_id);
 CREATE INDEX IF NOT EXISTS idx_snippets_created_at ON public.snippets(created_at DESC);

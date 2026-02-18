@@ -12,7 +12,7 @@ export const Logo: React.FC<LogoProps> = ({ className, showText = true }) => {
             {showText && (
                 <div className="flex flex-col">
                     <h1 className="text-2xl font-black text-black dark:text-white leading-none italic uppercase tracking-tighter">
-                        CodeVault
+                        CODEVAULT
                     </h1>
                 </div>
             )}
