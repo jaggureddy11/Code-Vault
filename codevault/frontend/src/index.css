@@ -123,3 +123,33 @@
 .monaco-editor {
   @apply rounded-none;
 }
+
+/* Heart Blast Animation */
+@keyframes heartBlast {
+  0% {
+    transform: translate(0, 0) scale(0) rotate(0deg);
+  }
+  20% {
+    transform: translate(calc(var(--tx) * 0.2), calc(var(--ty) * 0.2)) scale(1.2) rotate(45deg);
+  }
+  100% {
+    transform: translate(var(--tx), var(--ty)) scale(0) rotate(180deg);
+  }
+}
+
+@keyframes heartFade {
+  0%, 100% {
+    opacity: 0;
+  }
+  20%, 80% {
+    opacity: 1;
+  }
+}
+
+.animate-heart-blast {
+  animation: heartBlast 2.5s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+}
+
+.animate-heart-fade {
+  animation: heartFade 2.5s ease-in-out forwards;
+}

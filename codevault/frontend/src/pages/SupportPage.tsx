@@ -24,6 +24,7 @@ export default function SupportPage() {
     const [loading, setLoading] = useState(false);
     const [reviews, setReviews] = useState<Review[]>([]);
     const [fetching, setFetching] = useState(true);
+    const [showHearts, setShowHearts] = useState(false);
 
     useEffect(() => {
         fetchReviews();
@@ -61,7 +62,13 @@ export default function SupportPage() {
         }
     };
 
-    const handleRating = (score: number) => setRating(score);
+    const handleRating = (score: number) => {
+        setRating(score);
+        if (score === 5) {
+            setShowHearts(true);
+            setTimeout(() => setShowHearts(false), 3000);
+        }
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -112,7 +119,28 @@ export default function SupportPage() {
     };
 
     return (
-        <div className="min-h-screen bg-white dark:bg-black pt-32 pb-20 px-4 sm:px-6 lg:px-8 font-sans">
+        <div className="min-h-screen bg-white dark:bg-black pt-32 pb-20 px-4 sm:px-6 lg:px-8 font-sans overflow-x-hidden">
+            {/* Heart Blast Animation */}
+            {showHearts && (
+                <div className="fixed inset-0 pointer-events-none z-[100]">
+                    {[...Array(30)].map((_, i) => (
+                        <div
+                            key={i}
+                            className="absolute animate-heart-blast"
+                            style={{
+                                left: `${Math.random() * 100}%`,
+                                top: `${Math.random() * 100}%`,
+                                transform: `rotate(${Math.random() * 360}deg) scale(${0.5 + Math.random()})`,
+                                '--tx': `${(Math.random() - 0.5) * 400}px`,
+                                '--ty': `${(Math.random() - 0.5) * 400}px`,
+                                animationDelay: `${Math.random() * 0.5}s`
+                            } as any}
+                        >
+                            <Heart className="text-red-600 fill-red-600 w-8 h-8 opacity-0 animate-heart-fade" />
+                        </div>
+                    ))}
+                </div>
+            )}
             <div className="max-w-4xl mx-auto">
                 {/* Hero Section */}
                 <div className="text-center mb-24 space-y-8">
