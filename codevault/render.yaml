@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: codevault
+    runtime: node
+    plan: free
+    buildCommand: npm install && cd frontend && npm install && npm run build && cd ../backend && npm install
+    startCommand: cd backend && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_KEY
+        sync: false
+      - key: YOUTUBE_API_KEY
+        sync: false
+      - key: CORS_ORIGIN
+        sync: false
+      - key: VITE_SUPABASE_URL
+        sync: false
+      - key: VITE_SUPABASE_ANON_KEY
+        sync: false
