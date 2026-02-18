@@ -247,7 +247,7 @@ export default function SupportPage() {
                                                 )}
                                             </div>
                                             <div>
-                                                <p className="font-black italic uppercase tracking-tighter">{item.profiles?.username || 'ANONYMOUS_DEV'}</p>
+                                                <p className="font-black italic uppercase tracking-tighter">{item.profiles?.username || 'ANONYMOUS DEV'}</p>
                                                 <div className="flex items-center gap-2 opacity-40 text-[10px] font-black italic">
                                                     <Calendar className="h-3 w-3" />
                                                     {formatDate(item.created_at)}

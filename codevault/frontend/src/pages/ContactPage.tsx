@@ -34,10 +34,10 @@ export default function ContactPage() {
                     </div>
                     <h1 className="text-6xl font-black italic uppercase tracking-tighter">SUCCESS.</h1>
                     <p className="text-sm font-bold uppercase italic opacity-60 leading-relaxed">
-                        MESSAGE_TRANSMITTED_TO_DEVELOPER_CORE. THANKS FOR THE INTEL.
+                        MESSAGE TRANSMITTED TO DEVELOPER CORE. THANKS FOR THE INTEL.
                     </p>
                     <Button onClick={() => setSent(false)} className="adidas-button w-full h-16 text-xl">
-                        SEND_ANOTHER_PACKET
+                        SEND ANOTHER PACKET
                     </Button>
                 </div>
             </div>
@@ -50,10 +50,10 @@ export default function ContactPage() {
                 <div className="text-center mb-32 space-y-8">
                     <div className="inline-flex items-center gap-2 px-3 py-1 bg-black dark:bg-white text-white dark:text-black text-[10px] font-black uppercase italic tracking-widest leading-none">
                         <Zap className="h-3 w-3" />
-                        DIRECT_ACCESS
+                        DIRECT ACCESS
                     </div>
                     <h1 className="text-6xl md:text-9xl font-black italic tracking-tighter leading-none uppercase">
-                        CONNECT_WITH_<br /><span className="underline decoration-8 underline-offset-8">THE_DEV.</span>
+                        CONNECT WITH <br /><span className="underline decoration-8 underline-offset-8">THE DEV.</span>
                     </h1>
                     <p className="text-xl font-bold max-w-2xl mx-auto uppercase italic opacity-60">
                         CODEVAULT IS BUILT BY DEVELOPERS, FOR DEVELOPERS. REACH OUT DIRECTLY TO THE ARCHITECT.
@@ -67,7 +67,7 @@ export default function ContactPage() {
                             <div className="absolute top-0 right-0 w-32 h-full opacity-10 pointer-events-none">
                                 <div className="h-full w-full stripe-bg invert" />
                             </div>
-                            <p className="text-[10px] font-black uppercase tracking-widest opacity-60 mb-4">LEAD_DEVELOPER</p>
+                            <p className="text-[10px] font-black uppercase tracking-widest opacity-60 mb-4">LEAD DEVELOPER</p>
                             <h2 className="text-5xl font-black italic uppercase tracking-tighter mb-8">{developerInfo.name}</h2>
 
                             <div className="space-y-6">
@@ -91,7 +91,7 @@ export default function ContactPage() {
                         </div>
 
                         <div className="p-12 border-4 border-black dark:border-white space-y-6">
-                            <h3 className="text-2xl font-black italic uppercase tracking-tighter">PROJECT_AGENDA</h3>
+                            <h3 className="text-2xl font-black italic uppercase tracking-tighter">PROJECT AGENDA</h3>
                             <p className="text-sm font-bold uppercase opacity-60 leading-relaxed italic">
                                 CODEVAULT IS AN EVOLVING PLATFORM. WE ARE COMMITTED TO SEMANTIC VERSIONING AND TRANSPARENT DEVELOPMENT.
                                 BUG REPORTS AND FEATURE REQUESTS ARE THE BACKBONE OF OUR GRID.
@@ -103,20 +103,20 @@ export default function ContactPage() {
                     <div className="bg-white dark:bg-black p-12 border-4 border-black dark:border-white">
                         <form onSubmit={handleSubmit} className="space-y-10 relative z-10">
                             <div className="space-y-2 group">
-                                <label htmlFor="name" className="text-[10px] font-black uppercase italic tracking-widest opacity-50">IDENTITY_PROTOCOL</label>
-                                <input id="name" required className="w-full bg-transparent border-b-4 border-black dark:border-white py-4 text-xl font-black italic uppercase tracking-tighter focus:outline-none focus:border-red-600 transition-colors" placeholder="ENTER_NAME" />
+                                <label htmlFor="name" className="text-[10px] font-black uppercase italic tracking-widest opacity-50">IDENTITY PROTOCOL</label>
+                                <input id="name" required className="w-full bg-transparent border-b-4 border-black dark:border-white py-4 text-xl font-black italic uppercase tracking-tighter focus:outline-none focus:border-red-600 transition-colors" placeholder="ENTER NAME" />
                             </div>
                             <div className="space-y-2 group">
-                                <label htmlFor="email" className="text-[10px] font-black uppercase italic tracking-widest opacity-50">EMAIL_ENDPOINT</label>
+                                <label htmlFor="email" className="text-[10px] font-black uppercase italic tracking-widest opacity-50">EMAIL ENDPOINT</label>
                                 <input id="email" type="email" required className="w-full bg-transparent border-b-4 border-black dark:border-white py-4 text-xl font-black italic uppercase tracking-tighter focus:outline-none focus:border-red-600 transition-colors" placeholder="USER@DOMAIN.COM" />
                             </div>
                             <div className="space-y-2 group">
-                                <label htmlFor="message" className="text-[10px] font-black uppercase italic tracking-widest opacity-50">DATA_PAYLOAD</label>
+                                <label htmlFor="message" className="text-[10px] font-black uppercase italic tracking-widest opacity-50">DATA PAYLOAD</label>
                                 <textarea
                                     id="message"
                                     required
                                     className="w-full bg-neutral-50 dark:bg-neutral-900 border-4 border-black dark:border-white p-6 text-xl font-black italic uppercase tracking-tighter focus:outline-none focus:border-red-600 transition-colors min-h-[160px]"
-                                    placeholder="TRANSMIT_YOUR_THOUGHTS..."
+                                    placeholder="TRANSMIT YOUR THOUGHTS..."
                                 />
                             </div>
 
@@ -126,7 +126,7 @@ export default function ContactPage() {
                                 ) : (
                                     <>
                                         <Send className="h-8 w-8 stroke-[3px]" />
-                                        TRANSMIT_DATA
+                                        TRANSMIT DATA
                                     </>
                                 )}
                             </Button>
