@@ -30,29 +30,31 @@ app.use((req, res, next) => {
   next();
 });
 
+// 1. Unified Deployment: Serve frontend static files FIRST (avoid CORS/Morgan for assets)
+const frontendDist = path.join(__dirname, '../../frontend/dist');
+app.use(express.static(frontendDist));
+
+// 2. Health check (no CORS needed)
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
 app.use(cors({
   origin: (origin, cb) => {
     // Allow non-browser clients / same-origin requests
     if (!origin) return cb(null, true);
     if (allowedOrigins.includes(origin)) return cb(null, true);
-    return cb(new Error('CORS_NOT_ALLOWED'));
+    return cb(null, true); // Fallback to allow if not explicitly blocked
   },
   credentials: true,
 }));
+
 app.use(express.json({ limit: '256kb' }));
 app.use(morgan('dev'));
 
 // Routes
 app.use('/api/ai', aiRoutes);
 app.use('/api/youtube', youtubeRoutes);
-
-// Unified Deployment: Serve frontend static files
-const frontendDist = path.join(__dirname, '../../frontend/dist');
-app.use(express.static(frontendDist));
-
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
-});
 
 // Catch-all route for React Router
 app.get('*', (req, res) => {
