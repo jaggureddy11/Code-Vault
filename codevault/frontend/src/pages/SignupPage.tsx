@@ -65,10 +65,6 @@ export default function SignupPage() {
           </div>
         </div>
 
-        {/* Floating Accents */}
-        <div className="absolute bottom-20 right-20 flex gap-4 rotate-90">
-          <span className="text-[10px] font-bold tracking-widest text-white/40 dark:text-black/40">Open Source Community</span>
-        </div>
       </div>
 
       {/* Form Side */}
@@ -82,9 +78,7 @@ export default function SignupPage() {
             <h2 className="text-4xl sm:text-6xl font-black italic tracking-tighter uppercase leading-none">
               Create Account
             </h2>
-            <p className="text-sm font-medium opacity-60">
-              Start your journey towards organized engineering.
-            </p>
+
           </div>
 
           <form className="space-y-8" onSubmit={handleSubmit}>

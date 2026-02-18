@@ -50,10 +50,6 @@ export default function LoginPage() {
           </div>
         </div>
 
-        {/* Floating Accents */}
-        <div className="absolute bottom-20 right-20 flex gap-4 rotate-90">
-          <span className="text-[10px] font-bold tracking-widest text-white/40 dark:text-black/40">Secure Engineering Environment</span>
-        </div>
       </div>
 
       {/* Form Side */}
