@@ -72,7 +72,7 @@ export default function ContactPage() {
                         Message Transmitted to Developer Core. Thanks for the intel.
                     </p>
                     <Button onClick={() => setSent(false)} className="adidas-button w-full h-16 text-xl">
-                        Send Another Packet
+                        SEND ANOTHER MESSAGE
                     </Button>
                 </div>
             </div>
@@ -162,7 +162,7 @@ export default function ContactPage() {
                                 ) : (
                                     <>
                                         <Send className="h-8 w-8 stroke-[3px]" />
-                                        Transmit Data
+                                        SEND MESSAGE
                                     </>
                                 )}
                             </Button>
