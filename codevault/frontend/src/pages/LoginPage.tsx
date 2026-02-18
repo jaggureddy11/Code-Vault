@@ -41,11 +41,11 @@ export default function LoginPage() {
 
           <div className="space-y-6 max-w-xl">
             <h1 className="text-5xl font-black italic tracking-tighter text-white dark:text-black uppercase leading-[0.9]">
-              Access the <br />
-              <span className="text-red-600 underline decoration-8 underline-offset-[12px]">Vault.</span>
+              Enter the <br />
+              <span className="text-red-600 underline decoration-8 underline-offset-[12px]">CodeVault.</span>
             </h1>
-            <p className="text-sm font-bold uppercase tracking-widest text-white/40 dark:text-black/40 italic">
-              Your engineering library awaits.
+            <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/40 dark:text-black/40 italic">
+              Retrieve archived logic. Access your secure engineering grid.
             </p>
           </div>
         </div>
