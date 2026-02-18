@@ -194,85 +194,56 @@ export default function SupportPage() {
                 </div>
 
                 {/* Display Reviews Section */}
-                <div className="mb-20 space-y-12">
-                    <div className="flex flex-col md:flex-row justify-between items-end gap-6 border-b-8 border-black dark:border-white pb-6">
-                        <h2 className="text-5xl font-black italic tracking-tighter uppercase leading-none">
-                            COMMUNITY<br />INTEL.
-                        </h2>
-
-                        {reviews.length > 0 && (
-                            <div className="flex items-center gap-6 bg-black dark:bg-white text-white dark:text-black px-8 py-4">
-                                <div className="text-center">
-                                    <p className="text-[10px] font-black uppercase tracking-widest opacity-60">AVG_RATING</p>
-                                    <p className="text-4xl font-black italic tracking-tighter">
-                                        {(reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length).toFixed(1)}
-                                    </p>
-                                </div>
-                                <div className="h-10 w-[2px] bg-white/20 dark:bg-black/20" />
-                                <div className="text-center">
-                                    <p className="text-[10px] font-black uppercase tracking-widest opacity-60">TOTAL_REPORTS</p>
-                                    <p className="text-4xl font-black italic tracking-tighter">{reviews.length}</p>
-                                </div>
-                            </div>
-                        )}
-                    </div>
+                <div className="mb-20 space-y-10">
+                    <h2 className="text-4xl font-black italic tracking-tighter uppercase border-b-8 border-black dark:border-white pb-4">
+                        REVIEWS
+                    </h2>
 
                     {fetching ? (
-                        <div className="flex flex-col items-center justify-center py-32 space-y-4">
+                        <div className="flex justify-center py-20">
                             <Loader2 className="h-12 w-12 animate-spin opacity-20" />
-                            <p className="text-[10px] font-black uppercase tracking-[0.5em] animate-pulse">SYNCHRONIZING_GRID...</p>
                         </div>
                     ) : reviews.length > 0 ? (
-                        <div className="grid grid-cols-1 gap-0 border-4 border-black dark:border-white divide-y-4 divide-black dark:divide-white">
+                        <div className="grid grid-cols-1 gap-8">
                             {reviews.map((item) => (
-                                <div key={item.id} className="group bg-white dark:bg-black p-10 space-y-6 hover:bg-neutral-50 dark:hover:bg-neutral-900 transition-all relative overflow-hidden">
-                                    <div className="absolute top-0 right-0 w-32 h-full opacity-[0.02] pointer-events-none group-hover:opacity-[0.05]">
-                                        <div className="h-full w-full stripe-bg" />
-                                    </div>
-
-                                    <div className="flex flex-col md:flex-row justify-between items-start gap-6 relative z-10">
-                                        <div className="flex items-center gap-6">
-                                            <div className="w-16 h-16 bg-neutral-100 dark:bg-neutral-800 rounded-none border-4 border-black dark:border-white overflow-hidden shrink-0 group-hover:rotate-3 transition-transform">
+                                <div key={item.id} className="border-4 border-black dark:border-white p-8 space-y-4 hover:bg-neutral-50 dark:hover:bg-neutral-900 transition-colors">
+                                    <div className="flex justify-between items-start">
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-12 h-12 bg-neutral-200 dark:bg-neutral-800 rounded-none border-2 border-black dark:border-white overflow-hidden">
                                                 {item.profiles?.avatar_url ? (
-                                                    <img src={item.profiles.avatar_url} alt="" className="w-full h-full object-cover grayscale" />
+                                                    <img src={item.profiles.avatar_url} alt="" className="w-full h-full object-cover" />
                                                 ) : (
                                                     <div className="w-full h-full flex items-center justify-center">
-                                                        <User className="h-8 w-8 opacity-20" />
+                                                        <User className="h-6 w-6 opacity-30" />
                                                     </div>
                                                 )}
                                             </div>
-                                            <div className="space-y-1">
-                                                <p className="text-2xl font-black italic uppercase tracking-tighter">{item.profiles?.username || 'ANONYMOUS_DEV'}</p>
-                                                <div className="flex items-center gap-3 opacity-40 text-[10px] font-black italic tracking-widest uppercase">
+                                            <div>
+                                                <p className="font-black italic uppercase tracking-tighter">{item.profiles?.username || 'ANONYMOUS_DEV'}</p>
+                                                <div className="flex items-center gap-2 opacity-40 text-[10px] font-black italic">
                                                     <Calendar className="h-3 w-3" />
                                                     {formatDate(item.created_at)}
                                                 </div>
                                             </div>
                                         </div>
-
-                                        <div className="flex gap-2 bg-neutral-100 dark:bg-neutral-900 p-3 self-start md:self-center">
+                                        <div className="flex gap-1">
                                             {[...Array(5)].map((_, i) => (
                                                 <Star
                                                     key={i}
-                                                    className={`h-5 w-5 ${i < item.rating ? 'fill-red-600 text-red-600' : 'opacity-10'}`}
+                                                    className={`h-4 w-4 ${i < item.rating ? 'fill-red-600 text-red-600' : 'opacity-10'}`}
                                                 />
                                             ))}
                                         </div>
                                     </div>
-
-                                    <div className="relative">
-                                        <span className="absolute -top-4 -left-4 text-6xl font-black italic opacity-[0.05] pointer-events-none">"</span>
-                                        <p className="text-xl md:text-2xl font-bold uppercase italic opacity-80 leading-tight tracking-tight relative z-10">
-                                            {item.content}
-                                        </p>
-                                    </div>
+                                    <p className="text-lg font-bold uppercase italic opacity-80 leading-tight">
+                                        "{item.content}"
+                                    </p>
                                 </div>
                             ))}
                         </div>
                     ) : (
-                        <div className="text-center py-32 border-8 border-dashed border-neutral-100 dark:border-neutral-900 group">
-                            <MessageSquare className="h-16 w-16 mx-auto mb-6 opacity-10 group-hover:scale-110 transition-transform" />
-                            <p className="text-sm font-black italic uppercase opacity-30 tracking-[0.2em]">NO INTEL RECORDS FOUND. BE THE FIRST TO REVIEW.</p>
+                        <div className="text-center py-20 border-4 border-dashed border-neutral-200 dark:border-neutral-800">
+                            <p className="text-sm font-black italic uppercase opacity-30">NO INTEL RECORDS FOUND. BE THE FIRST TO REVIEW.</p>
                         </div>
                     )}
                 </div>

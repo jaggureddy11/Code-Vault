@@ -219,3 +219,32 @@ CREATE POLICY "notes_crud_own"
 DROP TRIGGER IF EXISTS ensure_user_id_notes ON public.notes;
 CREATE TRIGGER ensure_user_id_notes BEFORE INSERT OR UPDATE ON public.notes
 FOR EACH ROW EXECUTE FUNCTION public.handle_set_user_id();
+
+-- 7) Reviews table
+CREATE TABLE IF NOT EXISTS public.reviews (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+  rating INTEGER NOT NULL CHECK (rating >= 1 AND rating <= 5),
+  content TEXT NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+ALTER TABLE public.reviews ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "reviews_select_all" ON public.reviews;
+CREATE POLICY "reviews_select_all"
+  ON public.reviews FOR SELECT
+  USING (true);
+
+DROP POLICY IF EXISTS "reviews_insert_own" ON public.reviews;
+CREATE POLICY "reviews_insert_own"
+  ON public.reviews FOR INSERT
+  TO authenticated
+  WITH CHECK (auth.uid() = user_id);
+
+DROP INDEX IF EXISTS idx_reviews_created_at;
+CREATE INDEX idx_reviews_created_at ON public.reviews(created_at DESC);
+
+DROP TRIGGER IF EXISTS ensure_user_id_reviews ON public.reviews;
+CREATE TRIGGER ensure_user_id_reviews BEFORE INSERT OR UPDATE ON public.reviews
+FOR EACH ROW EXECUTE FUNCTION public.handle_set_user_id();
