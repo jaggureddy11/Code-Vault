@@ -1,4 +1,4 @@
-import { Zap, Shield, Code2, ArrowUpRight, Cpu } from 'lucide-react';
+import { Zap, Code2, ArrowUpRight, Folder, Youtube, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 
@@ -27,49 +27,64 @@ export default function AboutPage() {
                 </div>
 
                 {/* Core Agenda Section */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-20 items-center mb-32">
-                    <div className="space-y-12">
-                        <h2 className="text-5xl font-black italic tracking-tighter uppercase leading-none">
+                <div className="mb-32">
+                    <div className="space-y-16">
+                        <h2 className="text-5xl md:text-7xl font-black italic tracking-tighter uppercase border-l-8 border-black dark:border-white pl-8">
                             THE_AGENDA:<br />ELIMINATE_FRICTION.
                         </h2>
-                        <div className="space-y-8">
-                            <div className="flex gap-6">
-                                <div className="w-12 h-12 bg-black dark:bg-white flex items-center justify-center shrink-0">
-                                    <Cpu className="h-6 w-6 text-white dark:text-black" />
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
+                            {/* CodeVault */}
+                            <div className="space-y-6 group">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-16 h-16 bg-black dark:bg-white flex items-center justify-center shrink-0 transition-transform group-hover:rotate-12">
+                                        <Code2 className="h-8 w-8 text-white dark:text-black" />
+                                    </div>
+                                    <h4 className="text-3xl font-black italic uppercase italic tracking-tighter">VAULT_ENGINE</h4>
                                 </div>
-                                <div>
-                                    <h4 className="text-xl font-black italic uppercase italic">AI_POWERED_CATEGORIZATION</h4>
-                                    <p className="text-sm font-bold uppercase opacity-60 italic leading-relaxed">INSTANTLY ORGANIZE YOUR SNIPPETS USING GEN-AI TECHNOLOGY FOR SMARTER SEARCH AND RETRIEVAL.</p>
-                                </div>
+                                <p className="text-lg font-bold uppercase opacity-60 italic leading-snug">
+                                    CODEVAULT IS THE CORE OF OUR GRID. IT'S A HIGH-PERFORMANCE LIBRARY THAT USES GOOGLE'S GEN-AI TO AUTOMATICALLY CATEGORIZE AND TAG YOUR CODE SNIPPETS. NO MORE SCROLLING THROUGH ENDLESS FILES—INSTANTLY RETRIEVE LOGIC PACKETS ACROSS 100+ LANGUAGES WITH FULL SYNTAX HIGHLIGHTING AND MONACO EDITOR SUPPORT.
+                                </p>
                             </div>
-                            <div className="flex gap-6">
-                                <div className="w-12 h-12 bg-black dark:bg-white flex items-center justify-center shrink-0">
-                                    <Shield className="h-6 w-6 text-white dark:text-black" />
+
+                            {/* Projects */}
+                            <div className="space-y-6 group">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-16 h-16 bg-black dark:bg-white flex items-center justify-center shrink-0 transition-transform group-hover:rotate-12">
+                                        <Folder className="h-8 w-8 text-white dark:text-black" />
+                                    </div>
+                                    <h4 className="text-3xl font-black italic uppercase italic tracking-tighter">PROJECT_EXPLORER</h4>
                                 </div>
-                                <div>
-                                    <h4 className="text-xl font-black italic uppercase italic">SECURE_STORAGE</h4>
-                                    <p className="text-sm font-bold uppercase opacity-60 italic leading-relaxed">YOUR CODE IS YOUR INTELLECTUAL PROPERTY. PROTECTED BY SUPABASE ROW-LEVEL SECURITY AND ENCRYPTED CONNECTIONS.</p>
-                                </div>
+                                <p className="text-lg font-bold uppercase opacity-60 italic leading-snug">
+                                    ORGANIZE YOUR ARCHITECTURE BY SYSTEM ARCHETYPES. OUR PROJECT EXPLORER ALLOWS YOU TO GROUP RELATED SNIPPETS, ASSETS, AND DOCUMENTATION INTO STANDALONE MODULES. MANAGE YOUR ENTIRE STACK'S INTELLECTUAL PROPERTY IN ONE CENTRALIZED HUB, PROTECTED BY SUPABASE ROW-LEVEL SECURITY.
+                                </p>
                             </div>
-                            <div className="flex gap-6">
-                                <div className="w-12 h-12 bg-black dark:bg-white flex items-center justify-center shrink-0">
-                                    <Code2 className="h-6 w-6 text-white dark:text-black" />
+
+                            {/* Learn */}
+                            <div className="space-y-6 group">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-16 h-16 bg-black dark:bg-white flex items-center justify-center shrink-0 transition-transform group-hover:rotate-12">
+                                        <Youtube className="h-8 w-8 text-white dark:text-black" />
+                                    </div>
+                                    <h4 className="text-3xl font-black italic uppercase italic tracking-tighter">LEARNING_ZONE</h4>
                                 </div>
-                                <div>
-                                    <h4 className="text-xl font-black italic uppercase italic">MULTI_LANG_SUPPORT</h4>
-                                    <p className="text-sm font-bold uppercase opacity-60 italic leading-relaxed">FROM PYTHON TO RUST, WE SUPPORT 100+ LANGUAGES WITH FULL SYNTAX HIGHLIGHTING AND MONACO EDITOR SUPPORT.</p>
-                                </div>
+                                <p className="text-lg font-bold uppercase opacity-60 italic leading-snug">
+                                    STAY OPTIMIZED WITH OUR INTEGRATED LEARNING ZONE. SEARCH AND SYNC TUTORIALS DIRECTLY FROM YOUTUBE WITHOUT LEAVING THE VAULT. WE AUTOMATICALLY TRACK YOUR RECENTLY VIEWED INTEL, CREATING A SEAMLESS KNOWLEDGE TRANSITION FROM WATCHING TO IMPLEMENTING CODE IN REAL-TIME.
+                                </p>
                             </div>
-                        </div>
-                    </div>
-                    <div className="relative border-4 border-black dark:border-white p-4">
-                        <img
-                            src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&q=80&w=1000"
-                            className="w-full grayscale brightness-75 transition-all hover:grayscale-0"
-                            alt="Code Interface"
-                        />
-                        <div className="absolute -bottom-6 -right-6 bg-black dark:bg-white text-white dark:text-black px-10 py-6 font-black italic uppercase tracking-tighter text-2xl">
-                            v1.0.LAUNCH
+
+                            {/* Notes */}
+                            <div className="space-y-6 group">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-16 h-16 bg-black dark:bg-white flex items-center justify-center shrink-0 transition-transform group-hover:rotate-12">
+                                        <FileText className="h-8 w-8 text-white dark:text-black" />
+                                    </div>
+                                    <h4 className="text-3xl font-black italic uppercase italic tracking-tighter">DOCUMENT_VAULT</h4>
+                                </div>
+                                <p className="text-lg font-bold uppercase opacity-60 italic leading-snug">
+                                    BEYOND CODE, WE SECURE YOUR DOCUMENTATION. THE DOCUMENT VAULT FEATURES FULL PDF UPLOAD SUPPORT AND A PERSISTENT TEXT EDITOR. ATTACH SPECIFICATIONS, DIAGRAMS, AND INTERNAL REVIEWS DIRECTLY TO YOUR WORKSPACE, ENSURING THAT THE CONTEXT OF YOUR CODE IS NEVER LOST ON THE GRID.
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>
