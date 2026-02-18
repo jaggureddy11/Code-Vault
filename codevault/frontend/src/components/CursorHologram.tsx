@@ -90,14 +90,6 @@ export const CursorHologram: React.FC = () => {
                 }}
             />
 
-            {/* Floating Coordinate HUD */}
-            <div
-                className="absolute -bottom-10 left-1/2 -translate-x-1/2 text-[10px] font-mono text-white/40 dark:text-black/40 flex gap-4 uppercase"
-                style={{ transform: `rotateX(${-coords.y * 0.2}deg) rotateY(${coords.x * 0.2}deg)` }}
-            >
-                <span>X-ROT: {Math.round(coords.x)}°</span>
-                <span>Y-ROT: {Math.round(coords.y)}°</span>
-            </div>
         </div>
     );
 };
