@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Code2, Zap, Cpu, Database, Shield, Box as BoxIcon } from 'lucide-react';
+import { Code2, Globe, Compass, User, Youtube, StickyNote } from 'lucide-react';
 
 export const CursorHologram: React.FC = () => {
     const [coords, setCoords] = useState({ x: 0, y: 0 });
@@ -26,11 +26,11 @@ export const CursorHologram: React.FC = () => {
 
     const faces = [
         { icon: <Code2 className="w-12 h-12" />, label: "VAULT", transform: "translateZ(60px)" }, // Front
-        { icon: <Zap className="w-12 h-12" />, label: "CORE", transform: "rotateY(180deg) translateZ(60px)" }, // Back
-        { icon: <Cpu className="w-12 h-12" />, label: "LOGIC", transform: "rotateY(90deg) translateZ(60px)" }, // Right
-        { icon: <Database className="w-12 h-12" />, label: "DATA", transform: "rotateY(-90deg) translateZ(60px)" }, // Left
-        { icon: <Shield className="w-12 h-12" />, label: "SECURE", transform: "rotateX(90deg) translateZ(60px)" }, // Top
-        { icon: <BoxIcon className="w-12 h-12" />, label: "GRID", transform: "rotateX(-90deg) translateZ(60px)" }, // Bottom
+        { icon: <Globe className="w-12 h-12" />, label: "EXPLORE", transform: "rotateY(180deg) translateZ(60px)" }, // Back
+        { icon: <Compass className="w-12 h-12" />, label: "PROJECTS", transform: "rotateY(90deg) translateZ(60px)" }, // Right
+        { icon: <User className="w-12 h-12" />, label: "DEV", transform: "rotateY(-90deg) translateZ(60px)" }, // Left
+        { icon: <Youtube className="w-12 h-12" />, label: "LEARN", transform: "rotateX(90deg) translateZ(60px)" }, // Top
+        { icon: <StickyNote className="w-12 h-12" />, label: "NOTES", transform: "rotateX(-90deg) translateZ(60px)" }, // Bottom
     ];
 
     return (
