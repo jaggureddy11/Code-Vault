@@ -1,18 +1,53 @@
 import { useState } from 'react';
-import { Mail, Send, Github, Linkedin, Zap, ExternalLink, Activity } from 'lucide-react';
+import { Mail, Send, Github, Linkedin, Zap, ExternalLink, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useToast } from '@/components/ui/use-toast';
 
 export default function ContactPage() {
+    const { toast } = useToast();
     const [loading, setLoading] = useState(false);
     const [sent, setSent] = useState(false);
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setLoading(true);
-        setTimeout(() => {
+
+        const formData = new FormData(e.currentTarget);
+        const data = Object.fromEntries(formData.entries());
+
+        try {
+            const response = await fetch("https://formspree.io/f/mqaevekb", { // This is a placeholder, User should ideally use their own ID
+                method: "POST",
+                body: JSON.stringify({
+                    ...data,
+                    _subject: `New CodeVault Contact from ${data.name}`,
+                    _replyto: data.email,
+                    to: "jaggureddy0307@gmail.com"
+                }),
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                setSent(true);
+                toast({
+                    title: "Message Sent",
+                    description: "The architect will receive your intel shortly.",
+                });
+            } else {
+                throw new Error("Failed to transmit");
+            }
+        } catch (error) {
+            toast({
+                title: "Transmission Failed",
+                description: "The grid is currently unstable. Please try again later.",
+                variant: "destructive"
+            });
+        } finally {
             setLoading(false);
-            setSent(true);
-        }, 1500);
+        }
     };
 
     const developerInfo = {
@@ -34,10 +69,10 @@ export default function ContactPage() {
                     </div>
                     <h1 className="text-6xl font-black italic uppercase tracking-tighter">SUCCESS.</h1>
                     <p className="text-sm font-bold uppercase italic opacity-60 leading-relaxed">
-                        MESSAGE TRANSMITTED TO DEVELOPER CORE. THANKS FOR THE INTEL.
+                        Message Transmitted to Developer Core. Thanks for the intel.
                     </p>
                     <Button onClick={() => setSent(false)} className="adidas-button w-full h-16 text-xl">
-                        SEND ANOTHER PACKET
+                        Send Another Packet
                     </Button>
                 </div>
             </div>
@@ -50,13 +85,13 @@ export default function ContactPage() {
                 <div className="text-center mb-32 space-y-8">
                     <div className="inline-flex items-center gap-2 px-3 py-1 bg-black dark:bg-white text-white dark:text-black text-[10px] font-black uppercase italic tracking-widest leading-none">
                         <Zap className="h-3 w-3" />
-                        DIRECT ACCESS
+                        Direct Access
                     </div>
                     <h1 className="text-6xl md:text-9xl font-black italic tracking-tighter leading-none uppercase">
-                        CONNECT WITH <br /><span className="underline decoration-8 underline-offset-8">THE DEV.</span>
+                        Connect with <br /><span className="underline decoration-8 underline-offset-8">the Dev.</span>
                     </h1>
                     <p className="text-xl font-bold max-w-2xl mx-auto uppercase italic opacity-60">
-                        CODEVAULT IS BUILT BY DEVELOPERS, FOR DEVELOPERS. REACH OUT DIRECTLY TO THE ARCHITECT.
+                        CodeVault is built by developers, for developers. Reach out directly to the architect.
                     </p>
                 </div>
 
@@ -67,7 +102,7 @@ export default function ContactPage() {
                             <div className="absolute top-0 right-0 w-32 h-full opacity-10 pointer-events-none">
                                 <div className="h-full w-full stripe-bg invert" />
                             </div>
-                            <p className="text-[10px] font-black uppercase tracking-widest opacity-60 mb-4">LEAD DEVELOPER</p>
+                            <p className="text-[10px] font-black uppercase tracking-widest opacity-60 mb-4">Lead Developer</p>
                             <h2 className="text-5xl font-black italic uppercase tracking-tighter mb-8">{developerInfo.name}</h2>
 
                             <div className="space-y-6">
@@ -78,23 +113,23 @@ export default function ContactPage() {
                                 <div className="flex items-center gap-4 group">
                                     <Linkedin className="h-6 w-6 opacity-40 group-hover:opacity-100 transition-opacity" />
                                     <a href={developerInfo.linkedin} target="_blank" rel="noreferrer" className="text-xl font-bold uppercase italic hover:underline inline-flex items-center gap-2">
-                                        LINKEDIN <ExternalLink className="h-4 w-4" />
+                                        LinkedIn <ExternalLink className="h-4 w-4" />
                                     </a>
                                 </div>
                                 <div className="flex items-center gap-4 group">
                                     <Github className="h-6 w-6 opacity-40 group-hover:opacity-100 transition-opacity" />
                                     <a href={developerInfo.github} target="_blank" rel="noreferrer" className="text-xl font-bold uppercase italic hover:underline inline-flex items-center gap-2">
-                                        GITHUB <ExternalLink className="h-4 w-4" />
+                                        GitHub <ExternalLink className="h-4 w-4" />
                                     </a>
                                 </div>
                             </div>
                         </div>
 
                         <div className="p-12 border-4 border-black dark:border-white space-y-6">
-                            <h3 className="text-2xl font-black italic uppercase tracking-tighter">PROJECT AGENDA</h3>
+                            <h3 className="text-2xl font-black italic uppercase tracking-tighter">Project Agenda</h3>
                             <p className="text-sm font-bold uppercase opacity-60 leading-relaxed italic">
-                                CODEVAULT IS AN EVOLVING PLATFORM. WE ARE COMMITTED TO SEMANTIC VERSIONING AND TRANSPARENT DEVELOPMENT.
-                                BUG REPORTS AND FEATURE REQUESTS ARE THE BACKBONE OF OUR GRID.
+                                CodeVault is an evolving platform. We are committed to semantic versioning and transparent development.
+                                Bug reports and feature requests are the backbone of our grid.
                             </p>
                         </div>
                     </div>
@@ -103,30 +138,31 @@ export default function ContactPage() {
                     <div className="bg-white dark:bg-black p-12 border-4 border-black dark:border-white">
                         <form onSubmit={handleSubmit} className="space-y-10 relative z-10">
                             <div className="space-y-2 group">
-                                <label htmlFor="name" className="text-[10px] font-black uppercase italic tracking-widest opacity-50">IDENTITY PROTOCOL</label>
-                                <input id="name" required className="w-full bg-transparent border-b-4 border-black dark:border-white py-4 text-xl font-black italic uppercase tracking-tighter focus:outline-none focus:border-red-600 transition-colors" placeholder="ENTER NAME" />
+                                <label htmlFor="name" className="text-[10px] font-black uppercase italic tracking-widest opacity-50">Identity Protocol</label>
+                                <input id="name" name="name" required className="w-full bg-transparent border-b-4 border-black dark:border-white py-4 text-xl font-black italic tracking-tighter focus:outline-none focus:border-red-600 transition-colors" placeholder="Enter Name" />
                             </div>
                             <div className="space-y-2 group">
-                                <label htmlFor="email" className="text-[10px] font-black uppercase italic tracking-widest opacity-50">EMAIL ENDPOINT</label>
-                                <input id="email" type="email" required className="w-full bg-transparent border-b-4 border-black dark:border-white py-4 text-xl font-black italic uppercase tracking-tighter focus:outline-none focus:border-red-600 transition-colors" placeholder="USER@DOMAIN.COM" />
+                                <label htmlFor="email" className="text-[10px] font-black uppercase italic tracking-widest opacity-50">Email Endpoint</label>
+                                <input id="email" name="email" type="email" required className="w-full bg-transparent border-b-4 border-black dark:border-white py-4 text-xl font-black italic tracking-tighter focus:outline-none focus:border-red-600 transition-colors" placeholder="user@domain.com" />
                             </div>
                             <div className="space-y-2 group">
-                                <label htmlFor="message" className="text-[10px] font-black uppercase italic tracking-widest opacity-50">DATA PAYLOAD</label>
+                                <label htmlFor="message" className="text-[10px] font-black uppercase italic tracking-widest opacity-50">Data Payload</label>
                                 <textarea
                                     id="message"
+                                    name="message"
                                     required
                                     className="w-full bg-neutral-50 dark:bg-neutral-900 border-4 border-black dark:border-white p-6 text-xl font-black italic uppercase tracking-tighter focus:outline-none focus:border-red-600 transition-colors min-h-[160px]"
-                                    placeholder="TRANSMIT YOUR THOUGHTS..."
+                                    placeholder="Transmit your thoughts..."
                                 />
                             </div>
 
                             <Button type="submit" disabled={loading} className="adidas-button w-full h-24 text-3xl">
                                 {loading ? (
-                                    <Activity className="h-10 w-10 animate-spin" />
+                                    <Loader2 className="h-10 w-10 animate-spin" />
                                 ) : (
                                     <>
                                         <Send className="h-8 w-8 stroke-[3px]" />
-                                        TRANSMIT DATA
+                                        Transmit Data
                                     </>
                                 )}
                             </Button>
