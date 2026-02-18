@@ -108,7 +108,7 @@ export default function ContactPage() {
                             <div className="space-y-6">
                                 <div className="flex items-center gap-4 group">
                                     <Mail className="h-6 w-6 opacity-40 group-hover:opacity-100 transition-opacity" />
-                                    <a href={`mailto:${developerInfo.email}`} className="text-xl font-bold uppercase italic hover:underline">{developerInfo.email}</a>
+                                    <a href={`mailto:${developerInfo.email}`} className="text-xl font-bold italic hover:underline">{developerInfo.email}</a>
                                 </div>
                                 <div className="flex items-center gap-4 group">
                                     <Linkedin className="h-6 w-6 opacity-40 group-hover:opacity-100 transition-opacity" />
