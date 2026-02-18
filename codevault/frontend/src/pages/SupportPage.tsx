@@ -39,7 +39,7 @@ export default function SupportPage() {
                     rating,
                     content,
                     created_at,
-                    profiles:user_id (
+                    profiles (
                         username,
                         avatar_url
                     )
@@ -167,7 +167,7 @@ export default function SupportPage() {
 
                     {submitted ? (
                         <div className="text-center py-10 animate-in fade-in zoom-in duration-500">
-                            <h3 className="text-4xl font-black italic uppercase italic tracking-tighter">REVIEW_RECEIVED.</h3>
+                            <h3 className="text-4xl font-black italic uppercase italic tracking-tighter">REVIEW RECEIVED.</h3>
                             <p className="text-sm font-bold uppercase opacity-60 mt-4">THANKS FOR STRENGTHENING THE GRID.</p>
                             <Button onClick={() => setSubmitted(false)} className="adidas-button mt-8 h-16 px-10 text-xl">
                                 WRITE ANOTHER
