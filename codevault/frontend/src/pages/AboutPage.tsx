@@ -42,7 +42,7 @@ export default function AboutPage() {
                                     Vault Engine
                                 </h4>
                             </div>
-                            <p className="text-base font-medium opacity-70 leading-relaxed max-w-xl">
+                            <p className="text-sm font-mono opacity-80 leading-relaxed max-w-xl">
                                 Store and retrieve code snippets instantly. CodeVault uses AI to
                                 automatically tag and categorize your snippets, making reuse
                                 effortless across languages inside a powerful editor.
@@ -59,7 +59,7 @@ export default function AboutPage() {
                                     Project Explorer
                                 </h4>
                             </div>
-                            <p className="text-base font-medium opacity-70 leading-relaxed max-w-xl">
+                            <p className="text-sm font-mono opacity-80 leading-relaxed max-w-xl">
                                 Organize snippets, assets, and documentation into structured
                                 project modules. Keep your architecture clean, searchable, and
                                 securely managed.
@@ -76,7 +76,7 @@ export default function AboutPage() {
                                     Learning Zone
                                 </h4>
                             </div>
-                            <p className="text-base font-medium opacity-70 leading-relaxed max-w-xl">
+                            <p className="text-sm font-mono opacity-80 leading-relaxed max-w-xl">
                                 Learn without breaking flow. Discover relevant tutorials directly
                                 inside CodeVault and move seamlessly from learning to
                                 implementation.
@@ -93,7 +93,7 @@ export default function AboutPage() {
                                     Document Vault
                                 </h4>
                             </div>
-                            <p className="text-base font-medium opacity-70 leading-relaxed max-w-xl">
+                            <p className="text-sm font-mono opacity-80 leading-relaxed max-w-xl">
                                 Upload PDFs, write notes, and attach documentation alongside your
                                 code. Keep technical context, decisions, and references in one
                                 place.
