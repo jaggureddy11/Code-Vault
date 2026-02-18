@@ -228,17 +228,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-12 sm:gap-20 mb-12 sm:mb-20">
                         <div className="col-span-1 md:col-span-2 space-y-6 sm:space-y-10">
                             <Logo className="gap-4 sm:gap-6 scale-100 sm:scale-125 origin-left" />
-                            <p className="text-lg sm:text-xl font-bold max-w-sm leading-tight uppercase opacity-70 italic">
-                                High performance snippet management for every developer.
+                            <p className="text-lg sm:text-xl font-black max-w-sm leading-[1.1] uppercase italic">
+                                BUILT BY<br />DEVELOPERS,<br />FOR DEVELOPERS.
                             </p>
-                            <div className="flex gap-4">
-                                <div className="w-14 h-14 border-2 border-black dark:border-white flex items-center justify-center hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-all cursor-pointer">
-                                    <Zap className="h-8 w-8" />
-                                </div>
-                                <div className="w-14 h-14 border-2 border-black dark:border-white flex items-center justify-center hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-all cursor-pointer">
-                                    <Activity className="h-8 w-8" />
-                                </div>
-                            </div>
                         </div>
 
                         <div className="space-y-10">
