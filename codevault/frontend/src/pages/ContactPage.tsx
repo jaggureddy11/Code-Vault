@@ -15,27 +15,15 @@ export default function ContactPage() {
         const formData = new FormData(e.currentTarget);
         const data = Object.fromEntries(formData.entries());
 
-        try {
-            // Simulated delay for hackathon demo
-            await new Promise(resolve => setTimeout(resolve, 1500));
+        // Simulated delay for hackathon demo
+        await new Promise(resolve => setTimeout(resolve, 1500));
 
-            // To receive real emails in production, sign up at Formspree.io 
-            // and use: await fetch("https://formspree.io/f/YOUR_FORM_ID", { ... })
-
-            setSent(true);
-            toast({
-                title: "Message Sent",
-                description: "The architect will receive your intel shortly.",
-            });
-        } catch (error) {
-            toast({
-                title: "Transmission Failed",
-                description: "The grid is currently unstable. Please try again later.",
-                variant: "destructive"
-            });
-        } finally {
-            setLoading(false);
-        }
+        setSent(true);
+        toast({
+            title: "Message Sent",
+            description: "The architect will receive your intel shortly.",
+        });
+        setLoading(false);
     };
 
     const developerInfo = {
