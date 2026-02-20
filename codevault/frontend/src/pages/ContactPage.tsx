@@ -2,9 +2,11 @@ import { useState } from 'react';
 import { Mail, Send, Github, Linkedin, Zap, ExternalLink, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function ContactPage() {
     const { toast } = useToast();
+    const { user } = useAuth();
     const [loading, setLoading] = useState(false);
     const [sent, setSent] = useState(false);
 
@@ -20,10 +22,10 @@ export default function ContactPage() {
                 method: "POST",
                 body: JSON.stringify({
                     name: data.name,
-                    email: data.email,
+                    email: user?.email || 'unauthenticated@user.com',
                     message: data.message,
                     _subject: `New CodeVault Contact from ${data.name}`,
-                    _replyto: data.email
+                    _replyto: user?.email || 'unauthenticated@user.com'
                 }),
                 headers: {
                     'Accept': 'application/json',
@@ -145,8 +147,10 @@ export default function ContactPage() {
                                 <input id="name" name="name" required className="w-full bg-transparent border-b-4 border-black dark:border-white py-4 text-xl font-black italic tracking-tighter focus:outline-none focus:border-red-600 transition-colors" placeholder="Enter Name" />
                             </div>
                             <div className="space-y-2 group">
-                                <label htmlFor="email" className="text-[10px] font-black uppercase italic tracking-widest opacity-50">Email Endpoint</label>
-                                <input id="email" name="email" type="email" required className="w-full bg-transparent border-b-4 border-black dark:border-white py-4 text-xl font-black italic tracking-tighter focus:outline-none focus:border-red-600 transition-colors" placeholder="user@domain.com" />
+                                <label className="text-[10px] font-black uppercase italic tracking-widest opacity-50">Email Endpoint (Auto-Synced)</label>
+                                <div className="w-full bg-transparent border-b-4 border-black/20 dark:border-white/20 py-4 text-xl font-black italic tracking-tighter text-black/50 dark:text-white/50">
+                                    {user?.email || 'Awaiting Authentication...'}
+                                </div>
                             </div>
                             <div className="space-y-2 group">
                                 <label htmlFor="message" className="text-[10px] font-black uppercase italic tracking-widest opacity-50">Data Payload</label>
