@@ -16,7 +16,7 @@ export default function ContactPage() {
         const data = Object.fromEntries(formData.entries());
 
         try {
-            const response = await fetch("https://formspree.io/f/xbjnprjj", { // Real formspree ID here
+            const response = await fetch("https://formspree.io/f/mqaevekb", { // Verified Formspree ID
                 method: "POST",
                 body: JSON.stringify({
                     name: data.name,
