@@ -1,257 +1,65 @@
-# CodeVault 🔐
+# 🚀 CodeVault
 
-> Your personal AI-powered code snippet library
-
-**DeveloperWeek 2026 Hackathon Project**  
-**Challenge:** Kilo - "Finally Ship It"
-
-## 🎯 The Problem
-
-Developers spend countless hours re-searching for code snippets they've used before. We dig through old projects, bookmark Stack Overflow answers we never find again, and waste time recreating solutions we've already built.
-
-## 💡 The Solution
-
-CodeVault is a beautiful, fast, and intelligent code snippet manager that helps developers:
-- 📝 Save code snippets with rich context
-- 🏷️ Organize with tags and collections
-- 🔍 Find snippets instantly with AI-powered search
-- 🎨 Beautiful syntax highlighting for 100+ languages
-- 📋 One-click copy to clipboard
-- 🌓 Dark mode support
-- 🚀 Blazing fast performance
-
-## ✨ Key Features
-
-### Core Features
-- **Rich Code Editor**: Monaco Editor (same as VS Code) with IntelliSense
-- **Smart Search**: AI-powered semantic search + traditional text search
-- **Auto-Categorization**: AI suggests tags and categories
-- **Syntax Highlighting**: Support for 100+ programming languages
-- **Tag Management**: Create, filter, and organize with tags
-- **Dark/Light Theme**: Beautiful UI in both modes
-- **Responsive Design**: Works perfectly on mobile, tablet, and desktop
-
-### Technical Highlights
-- **Frontend**: React 18 + TypeScript + Vite
-- **UI**: Tailwind CSS + shadcn/ui components
-- **Backend**: Node.js + Express
-- **Database**: PostgreSQL (Supabase)
-- **Auth**: Supabase Authentication
-- **AI**: OpenAI API for semantic search
-- **Deployment**: Vercel (Frontend) + Railway (Backend)
-
-## 🚀 Quick Start
-
-### Prerequisites
-- Node.js 18+ 
-- npm or yarn
-- Supabase account (free tier works)
-- OpenAI API key (for AI features)
-
-### Installation
-
-1. **Clone the repository**
-```bash
-git clone https://github.com/yourusername/codevault.git
-cd codevault
-```
-
-2. **Set up Frontend**
-```bash
-cd frontend
-npm install
-cp .env.example .env.local
-# Edit .env.local with your Supabase credentials
-npm run dev
-```
-
-3. **Set up Backend** (in a new terminal)
-```bash
-cd backend
-npm install
-cp .env.example .env
-# Edit .env with your credentials
-npm run dev
-```
-
-4. **Open your browser**
-```
-http://localhost:5173
-```
-
-## 📁 Project Structure
-
-```
-codevault/
-├── frontend/           # React frontend
-│   ├── src/
-│   │   ├── components/  # React components
-│   │   ├── pages/       # Page components
-│   │   ├── hooks/       # Custom hooks
-│   │   ├── lib/         # Utilities
-│   │   └── types/       # TypeScript types
-│   └── package.json
-├── backend/            # Node.js backend
-│   ├── src/
-│   │   ├── routes/      # API routes
-│   │   ├── controllers/ # Business logic
-│   │   ├── services/    # External services
-│   │   └── middleware/  # Express middleware
-│   └── package.json
-└── docs/              # Documentation
-```
-
-## 🗄️ Database Schema
-
-```sql
--- Users table (managed by Supabase Auth)
-
--- Snippets
-CREATE TABLE snippets (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  user_id UUID REFERENCES auth.users NOT NULL,
-  title VARCHAR(255) NOT NULL,
-  description TEXT,
-  code TEXT NOT NULL,
-  language VARCHAR(50) NOT NULL,
-  created_at TIMESTAMP DEFAULT NOW(),
-  updated_at TIMESTAMP DEFAULT NOW()
-);
-
--- Tags
-CREATE TABLE tags (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  user_id UUID REFERENCES auth.users NOT NULL,
-  name VARCHAR(50) NOT NULL,
-  color VARCHAR(7) DEFAULT '#3B82F6',
-  UNIQUE(user_id, name)
-);
-
--- Snippet Tags (many-to-many)
-CREATE TABLE snippet_tags (
-  snippet_id UUID REFERENCES snippets ON DELETE CASCADE,
-  tag_id UUID REFERENCES tags ON DELETE CASCADE,
-  PRIMARY KEY (snippet_id, tag_id)
-);
-```
-
-## 🎨 UI Screenshots
-
-[Add screenshots here after building]
-
-## 🎥 Demo Video
-
-[Link to demo video - 2-3 minutes]
-
-## 🏗️ Built With
-
-### Frontend
-- **React 18** - UI library
-- **TypeScript** - Type safety
-- **Vite** - Build tool
-- **Tailwind CSS** - Styling
-- **shadcn/ui** - UI components
-- **Monaco Editor** - Code editor
-- **React Query** - Data fetching
-- **React Router** - Routing
-
-### Backend
-- **Node.js** - Runtime
-- **Express** - Web framework
-- **Supabase** - Database & Auth
-- **OpenAI API** - AI features
-- **PostgreSQL** - Database
-
-## 🧪 Testing
-
-```bash
-# Frontend tests
-cd frontend
-npm test
-
-# Backend tests
-cd backend
-npm test
-```
-
-## 🚢 Deployment
-
-### Frontend (Vercel)
-```bash
-cd frontend
-vercel --prod
-```
-
-### Backend (Railway)
-```bash
-cd backend
-railway up
-```
-
-## 📝 Environment Variables
-
-### Frontend (.env.local)
-```
-VITE_SUPABASE_URL=your_supabase_url
-VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
-VITE_API_URL=http://localhost:3000
-```
-
-### Backend (.env)
-```
-DATABASE_URL=your_supabase_db_url
-SUPABASE_URL=your_supabase_url
-SUPABASE_SERVICE_KEY=your_service_key
-OPENAI_API_KEY=your_openai_key
-PORT=3000
-NODE_ENV=development
-```
-
-## 🎯 Roadmap
-
-- [x] Core snippet CRUD
-- [x] Tag management
-- [x] Search functionality
-- [x] AI categorization
-- [x] Dark mode
-- [ ] Browser extension
-- [ ] Public snippet sharing
-- [ ] Collections/folders
-- [ ] Code execution
-- [ ] Export to GitHub Gist
-
-## 🤝 Contributing
-
-This is a hackathon project, but contributions are welcome!
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-## 📄 License
-
-MIT License - see LICENSE file for details
-
-## 👨‍💻 Author
-
-**Your Name**
-- GitHub: [@yourusername](https://github.com/yourusername)
-- Twitter: [@yourtwitter](https://twitter.com/yourtwitter)
-- Email: your.email@example.com
-
-## 🙏 Acknowledgments
-
-- Built for DeveloperWeek 2026 Hackathon
-- Powered by Kilo AI coding tools
-- UI inspiration from modern developer tools
-- Thanks to the open source community
-
-## 📧 Contact
-
-Questions? Reach out at your.email@example.com or open an issue!
+> **Built by developers, for developers.**
+> CodeVault is a high-performance, AI-powered workspace and knowledge-management platform designed specifically to eliminate context-switching. It combines code snippet execution, architectural planning, documentation storage, and tutorial tracking into one secure environment.
 
 ---
 
-**Built with ❤️ for the DeveloperWeek 2026 Hackathon**
+## 🎨 Brand Identity & Architecture
+
+* **Tech Stack:** React 18, Vite, Tailwind CSS (Frontend), Express, Node.js (Backend proxy), and Supabase (PostgreSQL Database & Auth).
+* **Aesthetic:** "Gritty Industrial." Features a stark black, white, and red color palette utilizing strict `JetBrains Mono` code fonts and aggressive italics to feel like a premium, high-speed engineering tool.
+* **Security:** Built completely on Supabase Row Level Security (RLS). Every snippet, note, and project is rigorously protected so users can only access their personal "intel."
+
+---
+
+## 🗺️ Complete Website Sections
+
+### 1. Authentication & Onboarding
+* **The Gates (Login & Signup Pages):** The entry points feature a stunning, interactive 3D CSS Holographic Cube that maps to the user’s cursor movement. It provides a massive "wow" factor right from the start, utilizing Supabase Auth to securely log developers in.
+
+### 2. The Core Engine (Code Management)
+* **Vault Dashboard (`/dashboard`):** The primary hub. Here, developers can create, read, update, and delete their code snippets. It utilizes the powerful Monaco Editor (the same tech behind VS Code) to support syntax highlighting for over 100+ languages. 
+* **Project Explorer (`/projects`):** Instead of loose snippets, developers can create structured "Projects" to group related files, architectures, and modules together, operating much like a standard IDE file tree.
+* **Favorites (`/favorites`):** Quick-access bookmarks for a developer's most heavily utilized logic blocks.
+
+### 3. Community & Discovery
+* **Explore Grid (`/explore`):** The open-source community section. Developers can toggle snippets from "Private" to "Public", allowing other engineers across the platform to search, view, and utilize their code.
+* **Snippet Details:** Dedicated full-screen views for deep-diving into specific public or private logic blocks, complete with one-click copy functionality.
+
+### 4. Advanced Learning Tools
+* **Document Vault (`/notes`):** A specialized dual-pane workflow. Developers can upload and review technical PDFs on the left, while taking rich-text, markdown-supported architectural notes on the right.
+* **Learning Zone (`/learning`):** To prevent developers from getting lost in the YouTube algorithm, this section integrates the YouTube v3 API native into the application. Developers can search, watch, and pin coding tutorials directly inside CodeVault.
+
+### 5. Platform Intelligence & Support
+* **Profile Page (`/profile`):** Automatically provisions a developer profile on registration via Postgres triggers. It tracks stats and identities across the community.
+* **About Page (`/about`):** Details the explicit mission of the application. It lays out the technical agenda with clean, monospace typography.
+* **Support & Review Wall (`/support`):** A live, real-time synced community feedback loop. Users can leave thoughts and ratings. Giving a 5-star rating triggers a custom "Heart Blast" CSS micro-animation.
+* **Contact Hub (`/contact`):** An automated contact form that auto-syncs the authenticated user's email. Features a perfectly clean, error-free simulated success state designed specifically for flawless hackathon stage presentations.
+
+---
+
+## 💡 Why CodeVault Wins (The Pitch)
+
+*"Developers waste countless hours switching between Google, YouTube, VS Code, and Notion just to find one piece of logic they wrote 6 months ago. **CodeVault** centralizes the engineering brain. It’s not just a pastebin; it’s an entire secure operating system for your code architecture, documentation, and continuous learning."*
+
+---
+
+## 🚀 Getting Started
+
+To run the platform locally:
+
+1. Clone this repository.
+2. Install dependencies for both frontend and backend:
+   ```bash
+   npm install
+   cd frontend && npm install
+   cd ../backend && npm install
+   ```
+3. Set up your `.env` variables for Supabase and the Backend Server.
+4. Run the development environment:
+   ```bash
+   npm run dev
+   ```
+
+Enjoy building inside the vault!
