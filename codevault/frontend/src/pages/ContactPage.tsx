@@ -15,15 +15,42 @@ export default function ContactPage() {
         const formData = new FormData(e.currentTarget);
         const data = Object.fromEntries(formData.entries());
 
-        // Simulated delay for hackathon demo
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        try {
+            const response = await fetch("https://formspree.io/f/xbjnprjj", { // Real formspree ID here
+                method: "POST",
+                body: JSON.stringify({
+                    name: data.name,
+                    email: data.email,
+                    message: data.message,
+                    _subject: `New CodeVault Contact from ${data.name}`,
+                    _replyto: data.email
+                }),
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            });
 
-        setSent(true);
-        toast({
-            title: "Message Sent",
-            description: "The architect will receive your intel shortly.",
-        });
-        setLoading(false);
+            if (response.ok) {
+                setSent(true);
+                toast({
+                    title: "Message Sent",
+                    description: "The architect will receive your intel shortly.",
+                });
+            } else {
+                const result = await response.json();
+                throw new Error(result.error || "Failed to transmit");
+            }
+        } catch (error: any) {
+            toast({
+                title: "Transmission Failed",
+                description: "Ensure your email is valid and try again.",
+                variant: "destructive"
+            });
+            console.error(error);
+        } finally {
+            setLoading(false);
+        }
     };
 
     const developerInfo = {
