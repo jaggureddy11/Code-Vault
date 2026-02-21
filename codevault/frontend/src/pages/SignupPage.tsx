@@ -39,7 +39,13 @@ export default function SignupPage() {
       await signUp(email, password, username);
       navigate('/');
     } catch (err: any) {
-      setError(err.message || 'Registration failed. Please try again.');
+      if (err.message && err.message.includes('Database error saving new user')) {
+        setError('Registration failed: This username is likely already taken.');
+      } else if (err.message && err.message.toLowerCase().includes('rate limit')) {
+        setError('Too many sign up attempts. Please wait a moment and try again.');
+      } else {
+        setError(err.message || 'Registration failed. Please try again.');
+      }
     } finally {
       setLoading(false);
     }

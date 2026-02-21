@@ -4,6 +4,7 @@ import morgan from 'morgan';
 import dotenv from 'dotenv';
 import aiRoutes from './routes/ai.js';
 import youtubeRoutes from './routes/youtube.js';
+import authRoutes from './routes/auth.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -55,6 +56,7 @@ app.use(morgan('dev'));
 // Routes
 app.use('/api/ai', aiRoutes);
 app.use('/api/youtube', youtubeRoutes);
+app.use('/api/auth', authRoutes);
 
 // Catch-all route for React Router
 app.get('*', (req, res) => {

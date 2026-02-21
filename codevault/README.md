@@ -31,13 +31,6 @@
 * **Document Vault (`/notes`):** A specialized dual-pane workflow. Developers can upload and review technical PDFs on the left, while taking rich-text, markdown-supported architectural notes on the right.
 * **Learning Zone (`/learning`):** To prevent developers from getting lost in the YouTube algorithm, this section integrates the YouTube v3 API native into the application. Developers can search, watch, and pin coding tutorials directly inside CodeVault.
 
-### 5. Platform Intelligence & Support
-* **Profile Page (`/profile`):** Automatically provisions a developer profile on registration via Postgres triggers. It tracks stats and identities across the community.
-* **About Page (`/about`):** Details the explicit mission of the application. It lays out the technical agenda with clean, monospace typography.
-* **Support & Review Wall (`/support`):** A live, real-time synced community feedback loop. Users can leave thoughts and ratings. Giving a 5-star rating triggers a custom "Heart Blast" CSS micro-animation.
-* **Contact Hub (`/contact`):** An automated contact form that auto-syncs the authenticated user's email. Features a perfectly clean, error-free simulated success state designed specifically for flawless hackathon stage presentations.
-
----
 
 ## 💡 Why CodeVault Wins (The Pitch)
 

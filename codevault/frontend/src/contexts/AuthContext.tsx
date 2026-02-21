@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { User as SupabaseUser } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
+import { getApiBaseUrl } from '@/lib/utils';
 
 interface AuthContextType {
   user: SupabaseUser | null;
@@ -34,16 +35,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const signUp = async (email: string, password: string, username: string) => {
-    const { error } = await supabase.auth.signUp({
+    // We use the backend to sign up, bypassing Supabase rate limits
+    // and correctly pre-validating the username uniqueness constraint.
+    const res = await fetch(`${getApiBaseUrl()}/api/auth/signup`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password, username }),
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.error || 'Failed to sign up');
+    }
+
+    // Since the backend creates the user without logging them in, 
+    // we log them in immediately afterwards.
+    const { error: signInError } = await supabase.auth.signInWithPassword({
       email,
       password,
-      options: {
-        data: {
-          username,
-        },
-      },
     });
-    if (error) throw error;
+    if (signInError) throw signInError;
   };
 
   const signIn = async (email: string, password: string) => {
