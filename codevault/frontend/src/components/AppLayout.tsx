@@ -20,6 +20,7 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { AIChatbot } from "@/components/AIChatbot";
 import { driver } from "driver.js";
 import "driver.js/dist/driver.css";
 
@@ -71,6 +72,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                     {
                         element: 'header nav a[href="/notes"]',
                         popover: { title: 'Notes', description: 'Store and study your notes.', side: "bottom" }
+                    },
+                    {
+                        element: '#tour-chatbot-button',
+                        popover: { title: 'AI Assistant', description: 'Your personal AI learning companion. Ask questions, clarify doubts, and chat anytime!', side: "top" }
                     }
                 ],
                 onDestroyStarted: () => {
@@ -336,6 +341,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                     isTransitioning ? "translate-x-0" : "-translate-x-full"
                 )} />
             </div>
+
+            <AIChatbot />
         </div>
     );
 }
