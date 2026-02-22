@@ -62,7 +62,7 @@ export function AIChatbot() {
                 parts: [{ text: m.content }]
             }));
 
-            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -105,7 +105,8 @@ export function AIChatbot() {
             }
         } catch (error: any) {
             console.error('Gemini API Error:', error);
-            setMessages(prev => [...prev, { id: Date.now().toString(), role: 'model', content: "An error occurred while connecting to the AI. Please try again." }]);
+            const errorMessage = error.message ? `API Error: ${error.message}` : "An error occurred while connecting to the AI. Please try again.";
+            setMessages(prev => [...prev, { id: Date.now().toString(), role: 'model', content: errorMessage }]);
         } finally {
             setIsLoading(false);
         }
