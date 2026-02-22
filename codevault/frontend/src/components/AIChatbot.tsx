@@ -11,7 +11,7 @@ interface ChatMessage {
     content: string;
 }
 
-const GEMINI_API_KEY = 'AIzaSyA5CA1dhumCRQkyzmmJFgZLnj4GAikbIc8';
+const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY || '';
 
 export function AIChatbot() {
     const [isOpen, setIsOpen] = useState(false);
