@@ -37,6 +37,7 @@ export default function SignupPage() {
 
     try {
       await signUp(email, password, username);
+      localStorage.setItem('showTour', 'true');
       navigate('/');
     } catch (err: any) {
       if (err.message && err.message.includes('Database error saving new user')) {

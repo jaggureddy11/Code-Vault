@@ -20,6 +20,8 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { driver } from "driver.js";
+import "driver.js/dist/driver.css";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
     const { user, signOut } = useAuth();
@@ -39,6 +41,51 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     useEffect(() => {
         setMobileMenuOpen(false);
     }, [location]);
+
+    useEffect(() => {
+        if (localStorage.getItem('showTour') === 'true') {
+            const tourDriver = driver({
+                showProgress: true,
+                animate: true,
+                steps: [
+                    {
+                        element: 'header nav a[href="/"]',
+                        popover: { title: 'Vault', description: 'Your central hub. Access all your saved snippets here.', side: "bottom" }
+                    },
+                    {
+                        element: 'header nav a[href="/explore"]',
+                        popover: { title: 'Explore', description: 'Discover community snippets and stay inspired.', side: "bottom" }
+                    },
+                    {
+                        element: 'header nav a[href="/favorites"]',
+                        popover: { title: 'Favorites', description: 'Quick access to your most-used and loved snippets.', side: "bottom" }
+                    },
+                    {
+                        element: 'header nav a[href="/projects"]',
+                        popover: { title: 'Projects', description: 'Discover top-starred GitHub repositories.', side: "bottom" }
+                    },
+                    {
+                        element: 'header nav a[href="/learn"]',
+                        popover: { title: 'Learn', description: 'Enhance your skills with guided tutorials.', side: "bottom" }
+                    },
+                    {
+                        element: 'header nav a[href="/notes"]',
+                        popover: { title: 'Notes', description: 'Store and study your notes.', side: "bottom" }
+                    }
+                ],
+                onDestroyStarted: () => {
+                    if (!tourDriver.hasNextStep() || confirm("Are you sure you want to end the tour?")) {
+                        tourDriver.destroy();
+                        localStorage.removeItem('showTour');
+                    }
+                },
+            });
+
+            setTimeout(() => {
+                tourDriver.drive();
+            }, 800);
+        }
+    }, []);
 
     const [isTransitioning, setIsTransitioning] = useState(false);
 
@@ -127,18 +174,18 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                         <div className="hidden sm:block">
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                    <Button variant="ghost" size="icon" className="rounded-none border-2 border-black dark:border-white w-10 h-10 overflow-hidden">
+                                    <Button variant="ghost" size="icon" className="group rounded-none border-2 border-black dark:border-white w-10 h-10 overflow-hidden hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black">
                                         {avatarUrl ? (
                                             <img src={avatarUrl} alt="Profile" className="h-full w-full object-cover" />
                                         ) : (
-                                            <User className="h-5 w-5 text-black dark:text-white" />
+                                            <User className="h-5 w-5 text-black group-hover:text-white dark:text-white dark:group-hover:text-black" />
                                         )}
                                     </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent className="w-72 mt-2 rounded-none bg-white dark:bg-black border-4 border-black dark:border-white p-0 shadow-none overflow-hidden" align="end">
                                     <DropdownMenuLabel className="flex flex-col p-8 bg-black text-white dark:bg-white dark:text-black relative overflow-hidden">
-                                        <span className="text-2xl font-black italic tracking-tighter uppercase">{user?.user_metadata?.username || user?.email?.split('@')[0]}</span>
-                                        <span className="text-[10px] font-black uppercase tracking-widest opacity-60 mt-1">{user?.email}</span>
+                                        <span className="text-2xl font-black italic tracking-tighter">{user?.user_metadata?.username || user?.email?.split('@')[0]}</span>
+                                        <span className="text-[10px] font-black tracking-widest opacity-60 mt-1">{user?.email}</span>
                                     </DropdownMenuLabel>
                                     <div className="p-2 space-y-1">
                                         <DropdownMenuItem onClick={() => navigate('/profile')} className="rounded-none p-5 text-[10px] font-black uppercase italic tracking-widest hover:bg-neutral-100 dark:hover:bg-neutral-900 cursor-pointer gap-4">
