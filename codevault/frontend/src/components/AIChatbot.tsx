@@ -60,10 +60,10 @@ export function AIChatbot() {
     }, []);
 
     useEffect(() => {
-        if (messagesEndRef.current) {
+        if (isOpen && messagesEndRef.current) {
             messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
         }
-    }, [messages, isLoading]);
+    }, [messages, isLoading, isOpen]);
 
     useEffect(() => {
         localStorage.setItem('codevault_chat_messages', JSON.stringify(messages));
