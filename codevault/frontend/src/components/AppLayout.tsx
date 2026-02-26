@@ -6,7 +6,7 @@ import { useProfile } from '@/hooks/useProfile';
 import {
     Code2, Compass, Youtube, User,
     HelpCircle, MessageSquare, Heart, LogOut,
-    Sun, Moon, Menu, X, Sparkles, Zap, Activity, Globe,
+    Sun, Moon, Menu, X, Sparkles, Globe,
     StickyNote
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';

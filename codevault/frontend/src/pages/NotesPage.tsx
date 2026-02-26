@@ -2,10 +2,8 @@ import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import {
-    Plus, Search, Trash2, Edit3, Save, X,
-    FileText, Calendar, Clock,
-    Paperclip, Upload, Loader2, FilePlus, ChevronRight,
-    AlertCircle, CheckCircle2, Shield, Settings2, Check,
+    Plus, Trash2, Edit3, Save, X,
+    FileText, Loader2, Shield, Check,
     Menu, Layout
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -45,6 +43,7 @@ export default function NotesPage() {
         if (user) {
             fetchNotes();
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [user]);
 
     const fetchNotes = async () => {
@@ -128,6 +127,7 @@ export default function NotesPage() {
 
             if (pdfFile) {
                 const timestamp = Date.now();
+                // eslint-disable-next-line no-control-regex
                 const safeName = pdfFile.name.replace(/[^\x00-\x7F]/g, "");
                 const fileName = `${user?.id}/${timestamp}-${safeName}`;
 

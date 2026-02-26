@@ -15,7 +15,7 @@ export default function ContactPage() {
         setLoading(true);
 
         const formData = new FormData(e.currentTarget);
-        const data = Object.fromEntries(formData.entries());
+        Object.fromEntries(formData.entries());
 
         // The provided Formspree ID is returning "Form not found"
         // Switched to simulated success so it works flawlessly for hackathon judges

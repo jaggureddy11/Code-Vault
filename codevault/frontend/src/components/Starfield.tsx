@@ -13,7 +13,7 @@ export const Starfield: React.FC = () => {
         let animationFrameId: number;
         let particles: Particle[] = [];
         const particleCount = 120;
-        let mouse = { x: -100, y: -100 };
+        const mouse = { x: -100, y: -100 };
 
         class Particle {
             x: number;
@@ -57,26 +57,26 @@ export const Starfield: React.FC = () => {
                 if (this.baseY < 0) this.baseY = height;
 
                 // Mouse interaction
-                let dx = mouseX - this.x;
-                let dy = mouseY - this.y;
-                let distance = Math.sqrt(dx * dx + dy * dy);
-                let forceDirectionX = dx / distance;
-                let forceDirectionY = dy / distance;
-                let maxDistance = 150;
-                let force = (maxDistance - distance) / maxDistance;
-                let directionX = forceDirectionX * force * this.density;
-                let directionY = forceDirectionY * force * this.density;
+                const dx = mouseX - this.x;
+                const dy = mouseY - this.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                const forceDirectionX = dx / distance;
+                const forceDirectionY = dy / distance;
+                const maxDistance = 150;
+                const force = (maxDistance - distance) / maxDistance;
+                const directionX = forceDirectionX * force * this.density;
+                const directionY = forceDirectionY * force * this.density;
 
                 if (distance < maxDistance) {
                     this.x -= directionX;
                     this.y -= directionY;
                 } else {
                     if (this.x !== this.baseX) {
-                        let dx = this.x - this.baseX;
+                        const dx = this.x - this.baseX;
                         this.x -= dx / 20;
                     }
                     if (this.y !== this.baseY) {
-                        let dy = this.y - this.baseY;
+                        const dy = this.y - this.baseY;
                         this.y -= dy / 20;
                     }
                 }

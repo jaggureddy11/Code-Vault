@@ -4,7 +4,6 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Activity, ArrowRight, ShieldCheck } from 'lucide-react';
 import { Starfield } from '@/components/Starfield';
-import { Logo } from '@/components/Logo';
 import { CursorHologram } from '@/components/CursorHologram';
 
 export default function SignupPage() {
