@@ -270,9 +270,25 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             </div>
 
             {/* Main Content Area */}
-            <main className="relative z-10 min-h-screen">
+            <main className="relative z-10 min-h-screen pb-16 lg:pb-0">
                 {children}
             </main>
+
+            {/* Mobile Bottom Navigation (Instagram Style) */}
+            <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-black border-t-4 border-black dark:border-white z-50 flex justify-around items-center h-16 px-2">
+                {navLinks.map((link) => (
+                    <NavLink
+                        key={link.path}
+                        to={link.path}
+                        className={({ isActive }) => cn(
+                            "flex items-center justify-center flex-1 h-full transition-all duration-300",
+                            isActive ? "bg-black text-white dark:bg-white dark:text-black" : "text-black dark:text-white"
+                        )}
+                    >
+                        <link.icon className="h-6 w-6" />
+                    </NavLink>
+                ))}
+            </nav>
 
             {/* Performance Footer */}
             <footer className="bg-neutral-100 dark:bg-neutral-900 py-16 sm:py-32 border-t-8 border-black dark:border-white">
