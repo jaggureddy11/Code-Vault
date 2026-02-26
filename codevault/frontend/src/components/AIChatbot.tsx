@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Bot, User, Send, Minimize2, Maximize2, X, Sparkles, Loader2, Mic, Square } from 'lucide-react';
+import { Bot, User, Send, Minimize2, Maximize2, X, Sparkles, Loader2, Mic, Square, Plus, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import ReactMarkdown from 'react-markdown';
@@ -27,6 +27,17 @@ export function AIChatbot() {
             content: "Hello! I'm your CodeVault AI Assistant. I'm here to help you learn coding concepts, explain snippets, and clear your doubts. What would you like to discuss today?"
         }];
     });
+
+    const clearChat = () => {
+        if (confirm("Clear entire chat history and start a new session?")) {
+            setMessages([{
+                id: 'welcome',
+                role: 'model',
+                content: "Hello! I'm your CodeVault AI Assistant. I'm here to help you learn coding concepts, explain snippets, and clear your doubts. What would you like to discuss today?"
+            }]);
+            localStorage.removeItem('codevault_chat_messages');
+        }
+    };
 
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -310,6 +321,12 @@ export function AIChatbot() {
                         </div>
                     </div>
                     <div className="flex items-center gap-1">
+                        <Button variant="ghost" size="icon" onClick={clearChat} title="New Chat" className="h-8 w-8 hover:bg-neutral-800 dark:hover:bg-neutral-200">
+                            <Plus className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="icon" onClick={clearChat} title="Clear Chat" className="h-8 w-8 hover:bg-neutral-800 dark:hover:bg-neutral-200 text-neutral-400 hover:text-red-500">
+                            <Trash2 className="h-4 w-4" />
+                        </Button>
                         <Button variant="ghost" size="icon" onClick={() => setIsExpanded(!isExpanded)} className="h-8 w-8 hover:bg-neutral-800 dark:hover:bg-neutral-200">
                             {isExpanded ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
                         </Button>
