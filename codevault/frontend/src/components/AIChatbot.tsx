@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import ReactMarkdown from 'react-markdown';
 import Draggable from 'react-draggable';
+import { HfInference } from '@huggingface/inference';
 
 interface ChatMessage {
     id: string;
@@ -11,7 +12,8 @@ interface ChatMessage {
     content: string;
 }
 
-const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+const HF_API_KEY = import.meta.env.VITE_HUGGINGFACE_API_KEY;
+const hf = new HfInference(HF_API_KEY);
 
 export function AIChatbot() {
     const [isOpen, setIsOpen] = useState(false);
@@ -45,7 +47,7 @@ export function AIChatbot() {
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
     const recognitionRef = useRef<any>(null);
-    const activeUtteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
+    const audioRef = useRef<HTMLAudioElement | null>(null);
     const isSynthesizingRef = useRef(false);
     const isVoiceModeRef = useRef(false); // keep purely in sync for event listeners
 
@@ -143,14 +145,13 @@ export function AIChatbot() {
         setIsVoiceMode(false);
         isVoiceModeRef.current = false;
         setInput('');
-        window.speechSynthesis.cancel();
         if (recognitionRef.current) {
             recognitionRef.current.onend = null;
             recognitionRef.current.onerror = null;
             try { recognitionRef.current.stop(); } catch (e) { /* ignore */ }
             recognitionRef.current = null;
         }
-        setMessages(prev => [...prev.filter(m => m.id !== 'voice-start'), { id: Date.now().toString(), role: 'model', content: "🛑 *(Voice Mode Ended)*" }]);
+        setMessages(prev => [...prev.filter(m => m.id !== 'voice-start'), { id: Date.now().toString(), role: 'model', content: "*(Voice Mode Ended)*" }]);
     };
 
     const toggleVoiceMode = () => {
@@ -161,7 +162,6 @@ export function AIChatbot() {
     const resumeListening = () => {
         if (isVoiceModeRef.current) {
             isSynthesizingRef.current = false;
-            activeUtteranceRef.current = null; // Free up the reference
             setTimeout(() => {
                 if (isVoiceModeRef.current && !isSynthesizingRef.current) {
                     startSpeechRecognition();
@@ -170,7 +170,7 @@ export function AIChatbot() {
 
             setMessages(prev => {
                 if (prev.find(m => m.id === 'voice-start')) return prev;
-                return [...prev, { id: 'voice-start', role: 'model', content: "🎤 *(Listening...)*" }];
+                return [...prev, { id: 'voice-start', role: 'model', content: "*(Listening...)*" }];
             });
         }
     };
@@ -193,95 +193,46 @@ export function AIChatbot() {
 
         if ((isVoiceMode || isFromVoice) && recognitionRef.current) {
             isSynthesizingRef.current = true;
-            window.speechSynthesis.cancel();
             try { recognitionRef.current.stop(); } catch (e) { /* ignore */ }
         }
 
         try {
-            const history = messages.filter(m => m.id !== 'welcome' && !m.content.includes("🛑 *(Voice Mode Ended)*") && m.id !== 'voice-start').map(m => ({
-                role: m.role,
-                parts: [{ text: m.content }]
+            const history = messages.filter(m => m.id !== 'welcome' && !m.content.includes("*(Voice Mode Ended)*") && m.id !== 'voice-start').map(m => ({
+                role: m.role === 'model' ? 'assistant' : 'user',
+                content: m.content
             }));
 
             const systemInstruction = (isVoiceMode || isFromVoice)
-                ? "You are an AI assistant in a live voice call. KEEP RESPONSES EXTREMELY SHORT. NEVER output paragraphs. If the user greets you (e.g., 'hi'), just say 'Hey there, what's up?' or similar. Act like a human having a casual audio conversation. Maximum 1-2 short sentences. No markdown, no code blocks."
-                : "You are an expert AI tutor inside CodeVault. Help the user learn coding concepts. Keep responses conversational, concise, and without markdown where possible.";
+                ? "You are CodeVault AI, an elite personal tutor and study assistant. You must keep the study environment professional, focused, and educational. KEEP RESPONSES EXTREMELY SHORT. NEVER output paragraphs. Respond casually but professionally to my requests. Talk like a real human tutor having a live audio conversation. Maximum 1-2 short sentences. No markdown, no code blocks."
+                : "You are CodeVault AI, an elite AI tutor and study assistant built into CodeVault. Provide a proper, professional, and educational study environment. Help me with my tasks, manage my workflow, learn coding, and write code. Keep responses conversational, highly proactive, focused on learning, and without complex markdown where possible.";
 
-            const requestBody: any = {
-                systemInstruction: {
-                    parts: [{ text: systemInstruction }]
-                },
-                contents: [
-                    ...history,
-                    {
-                        role: 'user',
-                        parts: [{ text: userMsg.content }]
-                    }
-                ],
-                generationConfig: {
-                    temperature: 0.7,
-                    maxOutputTokens: (isVoiceMode || isFromVoice) ? 150 : 2000,
-                }
-            };
-
-            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(requestBody)
-            });
-
-            const data = await response.json();
-
-            if (data.error) throw new Error(data.error.message);
-
-            const parts = data.candidates?.[0]?.content?.parts || [];
             let textOutput = "";
 
-            for (const part of parts) {
-                if (part.text) textOutput += part.text;
+            // Using Hugging Face's Meta Llama 3 via Inference API
+            for await (const chunk of hf.chatCompletionStream({
+                model: "meta-llama/Meta-Llama-3-8B-Instruct",
+                messages: [
+                    { role: "system", content: systemInstruction },
+                    ...history,
+                    { role: "user", content: userMsg.content }
+                ],
+                max_tokens: (isVoiceMode || isFromVoice) ? 150 : 2000,
+                temperature: 0.7,
+            })) {
+                if (chunk.choices && chunk.choices.length > 0) {
+                    textOutput += chunk.choices[0].delta.content || "";
+                }
             }
 
             if (!textOutput) throw new Error("Sorry, I couldn't generate a response.");
 
-            const finalMsgContent = isFromVoice ? `🎤 *(Voice Mode)*\n\n${textOutput}` : textOutput;
+            const finalMsgContent = isFromVoice ? `*(Voice Mode)*\n\n${textOutput}` : textOutput;
             setMessages(prev => [...prev.filter(m => m.id !== 'voice-start'), { id: Date.now().toString(), role: 'model', content: finalMsgContent }]);
 
-            if (textOutput && (isVoiceMode || isFromVoice)) {
-                try {
-                    const synth = window.speechSynthesis;
-                    const utterance = new SpeechSynthesisUtterance(textOutput.replace(/[*_#`~]/g, ''));
-
-                    // Try to find a highly accurate, natural-sounding human voice
-                    const voices = synth.getVoices();
-                    const bestVoice = voices.find(v =>
-                        (v.name.includes('Google') && !v.name.includes('offline')) ||
-                        v.name.includes('Samantha') ||
-                        v.name.includes('Premium') ||
-                        v.name.includes('Natural')
-                    ) || voices.find(v => v.lang.startsWith('en-')) || voices[0];
-
-                    if (bestVoice) {
-                        utterance.voice = bestVoice;
-                    }
-
-                    utterance.rate = 1.0; // Normal conversational rate for clearer understanding
-                    utterance.onend = () => resumeListening();
-                    utterance.onerror = (e) => {
-                        console.error("TTS Error:", e);
-                        resumeListening();
-                    };
-
-                    activeUtteranceRef.current = utterance; // Prevent garbage collection before onend fires
-                    synth.speak(utterance);
-                } catch (err) {
-                    console.error("Google TTS playback error:", err);
-                    resumeListening();
-                }
-            } else {
-                resumeListening();
-            }
+            // Remove TTS entirely; just receive the response as normal conversation.
+            resumeListening();
         } catch (error: any) {
-            console.error('Gemini API Error:', error);
+            console.error('HuggingFace API Error:', error);
             const errorMessage = error.message ? `API Error: ${error.message}` : "An error occurred while connecting to the AI. Please try again.";
             setMessages(prev => [...prev.filter(m => m.id !== 'voice-start'), { id: Date.now().toString(), role: 'model', content: errorMessage }]);
             resumeListening();
