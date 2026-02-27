@@ -47,8 +47,7 @@ export function AIChatbot() {
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
     const recognitionRef = useRef<any>(null);
-    const audioRef = useRef<HTMLAudioElement | null>(null);
-    const isSynthesizingRef = useRef(false);
+    const initialInputRef = useRef('');
     const isVoiceModeRef = useRef(false); // keep purely in sync for event listeners
 
     useEffect(() => {
@@ -93,27 +92,15 @@ export function AIChatbot() {
         recognition.onstart = () => {
             setIsVoiceMode(true);
             isVoiceModeRef.current = true;
-            setMessages(prev => {
-                if (prev.find(m => m.id === 'voice-start')) return prev;
-                return [...prev, { id: 'voice-start', role: 'model', content: "🎤 *(Interactive Voice Mode Started - Just talk! Listening...)*" }];
-            });
+            initialInputRef.current = input;
         };
 
         recognition.onresult = (event: any) => {
-            if (isSynthesizingRef.current) return;
-            let finalTranscript = '';
-            let interimTranscript = '';
-            for (let i = event.resultIndex; i < event.results.length; ++i) {
-                if (event.results[i].isFinal) finalTranscript += event.results[i][0].transcript;
-                else interimTranscript += event.results[i][0].transcript;
+            let totalTranscript = '';
+            for (let i = 0; i < event.results.length; ++i) {
+                totalTranscript += event.results[i][0].transcript;
             }
-
-            if (finalTranscript) {
-                setInput('');
-                handleSend(finalTranscript, true);
-            } else {
-                setInput(interimTranscript);
-            }
+            setInput((initialInputRef.current + ' ' + totalTranscript).trim());
         };
 
         recognition.onerror = (e: any) => {
@@ -127,10 +114,8 @@ export function AIChatbot() {
         };
 
         recognition.onend = () => {
-            // If we're still in voice mode and not talking, restart with a NEW instance
-            if (isVoiceModeRef.current && !isSynthesizingRef.current) {
-                setTimeout(() => startSpeechRecognition(), 100);
-            }
+            setIsVoiceMode(false);
+            isVoiceModeRef.current = false;
         };
 
         recognitionRef.current = recognition;
@@ -144,14 +129,12 @@ export function AIChatbot() {
     const stopVoiceSession = () => {
         setIsVoiceMode(false);
         isVoiceModeRef.current = false;
-        setInput('');
         if (recognitionRef.current) {
             recognitionRef.current.onend = null;
             recognitionRef.current.onerror = null;
             try { recognitionRef.current.stop(); } catch (e) { /* ignore */ }
             recognitionRef.current = null;
         }
-        setMessages(prev => [...prev.filter(m => m.id !== 'voice-start'), { id: Date.now().toString(), role: 'model', content: "*(Voice Mode Ended)*" }]);
     };
 
     const toggleVoiceMode = () => {
@@ -160,19 +143,7 @@ export function AIChatbot() {
     };
 
     const resumeListening = () => {
-        if (isVoiceModeRef.current) {
-            isSynthesizingRef.current = false;
-            setTimeout(() => {
-                if (isVoiceModeRef.current && !isSynthesizingRef.current) {
-                    startSpeechRecognition();
-                }
-            }, 100); // Slight delay for browser to clear audio context cleanly
-
-            setMessages(prev => {
-                if (prev.find(m => m.id === 'voice-start')) return prev;
-                return [...prev, { id: 'voice-start', role: 'model', content: "*(Listening...)*" }];
-            });
-        }
+        // No auto-resume for voice typing
     };
 
     const handleSend = async (textToSend?: string | React.FormEvent, isFromVoice: boolean = false) => {
@@ -192,7 +163,6 @@ export function AIChatbot() {
         setIsLoading(true);
 
         if ((isVoiceMode || isFromVoice) && recognitionRef.current) {
-            isSynthesizingRef.current = true;
             try { recognitionRef.current.stop(); } catch (e) { /* ignore */ }
         }
 
@@ -202,9 +172,7 @@ export function AIChatbot() {
                 content: m.content
             }));
 
-            const systemInstruction = (isVoiceMode || isFromVoice)
-                ? "You are CodeVault AI, an elite personal tutor and study assistant. You must keep the study environment professional, focused, and educational. KEEP RESPONSES EXTREMELY SHORT. NEVER output paragraphs. Respond casually but professionally to my requests. Talk like a real human tutor having a live audio conversation. Maximum 1-2 short sentences. No markdown, no code blocks."
-                : "You are CodeVault AI, an elite AI tutor and study assistant built into CodeVault. Provide a proper, professional, and educational study environment. Help me with my tasks, manage my workflow, learn coding, and write code. Keep responses conversational, highly proactive, focused on learning, and without complex markdown where possible.";
+            const systemInstruction = "You are CodeVault AI, an elite personal tutor and study assistant. Help me with my tasks, manage my workflow, learn coding, and write code. Keep responses conversational, highly proactive, and helpful.";
 
             let textOutput = "";
 
@@ -226,8 +194,7 @@ export function AIChatbot() {
 
             if (!textOutput) throw new Error("Sorry, I couldn't generate a response.");
 
-            const finalMsgContent = isFromVoice ? `*(Voice Mode)*\n\n${textOutput}` : textOutput;
-            setMessages(prev => [...prev.filter(m => m.id !== 'voice-start'), { id: Date.now().toString(), role: 'model', content: finalMsgContent }]);
+            setMessages(prev => [...prev.filter(m => m.id !== 'voice-start'), { id: Date.now().toString(), role: 'model', content: textOutput }]);
 
             // Remove TTS entirely; just receive the response as normal conversation.
             resumeListening();
@@ -337,20 +304,19 @@ export function AIChatbot() {
                             type="button"
                             onClick={toggleVoiceMode}
                             className={cn("rounded-none border-2 border-black dark:border-white h-10 w-10 p-0 shadow-[2px_2px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_rgba(255,255,255,1)] active:translate-y-[2px] active:translate-x-[2px] active:shadow-none transition-all flex-shrink-0", isVoiceMode ? "bg-red-600 hover:bg-red-700 text-white border-red-600 dark:bg-red-600 animate-pulse" : "bg-white hover:bg-neutral-100 text-black dark:bg-black dark:hover:bg-neutral-900 dark:text-white")}
-                            title={isVoiceMode ? "Stop Interactive Voice" : "Start Interactive Voice"}
+                            title={isVoiceMode ? "Stop Voice Typing" : "Start Voice Typing"}
                         >
                             {isVoiceMode ? <Square className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
                         </Button>
                         <input
                             value={input}
                             onChange={(e) => setInput(e.target.value)}
-                            placeholder={isVoiceMode ? "Listening... Just talk naturally!" : "Ask me anything..."}
-                            disabled={isVoiceMode}
-                            className={cn("flex-1 min-w-0 bg-transparent border-b-2 border-black dark:border-white px-2 py-2 text-sm focus:outline-none focus:border-red-600 font-medium", isVoiceMode ? "opacity-40" : "placeholder:opacity-40")}
+                            placeholder={isVoiceMode ? "Listening..." : "Ask me anything..."}
+                            className={cn("flex-1 min-w-0 bg-transparent border-b-2 border-black dark:border-white px-2 py-2 text-sm focus:outline-none focus:border-red-600 font-medium", isVoiceMode && "text-red-600 animate-pulse")}
                         />
                         <Button
                             type="submit"
-                            disabled={isLoading || !input.trim() || isVoiceMode}
+                            disabled={isLoading || !input.trim()}
                             className="rounded-none border-2 border-black dark:border-white h-10 w-10 p-0 shadow-[2px_2px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_rgba(255,255,255,1)] active:translate-y-[2px] active:translate-x-[2px] active:shadow-none bg-white hover:bg-neutral-100 text-black dark:bg-black dark:hover:bg-neutral-900 dark:text-white transition-all disabled:opacity-50"
                         >
                             <Send className="h-4 w-4 ml-1" />
