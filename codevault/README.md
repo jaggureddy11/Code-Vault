@@ -1,58 +1,79 @@
-# 🚀 CodeVault
+# 🚀 CODEVAULT
 
-> **Built by developers, for developers.**
-> CodeVault is a high-performance, AI-powered workspace and knowledge-management platform designed specifically to eliminate context-switching. It combines code snippet execution, architectural planning, documentation storage, and tutorial tracking into one secure environment.
-
----
-
-## 🎨 Brand Identity & Architecture
-
-* **Tech Stack:** React 18, Vite, Tailwind CSS (Frontend), Express, Node.js (Backend proxy), and Supabase (PostgreSQL Database & Auth).
-* **Aesthetic:** "Gritty Industrial." Features a stark black, white, and red color palette utilizing strict `JetBrains Mono` code fonts and aggressive italics to feel like a premium, high-speed engineering tool.
-* **Security:** Built completely on Supabase Row Level Security (RLS). Every snippet, note, and project is rigorously protected so users can only access their personal "intel."
+> **Built by developers, for developers.**  
+> CodeVault is a high-performance, AI-powered workspace designed to eliminate context-switching. It is an "Industrial-Grade" engineering brain that centralizes your snippets, documentation, and continuous learning into one secure, ultra-fast environment.
 
 ---
 
-## 🗺️ Complete Website Sections
+## 🦾 Key Features
 
-### 1. Authentication & Onboarding
-* **The Gates (Login & Signup Pages):** The entry points feature a stunning, interactive 3D CSS Holographic Cube that maps to the user’s cursor movement. It provides a massive "wow" factor right from the start, utilizing Supabase Auth to securely log developers in.
+### 1. CodeVault AI: Your Elite Tutor
+The heart of the Vault. A powerful sidekick powered by **Meta Llama 3 (8B)** that helps you:
+- **Instant Explanation:** Deep-dive into complex architectural patterns or snippets.
+- **Proactive Search:** Find exactly the logic you need inside your own library.
+- **Industrial Logic:** A specialized "Tutor" persona designed to keep you focused and professional.
 
-### 2. The Core Engine (Code Management)
-* **Vault Dashboard (`/dashboard`):** The primary hub. Here, developers can create, read, update, and delete their code snippets. It utilizes the powerful Monaco Editor (the same tech behind VS Code) to support syntax highlighting for over 100+ languages. 
-* **Project Explorer (`/projects`):** Instead of loose snippets, developers can create structured "Projects" to group related files, architectures, and modules together, operating much like a standard IDE file tree.
-* **Favorites (`/favorites`):** Quick-access bookmarks for a developer's most heavily utilized logic blocks.
+### 2. Voice Typing (Speech-to-Code)
+Stop typing, start building.  
+- **Zero-Lag Transcription:** Integrated native browser speech-to-text.
+- **Interactive Workflow:** Dictate your logic or questions directly into the AI agent for rapid-fire development.
 
-### 3. Community & Discovery
-* **Explore Grid (`/explore`):** The open-source community section. Developers can toggle snippets from "Private" to "Public", allowing other engineers across the platform to search, view, and utilize their code.
-* **Snippet Details:** Dedicated full-screen views for deep-diving into specific public or private logic blocks, complete with one-click copy functionality.
+### 3. The Core Engine
+- **Vault Dashboard:** Manage your secure logic library with the **Monaco Editor** (VS Code's engine).
+- **Document Vault:** Dual-pane PDF viewer and Markdown note-taker for architectural planning.
+- **Learning Zone:** Search and pin YouTube coding tutorials natively to stay out of the distractions of the main feed.
+- **Project Explorer:** IDE-style structured file trees to group related modules and architectures.
 
-### 4. Advanced Learning Tools
-* **Document Vault (`/notes`):** A specialized dual-pane workflow. Developers can upload and review technical PDFs on the left, while taking rich-text, markdown-supported architectural notes on the right.
-* **Learning Zone (`/learning`):** To prevent developers from getting lost in the YouTube algorithm, this section integrates the YouTube v3 API native into the application. Developers can search, watch, and pin coding tutorials directly inside CodeVault.
+---
 
+## 🎨 Tech Stack & Aesthetic
 
-## 💡 Why CodeVault Wins (The Pitch)
-
-*"Developers waste countless hours switching between Google, YouTube, VS Code, and Notion just to find one piece of logic they wrote 6 months ago. **CodeVault** centralizes the engineering brain. It’s not just a pastebin; it’s an entire secure operating system for your code architecture, documentation, and continuous learning."*
+CodeVault utilizes a **"Gritty Industrial"** design system:
+- **Visuals:** High-contrast Black, White, and Red palette using **JetBrains Mono** typography.
+- **Frontend:** React 18, Vite, TypeScript, Tailwind CSS, Shadcn UI.
+- **Backend:** Node.js, Express (Industrial Proxy).
+- **Intelligence:** Hugging Face Inference API (Llama 3), Google Gemini.
+- **Infrastructure:** Supabase (Auth, PostgreSQL, Row Level Security).
 
 ---
 
 ## 🚀 Getting Started
 
-To run the platform locally:
+### 1. Clone & Install
+```bash
+# Clone the repository
+git clone https://github.com/jaggureddy11/Code-Vault.git
+cd Code-Vault
 
-1. Clone this repository.
-2. Install dependencies for both frontend and backend:
-   ```bash
-   npm install
-   cd frontend && npm install
-   cd ../backend && npm install
-   ```
-3. Set up your `.env` variables for Supabase and the Backend Server.
-4. Run the development environment:
-   ```bash
-   npm run dev
-   ```
+# Install all dependencies (Monorepo)
+npm run install:all
+```
 
-Enjoy building inside the vault!
+### 2. Environment Setup
+Create a `frontend/.env.local` file with the following keys:
+```env
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+VITE_HUGGINGFACE_API_KEY=your_hf_token
+VITE_GEMINI_API_KEY=your_gemini_key
+```
+
+### 3. Launch the Vault
+```bash
+npm run dev
+```
+
+---
+
+## 🚢 Production Deployment
+
+The project is pre-configured for **Render** or **Vercel** with a unified build command:
+- **Build Command:** `npm run build` (Installs all dependencies and builds the production bundle).
+- **Start Command:** `npm run start:backend` (Serves the production frontend via the Express proxy).
+
+---
+> [!IMPORTANT]
+> **Security First:** CodeVault utilizes Supabase RLS (Row Level Security). Your "Intel" (Snippets/Notes) is never visible to other users unless explicitly marked as **Public**.
+
+> [!TIP]
+> Use the **Interactive Voice Mode** (Microphone Icon) for the fastest chat-based learning experience.
