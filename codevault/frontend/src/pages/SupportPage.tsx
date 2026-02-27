@@ -222,59 +222,57 @@ export default function SupportPage() {
                 </div>
 
                 {/* Display Reviews Section */}
-                <div className="mb-20 space-y-10">
-                    <h2 className="text-4xl font-black italic tracking-tighter uppercase border-b-8 border-black dark:border-white pb-4">
-                        REVIEWS
-                    </h2>
+                {reviews.length > 0 && (
+                    <div className="mb-20 space-y-10">
+                        <h2 className="text-4xl font-black italic tracking-tighter uppercase border-b-8 border-black dark:border-white pb-4">
+                            REVIEWS
+                        </h2>
 
-                    {fetching ? (
-                        <div className="flex justify-center py-20">
-                            <Loader2 className="h-12 w-12 animate-spin opacity-20" />
-                        </div>
-                    ) : reviews.length > 0 ? (
-                        <div className="grid grid-cols-1 gap-8">
-                            {reviews.map((item) => (
-                                <div key={item.id} className="border-4 border-black dark:border-white p-8 space-y-4 hover:bg-neutral-50 dark:hover:bg-neutral-900 transition-colors">
-                                    <div className="flex justify-between items-start">
-                                        <div className="flex items-center gap-4">
-                                            <div className="w-12 h-12 bg-neutral-200 dark:bg-neutral-800 rounded-none border-2 border-black dark:border-white overflow-hidden">
-                                                {item.profiles?.avatar_url ? (
-                                                    <img src={item.profiles.avatar_url} alt="" className="w-full h-full object-cover" />
-                                                ) : (
-                                                    <div className="w-full h-full flex items-center justify-center">
-                                                        <User className="h-6 w-6 opacity-30" />
+                        {fetching ? (
+                            <div className="flex justify-center py-20">
+                                <Loader2 className="h-12 w-12 animate-spin opacity-20" />
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-1 gap-8">
+                                {reviews.map((item) => (
+                                    <div key={item.id} className="border-4 border-black dark:border-white p-8 space-y-4 hover:bg-neutral-50 dark:hover:bg-neutral-900 transition-colors">
+                                        <div className="flex justify-between items-start">
+                                            <div className="flex items-center gap-4">
+                                                <div className="w-12 h-12 bg-neutral-200 dark:bg-neutral-800 rounded-none border-2 border-black dark:border-white overflow-hidden">
+                                                    {item.profiles?.avatar_url ? (
+                                                        <img src={item.profiles.avatar_url} alt="" className="w-full h-full object-cover" />
+                                                    ) : (
+                                                        <div className="w-full h-full flex items-center justify-center">
+                                                            <User className="h-6 w-6 opacity-30" />
+                                                        </div>
+                                                    )}
+                                                </div>
+                                                <div>
+                                                    <p className="font-black italic uppercase tracking-tighter">{item.profiles?.username || 'ANONYMOUS DEV'}</p>
+                                                    <div className="flex items-center gap-2 opacity-40 text-[10px] font-black italic">
+                                                        <Calendar className="h-3 w-3" />
+                                                        {formatDate(item.created_at)}
                                                     </div>
-                                                )}
-                                            </div>
-                                            <div>
-                                                <p className="font-black italic uppercase tracking-tighter">{item.profiles?.username || 'ANONYMOUS DEV'}</p>
-                                                <div className="flex items-center gap-2 opacity-40 text-[10px] font-black italic">
-                                                    <Calendar className="h-3 w-3" />
-                                                    {formatDate(item.created_at)}
                                                 </div>
                                             </div>
+                                            <div className="flex gap-1">
+                                                {[...Array(5)].map((_, i) => (
+                                                    <Star
+                                                        key={i}
+                                                        className={`h-4 w-4 ${i < item.rating ? 'fill-red-600 text-red-600' : 'opacity-10'}`}
+                                                    />
+                                                ))}
+                                            </div>
                                         </div>
-                                        <div className="flex gap-1">
-                                            {[...Array(5)].map((_, i) => (
-                                                <Star
-                                                    key={i}
-                                                    className={`h-4 w-4 ${i < item.rating ? 'fill-red-600 text-red-600' : 'opacity-10'}`}
-                                                />
-                                            ))}
-                                        </div>
+                                        <p className="text-lg font-bold uppercase italic opacity-80 leading-tight">
+                                            "{item.content}"
+                                        </p>
                                     </div>
-                                    <p className="text-lg font-bold uppercase italic opacity-80 leading-tight">
-                                        "{item.content}"
-                                    </p>
-                                </div>
-                            ))}
-                        </div>
-                    ) : (
-                        <div className="text-center py-20 border-4 border-dashed border-neutral-200 dark:border-neutral-800">
-                            <p className="text-sm font-black italic uppercase opacity-30">NO INTEL RECORDS FOUND. BE THE FIRST TO REVIEW.</p>
-                        </div>
-                    )}
-                </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                )}
 
                 {/* GitHub Donation / Support Link */}
                 <div className="bg-black text-white dark:bg-white dark:text-black p-12 text-center space-y-8">
