@@ -194,10 +194,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                                         <span className="text-[10px] font-black tracking-widest opacity-60 mt-1">{user?.email}</span>
                                     </DropdownMenuLabel>
                                     <div className="p-2 space-y-1">
-                                        <DropdownMenuItem onClick={() => navigate('/profile')} className="rounded-none p-5 text-[10px] font-black uppercase italic tracking-widest hover:bg-neutral-100 dark:hover:bg-neutral-900 cursor-pointer gap-4">
+                                        <DropdownMenuItem onClick={() => { navigate('/profile'); window.scrollTo(0, 0); }} className="rounded-none p-5 text-[10px] font-black uppercase italic tracking-widest hover:bg-neutral-100 dark:hover:bg-neutral-900 cursor-pointer gap-4">
                                             <User className="h-4 w-4" /> View Profile
                                         </DropdownMenuItem>
-                                        <DropdownMenuItem onClick={() => navigate('/support')} className="rounded-none p-5 text-[10px] font-black uppercase italic tracking-widest hover:bg-neutral-100 dark:hover:bg-neutral-900 cursor-pointer gap-4">
+                                        <DropdownMenuItem onClick={() => { navigate('/support'); window.scrollTo(0, 0); }} className="rounded-none p-5 text-[10px] font-black uppercase italic tracking-widest hover:bg-neutral-100 dark:hover:bg-neutral-900 cursor-pointer gap-4">
                                             <Sparkles className="h-4 w-4" /> Support Us
                                         </DropdownMenuItem>
                                         <DropdownMenuSeparator className="bg-black/10 dark:bg-white/10 mx-4" />
@@ -255,6 +255,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                             <NavLink
                                 key={link.path}
                                 to={link.path}
+                                onClick={() => window.scrollTo(0, 0)}
                                 className="flex items-center gap-6 p-6 border-2 border-black/10 dark:border-white/10 text-xl font-black uppercase italic tracking-widest"
                             >
                                 <link.icon className="h-6 w-6" />
@@ -309,7 +310,13 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                             <ul className="space-y-6">
                                 {navLinks.map((link) => (
                                     <li key={link.path}>
-                                        <NavLink to={link.path} className="text-2xl font-black uppercase italic tracking-tighter hover:underline decoration-4 underline-offset-8 transition-all">{link.name}</NavLink>
+                                        <NavLink
+                                            to={link.path}
+                                            onClick={() => window.scrollTo(0, 0)}
+                                            className="text-2xl font-black uppercase italic tracking-tighter hover:underline decoration-4 underline-offset-8 transition-all"
+                                        >
+                                            {link.name}
+                                        </NavLink>
                                     </li>
                                 ))}
                             </ul>
@@ -320,7 +327,13 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                             <ul className="space-y-6">
                                 {footerLinks.map((link) => (
                                     <li key={link.path}>
-                                        <NavLink to={link.path} className="text-2xl font-black uppercase italic tracking-tighter hover:underline decoration-4 underline-offset-8 transition-all">{link.name}</NavLink>
+                                        <NavLink
+                                            to={link.path}
+                                            onClick={() => window.scrollTo(0, 0)}
+                                            className="text-2xl font-black uppercase italic tracking-tighter hover:underline decoration-4 underline-offset-8 transition-all"
+                                        >
+                                            {link.name}
+                                        </NavLink>
                                     </li>
                                 ))}
                             </ul>
