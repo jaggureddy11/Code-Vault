@@ -224,10 +224,12 @@ export function AIChatbot() {
     }
 
     return (
-        <Draggable handle=".chat-header" bounds="body">
+        <Draggable handle=".chat-header" cancel="button" bounds="body">
             <div className={cn(
-                "fixed lg:bottom-6 bottom-20 right-6 max-h-[85vh] bg-white dark:bg-black border-4 border-black dark:border-white z-[9999] flex flex-col shadow-[8px_8px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_rgba(255,255,255,1)] overflow-hidden font-sans transition-all",
-                isExpanded ? "w-[80vw] h-[80vh] min-w-[380px] min-h-[600px]" : "w-[380px] h-[600px]"
+                "fixed lg:bottom-6 bottom-20 right-4 lg:right-6 max-h-[85vh] bg-white dark:bg-black border-4 border-black dark:border-white z-[9999] flex flex-col shadow-[8px_8px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_rgba(255,255,255,1)] overflow-hidden font-sans transition-all",
+                isExpanded
+                    ? "w-[95vw] lg:w-[80vw] h-[80vh] min-h-[600px]"
+                    : "w-[calc(100vw-2rem)] lg:w-[380px] h-[600px]"
             )}>
                 {/* Header */}
                 <div className="chat-header cursor-move flex items-center justify-between px-4 py-4 bg-black text-white dark:bg-white dark:text-black border-b-4 border-black dark:border-white">
