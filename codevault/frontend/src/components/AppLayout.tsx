@@ -41,6 +41,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
     useEffect(() => {
         setMobileMenuOpen(false);
+        window.scrollTo(0, 0);
     }, [location]);
 
     useEffect(() => {
@@ -133,7 +134,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             >
                 <div className="max-w-7xl mx-auto flex justify-between items-center">
                     {/* Logo Area */}
-                    <NavLink to="/" className="z-[110]">
+                    <NavLink to="/" className="z-[110]" onClick={() => window.scrollTo(0, 0)}>
                         <Logo />
                     </NavLink>
 
@@ -235,6 +236,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                             <NavLink
                                 key={link.path}
                                 to={link.path}
+                                onClick={() => window.scrollTo(0, 0)}
                                 className={({ isActive }) => cn(
                                     "flex items-center gap-6 sm:gap-8 p-6 sm:p-8 text-2xl sm:text-4xl font-black uppercase italic tracking-tighter transition-all border-4",
                                     isActive ? "bg-black text-white border-black dark:bg-white dark:text-black dark:border-white" : "border-black/5 dark:border-white/5"
@@ -280,6 +282,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                     <NavLink
                         key={link.path}
                         to={link.path}
+                        onClick={() => window.scrollTo(0, 0)}
                         className={({ isActive }) => cn(
                             "flex items-center justify-center flex-1 h-full transition-all duration-300",
                             isActive ? "bg-black text-white dark:bg-white dark:text-black" : "text-black dark:text-white"
