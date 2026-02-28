@@ -153,16 +153,6 @@ export default function ProfilePage() {
                             />
                         </div>
                         <div>
-                            <label htmlFor="fullName" className="block text-xs font-bold uppercase tracking-widest opacity-70 mb-1">Full name</label>
-                            <input
-                                id="fullName"
-                                className="w-full bg-transparent border-b-2 border-black dark:border-white py-3 text-lg font-medium focus:outline-none focus:border-red-600"
-                                placeholder="Full name"
-                                value={fullName}
-                                onChange={(e) => setFullName(e.target.value)}
-                            />
-                        </div>
-                        <div>
                             <label className="block text-xs font-bold uppercase tracking-widest opacity-70 mb-1">Email</label>
                             <p className="py-3 text-lg opacity-70 border-b border-black/10 dark:border-white/10">{user?.email}</p>
                         </div>

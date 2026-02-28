@@ -49,6 +49,7 @@ export function AIChatbot() {
     const recognitionRef = useRef<any>(null);
     const initialInputRef = useRef('');
     const isVoiceModeRef = useRef(false); // keep purely in sync for event listeners
+    const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
     useEffect(() => {
         // Pre-warm the TTS engine's voice list on mount so human voices are ready instantly
@@ -146,6 +147,22 @@ export function AIChatbot() {
         // No auto-resume for voice typing
     };
 
+    const handleSendRef = useRef<any>(null);
+
+    useEffect(() => {
+        if (isVoiceMode && input.trim() && !isLoading) {
+            if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+            typingTimeoutRef.current = setTimeout(() => {
+                if (handleSendRef.current) {
+                    handleSendRef.current(input, true);
+                }
+            }, 3000);
+        }
+        return () => {
+            if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+        };
+    }, [input, isVoiceMode, isLoading]);
+
     const handleSend = async (textToSend?: string | React.FormEvent, isFromVoice: boolean = false) => {
         if (textToSend && typeof textToSend === 'object' && 'preventDefault' in textToSend) {
             textToSend.preventDefault();
@@ -208,6 +225,8 @@ export function AIChatbot() {
         }
     };
 
+    handleSendRef.current = handleSend;
+
     if (!isOpen) {
         return (
             <Button
@@ -234,7 +253,7 @@ export function AIChatbot() {
                 {/* Header */}
                 <div className="chat-header cursor-move flex items-center justify-between px-4 py-4 bg-black text-white dark:bg-white dark:text-black border-b-4 border-black dark:border-white">
                     <div className="flex items-center gap-3">
-                        <Sparkles className="h-5 w-5" />
+                        <Bot className="h-5 w-5" />
                         <div>
                             <h3 className="font-black italic uppercase tracking-widest text-sm leading-none">CodeVault AI</h3>
                             <p className="text-[10px] opacity-70 mt-1 uppercase tracking-widest font-bold">Always learning...</p>
