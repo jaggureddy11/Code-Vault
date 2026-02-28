@@ -78,7 +78,17 @@ const SUGGESTED_VIDEOS: Video[] = [
 
 export default function LearningZone() {
     const [searchQuery, setSearchQuery] = useState('');
-    const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
+    const [selectedVideo, setSelectedVideo] = useState<Video | null>(() => {
+        const saved = localStorage.getItem('yt_recent_video');
+        if (saved) {
+            try {
+                return JSON.parse(saved);
+            } catch (e) {
+                return null;
+            }
+        }
+        return null;
+    });
     const [searchResults, setSearchResults] = useState<Video[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [hasSearched, setHasSearched] = useState(false);
@@ -129,15 +139,17 @@ export default function LearningZone() {
 
     const { recentlyViewed, saveVideoSession, deleteRecentlyViewed, isDeletingRecent } = useLearning();
 
-    // Restore session on load ONLY if user has a history
+    // Only fallback to 'recentlyViewed' array if absolutely no local state was stored
     useEffect(() => {
         if (!selectedVideo && recentlyViewed.length > 0) {
             setSelectedVideo(recentlyViewed[0]);
+            localStorage.setItem('yt_recent_video', JSON.stringify(recentlyViewed[0]));
         }
     }, [recentlyViewed, selectedVideo]);
 
     const handleVideoSelect = (video: Video) => {
         setSelectedVideo(video);
+        localStorage.setItem('yt_recent_video', JSON.stringify(video));
         saveVideoSession(video);
         window.scrollTo({ top: 400, behavior: 'smooth' });
     };
