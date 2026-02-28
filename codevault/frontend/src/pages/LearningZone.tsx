@@ -229,7 +229,7 @@ export default function LearningZone() {
                         <div className="lg:col-span-8 aspect-video bg-black relative">
                             <Player
                                 ref={playerRef}
-                                url={`https://www.youtube-nocookie.com/watch?v=${selectedVideo.id}`}
+                                url={`https://www.youtube.com/watch?v=${selectedVideo.id}`}
                                 width="100%"
                                 height="100%"
                                 controls={true}
@@ -241,9 +241,10 @@ export default function LearningZone() {
                                         playerVars: {
                                             autoplay: 0,
                                             rel: 0,
-                                            modestbranding: 1,
-                                            iv_load_policy: 3,
-                                            origin: window.location.origin
+                                            modestbranding: 1
+                                        },
+                                        embedOptions: {
+                                            host: 'https://www.youtube-nocookie.com'
                                         }
                                     } as any
                                 }}
