@@ -35,13 +35,33 @@ export default function SnippetForm({
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [isScanning, setIsScanning] = useState(false);
     const [securityStatus, setSecurityStatus] = useState<'SECURE' | 'WARNING' | 'CRITICAL' | null>(null);
-    const [formData, setFormData] = useState<CreateSnippetInput>({
-        title: initialData?.title || '',
-        description: initialData?.description || '',
-        code: initialData?.code || '',
-        language: initialData?.language || 'javascript',
-        tags: initialData?.tags?.map((t: any) => typeof t === 'string' ? t : t.name) || [],
-        is_public: initialData?.is_public ?? false,
+    const [formData, setFormData] = useState<CreateSnippetInput>(() => {
+        if (!initialData) {
+            try {
+                const draft = localStorage.getItem('snippet_draft');
+                if (draft) {
+                    const parsed = JSON.parse(draft);
+                    return {
+                        title: parsed.title || '',
+                        description: parsed.description || '',
+                        code: parsed.code || '',
+                        language: parsed.language || 'javascript',
+                        tags: parsed.tags || [],
+                        is_public: parsed.is_public ?? false,
+                    };
+                }
+            } catch (e) {
+                console.error('Failed to load draft');
+            }
+        }
+        return {
+            title: initialData?.title || '',
+            description: initialData?.description || '',
+            code: initialData?.code || '',
+            language: initialData?.language || 'javascript',
+            tags: initialData?.tags?.map((t: any) => typeof t === 'string' ? t : t.name) || [],
+            is_public: initialData?.is_public ?? false,
+        };
     });
 
     const handleAIAnalyze = async () => {
@@ -122,19 +142,6 @@ export default function SnippetForm({
 
     const [isPreview, setIsPreview] = useState(false);
 
-    // Auto-save draft to localStorage
-    useEffect(() => {
-        const draft = localStorage.getItem('snippet_draft');
-        if (draft && !initialData) {
-            try {
-                const parsed = JSON.parse(draft);
-                setFormData(prev => ({ ...prev, ...parsed }));
-            } catch (e) {
-                console.error('Failed to load draft');
-            }
-        }
-    }, [initialData]);
-
     useEffect(() => {
         if (!initialData) {
             localStorage.setItem('snippet_draft', JSON.stringify(formData));
@@ -197,8 +204,8 @@ export default function SnippetForm({
     }
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-12">
-            <div className="flex justify-end mb-4">
+        <form onSubmit={handleSubmit} className="space-y-8">
+            <div className="flex justify-end mb-2">
                 <Button
                     type="button"
                     variant="ghost"
@@ -208,8 +215,8 @@ export default function SnippetForm({
                     Switch to Preview
                 </Button>
             </div>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-                <div className="space-y-8">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <div className="space-y-6 lg:col-span-4">
                     <div className="space-y-3">
                         <Label htmlFor="title" className="text-[10px] font-black uppercase tracking-[0.3em] flex items-center gap-2 italic">
                             <Type className="h-4 w-4" />
@@ -218,14 +225,14 @@ export default function SnippetForm({
                         <input
                             id="title"
                             placeholder="Enter snippet title..."
-                            className="w-full h-12 sm:h-16 border-b-4 border-black dark:border-white bg-transparent outline-none text-xl sm:text-2xl font-black italic tracking-tighter transition-colors focus:border-red-600"
+                            className="w-full h-10 sm:h-14 border-b-4 border-black dark:border-white bg-transparent outline-none text-xl sm:text-2xl font-black italic tracking-tighter transition-colors focus:border-red-600"
                             value={formData.title}
                             onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                             required
                         />
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-3">
                             <Label htmlFor="language" className="text-[10px] font-black uppercase tracking-[0.3em] flex items-center gap-2 italic">
                                 <FileCode className="h-4 w-4" />
@@ -235,7 +242,7 @@ export default function SnippetForm({
                                 value={formData.language}
                                 onValueChange={(value) => setFormData({ ...formData, language: value })}
                             >
-                                <SelectTrigger className="h-16 rounded-none border-b-4 border-black dark:border-white text-lg font-black italic uppercase tracking-tighter focus:ring-0 bg-transparent">
+                                <SelectTrigger className="h-12 sm:h-14 rounded-none border-b-4 border-black dark:border-white text-lg font-black italic uppercase tracking-tighter focus:ring-0 bg-transparent">
                                     <SelectValue placeholder="Select" />
                                 </SelectTrigger>
                                 <SelectContent className="rounded-none border-2 border-black dark:border-white bg-white dark:bg-black">
@@ -261,7 +268,7 @@ export default function SnippetForm({
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-4 p-4 border-4 border-black dark:border-white">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 p-4 border-4 border-black dark:border-white">
                         <div className="flex-1">
                             <Label className="text-[10px] font-black uppercase tracking-[0.3em] flex items-center gap-2 italic mb-1">
                                 Visibility
@@ -274,7 +281,7 @@ export default function SnippetForm({
                             type="button"
                             onClick={() => setFormData({ ...formData, is_public: !formData.is_public })}
                             className={cn(
-                                "h-12 px-6 rounded-none font-black italic uppercase tracking-widest transition-all",
+                                "h-12 px-6 rounded-none font-black italic uppercase tracking-widest transition-all w-full sm:w-auto",
                                 formData.is_public
                                     ? "bg-emerald-500 text-white hover:bg-emerald-600"
                                     : "bg-black text-white dark:bg-white dark:text-black hover:opacity-80"
@@ -295,7 +302,7 @@ export default function SnippetForm({
                         <Textarea
                             id="description"
                             placeholder="Add a brief description..."
-                            className="min-h-[120px] sm:min-h-[160px] rounded-none border-4 border-black dark:border-white text-sm sm:text-lg font-bold italic tracking-tighter placeholder:opacity-30 focus:ring-0 p-4 sm:p-6 bg-transparent"
+                            className="min-h-[100px] sm:min-h-[120px] rounded-none border-4 border-black dark:border-white text-sm sm:text-lg font-bold italic tracking-tighter placeholder:opacity-30 focus:ring-0 p-4 sm:p-6 bg-transparent"
                             value={formData.description}
                             onChange={(e) =>
                                 setFormData({ ...formData, description: e.target.value })
@@ -304,10 +311,10 @@ export default function SnippetForm({
                     </div>
                 </div>
 
-                <div className="space-y-6">
-                    <div className="flex justify-between items-center px-1 gap-4">
-                        <Label className="text-[10px] font-black uppercase tracking-[0.3em] flex items-center gap-2 italic">
-                            <Sparkles className="h-4 w-4" />
+                <div className="space-y-6 lg:col-span-8">
+                    <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center px-1 gap-4">
+                        <Label className="text-[15px] font-black uppercase tracking-[0.3em] flex items-center gap-2 italic">
+
                             Code Editor
                         </Label>
                         <div className="flex flex-wrap gap-2">
@@ -322,35 +329,45 @@ export default function SnippetForm({
                                     {securityStatus}
                                 </div>
                             )}
-                            <div className="flex gap-2">
-                                <Button
-                                    type="button"
-                                    variant="secondary"
-                                    size="sm"
-                                    className="h-8 sm:h-10 px-3 sm:px-4 rounded-none border-2 border-black dark:border-white bg-white dark:bg-black text-black dark:text-white font-black uppercase italic tracking-widest text-[8px] sm:text-[10px] hover:bg-neutral-100 dark:hover:bg-neutral-900 transition-all gap-2"
-                                    onClick={simulateSecurityScan}
-                                    disabled={isScanning || !formData.code}
-                                >
-                                    {isScanning ? <Loader2 className="h-3 w-3 animate-spin" /> : <ShieldCheck className="h-3 w-3" />}
-                                    Security
-                                </Button>
-                                <Button
-                                    type="button"
-                                    variant="secondary"
-                                    size="sm"
-                                    className="h-8 sm:h-10 px-3 sm:px-4 rounded-none border-2 border-black dark:border-white bg-black dark:bg-white text-white dark:text-black font-black uppercase italic tracking-widest text-[8px] sm:text-[10px] hover:invert transition-all gap-2"
-                                    onClick={handleAIAnalyze}
-                                    disabled={isAnalyzing || !formData.code}
-                                >
-                                    {isAnalyzing ? <Loader2 className="h-3 w-3 animate-spin" /> : <Zap className="h-3 w-3" />}
-                                    AI Fill
-                                </Button>
+                            <div className="flex gap-2 w-full xl:w-auto">
+                                <div className="relative group">
+                                    <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-max px-3 py-1.5 bg-black text-white dark:bg-white dark:text-black text-[10px] font-bold uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none before:content-[''] before:absolute before:-bottom-2 before:left-1/2 before:-translate-x-1/2 before:border-[6px] before:border-transparent before:border-t-black dark:before:border-t-white z-50 shadow-xl hidden sm:block">
+                                        Scan vulnerabilities
+                                    </div>
+                                    <Button
+                                        type="button"
+                                        variant="secondary"
+                                        size="sm"
+                                        className="h-8 sm:h-10 px-3 sm:px-4 rounded-none border-2 border-black dark:border-white bg-white dark:bg-black text-black dark:text-white font-black uppercase italic tracking-widest text-[8px] sm:text-[10px] hover:bg-neutral-100 dark:hover:bg-neutral-900 transition-all gap-2"
+                                        onClick={simulateSecurityScan}
+                                        disabled={isScanning || !formData.code}
+                                    >
+                                        {isScanning ? <Loader2 className="h-3 w-3 animate-spin" /> : <ShieldCheck className="h-3 w-3" />}
+                                        Security
+                                    </Button>
+                                </div>
+                                <div className="relative group">
+                                    <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-max px-3 py-1.5 bg-black text-white dark:bg-white dark:text-black text-[10px] font-bold uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none before:content-[''] before:absolute before:-bottom-2 before:left-1/2 before:-translate-x-1/2 before:border-[6px] before:border-transparent before:border-t-black dark:before:border-t-white z-50 shadow-xl hidden sm:block">
+                                        Auto-fill title, tags, etc
+                                    </div>
+                                    <Button
+                                        type="button"
+                                        variant="secondary"
+                                        size="sm"
+                                        className="h-8 sm:h-10 px-3 sm:px-4 rounded-none border-2 border-black dark:border-white bg-black dark:bg-white text-white dark:text-black font-black uppercase italic tracking-widest text-[8px] sm:text-[10px] hover:invert transition-all gap-2"
+                                        onClick={handleAIAnalyze}
+                                        disabled={isAnalyzing || !formData.code}
+                                    >
+                                        {isAnalyzing ? <Loader2 className="h-3 w-3 animate-spin" /> : <Zap className="h-3 w-3" />}
+                                        AI Fill
+                                    </Button>
+                                </div>
                             </div>
                         </div>
                     </div>
                     <div className="border-2 border-black dark:border-white overflow-hidden shadow-[8px_8px_0px_0px_rgba(0,0,0,0.05)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,0.05)]">
                         <CodeEditor
-                            height="500px"
+                            height="420px"
                             language={formData.language}
                             value={formData.code}
                             onChange={(value: string) => setFormData({ ...formData, code: value })}
@@ -360,20 +377,20 @@ export default function SnippetForm({
                 </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row justify-end gap-3 sm:gap-6 pt-8 sm:pt-12 border-t-2 border-black/10 dark:border-white/10">
+            <div className="flex flex-col sm:flex-row justify-end gap-3 sm:gap-6 pt-6 sm:pt-8 border-t-2 border-black/10 dark:border-white/10">
                 <Button
                     type="button"
                     variant="ghost"
                     onClick={onCancel}
                     disabled={isLoading}
-                    className="h-12 sm:h-16 px-6 sm:px-12 rounded-none border-2 border-black/10 dark:border-white/10 font-black uppercase italic tracking-widest hover:bg-neutral-100 dark:hover:bg-neutral-900 transition-all text-xs sm:text-base"
+                    className="h-12 sm:h-16 px-6 sm:px-12 rounded-none border-2 border-black/20 dark:border-white/20 font-black uppercase italic tracking-widest hover:bg-black hover:text-white hover:border-black dark:hover:bg-white dark:hover:text-black dark:hover:border-white transition-all text-xs sm:text-base w-full sm:w-auto"
                 >
                     Cancel
                 </Button>
                 <Button
                     type="submit"
                     disabled={isLoading || !formData.title || !formData.code}
-                    className="adidas-button h-14 sm:h-16 px-10 sm:px-20 text-lg sm:text-xl"
+                    className="adidas-button h-14 sm:h-16 px-10 sm:px-20 text-lg sm:text-xl w-full sm:w-auto"
                 >
                     {isLoading ? (
                         <Loader2 className="h-6 w-6 animate-spin" />

@@ -70,6 +70,21 @@ export default function DashboardPage() {
 
 
     // Keyboard shortcuts
+    useEffect(() => {
+        const draft = localStorage.getItem('snippet_draft');
+        if (draft) {
+            try {
+                const parsed = JSON.parse(draft);
+                // Only open if there's actual unsaved data
+                if (parsed.title || parsed.code || parsed.description) {
+                    setIsCreateModalOpen(true);
+                }
+            } catch (e) {
+                // Ignore parse errors
+            }
+        }
+    }, [])
+
     useKeyboardShortcuts([
         {
             key: 'k',
@@ -169,7 +184,7 @@ export default function DashboardPage() {
                                         </div>
                                     </Button>
                                 </DialogTrigger>
-                                <DialogContent className="max-w-6xl w-[95vw] sm:w-full h-[90vh] overflow-y-auto rounded-none border-t-8 border-black dark:border-white p-0 bg-white dark:bg-black">
+                                <DialogContent className="max-w-none w-screen h-screen overflow-y-auto rounded-none border-0 border-t-8 border-black dark:border-white p-0 bg-white dark:bg-black">
                                     <div className="p-6 sm:p-12">
                                         <DialogHeader className="mb-8 sm:mb-12">
                                             <DialogTitle className="text-3xl sm:text-5xl font-black italic uppercase tracking-tighter">
