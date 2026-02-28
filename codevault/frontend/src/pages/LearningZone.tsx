@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { useLearning } from '@/hooks/useLearning';
 import { Video } from '@/types';
 import { fetchJson, getApiBaseUrl } from '@/lib/utils';
+import ReactPlayer from 'react-player';
 
 const SUGGESTED_VIDEOS: Video[] = [
     {
@@ -82,6 +83,23 @@ export default function LearningZone() {
     const [isLoading, setIsLoading] = useState(false);
     const [hasSearched, setHasSearched] = useState(false);
     const contentRef = useRef<HTMLDivElement>(null);
+    const playerRef = useRef<any>(null);
+    const Player = ReactPlayer as any;
+
+    const handleProgress = ({ playedSeconds }: any) => {
+        if (selectedVideo) {
+            localStorage.setItem(`yt_progress_${selectedVideo.id}`, playedSeconds.toString());
+        }
+    };
+
+    const handleReady = () => {
+        if (selectedVideo && playerRef.current) {
+            const savedTime = localStorage.getItem(`yt_progress_${selectedVideo.id}`);
+            if (savedTime) {
+                playerRef.current.seekTo(parseFloat(savedTime), 'seconds');
+            }
+        }
+    };
 
     const scrollToContent = () => {
         contentRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -209,18 +227,27 @@ export default function LearningZone() {
                 {selectedVideo && (
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-0 border-4 border-black dark:border-white mb-20 bg-white dark:bg-black">
                         <div className="lg:col-span-8 aspect-video bg-black relative">
-                            <iframe
+                            <Player
+                                ref={playerRef}
+                                url={`https://www.youtube.com/watch?v=${selectedVideo.id}`}
                                 width="100%"
                                 height="100%"
-                                src={`https://www.youtube.com/embed/${selectedVideo.id}?autoplay=0&rel=0&modestbranding=1&iv_load_policy=3`}
-                                title="Video Player"
-                                frameBorder="0"
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                allowFullScreen
-                                referrerPolicy="strict-origin-when-cross-origin"
-                                sandbox="allow-scripts allow-same-origin allow-presentation"
-                                className="w-full h-full"
-                            ></iframe>
+                                controls={true}
+                                playing={false}
+                                onProgress={handleProgress}
+                                onReady={handleReady}
+                                progressInterval={5000}
+                                config={{
+                                    youtube: {
+                                        playerVars: {
+                                            autoplay: 0,
+                                            rel: 0,
+                                            modestbranding: 1,
+                                            iv_load_policy: 3
+                                        }
+                                    } as any
+                                }}
+                            />
                         </div>
                         <div className="lg:col-span-4 p-8 flex flex-col justify-between border-t-4 lg:border-t-0 lg:border-l-4 border-black dark:border-white">
                             <div className="space-y-6">
