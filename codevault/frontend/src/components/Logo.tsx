@@ -8,10 +8,11 @@ interface LogoProps {
 
 export const Logo: React.FC<LogoProps> = ({ className, showText = true }) => {
     return (
-        <div className={cn("flex items-center group cursor-pointer", className)}>
+        <div className={cn("flex items-center gap-1 group cursor-pointer", className)}>
+
             {showText && (
                 <div className="flex flex-col">
-                    <h1 className="text-2xl font-black text-black dark:text-white leading-none italic uppercase tracking-tighter">
+                    <h1 className="text-5xl font-black text-black dark:text-white leading-none italic uppercase tracking-tighter">
                         CODEVAULT
                     </h1>
                 </div>
