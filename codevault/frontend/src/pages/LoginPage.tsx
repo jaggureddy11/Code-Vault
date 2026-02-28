@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { Zap, Activity, ArrowRight } from 'lucide-react';
+import { Zap, Activity, ArrowRight, Loader2, CheckCircle2 } from 'lucide-react';
 import { Starfield } from '@/components/Starfield';
 import { CursorHologram } from '@/components/CursorHologram';
 
@@ -11,6 +11,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
   const { signIn } = useAuth();
   const navigate = useNavigate();
 
@@ -21,10 +22,12 @@ export default function LoginPage() {
 
     try {
       await signIn(email, password);
-      navigate('/');
+      setIsSuccess(true);
+      setTimeout(() => {
+        navigate('/');
+      }, 1500); // 1.5 seconds cool transition
     } catch (err: any) {
       setError(err.message || 'Authentication failed');
-    } finally {
       setLoading(false);
     }
   };
@@ -109,11 +112,19 @@ export default function LoginPage() {
             <div className="pt-4">
               <Button
                 type="submit"
-                className="adidas-button w-full h-16 sm:h-20 text-xl sm:text-2xl"
-                disabled={loading}
+                className="adidas-button w-full h-16 sm:h-20 text-xl sm:text-2xl relative overflow-hidden transition-all duration-500"
+                disabled={loading || isSuccess}
               >
-                {loading ? (
-                  <Activity className="h-8 w-8 animate-spin" />
+                {loading && !isSuccess ? (
+                  <>
+                    <Loader2 className="h-6 w-6 animate-spin mr-2" />
+                    Authenticating...
+                  </>
+                ) : isSuccess ? (
+                  <>
+                    <CheckCircle2 className="h-6 w-6 mr-2 text-green-400" />
+                    Access Granted
+                  </>
                 ) : (
                   <>
                     Sign In <ArrowRight className="h-6 w-6 stroke-[3px]" />
@@ -132,6 +143,19 @@ export default function LoginPage() {
         </div>
 
 
+      </div>
+
+      {/* Screen Transition Overlay */}
+      <div
+        className={`fixed inset-0 bg-black z-50 transition-transform duration-1000 ease-[cubic-bezier(0.22,1,0.36,1)] flex flex-col justify-center items-center ${isSuccess ? 'translate-y-0' : 'translate-y-full'
+          }`}
+      >
+        <div className="text-white text-3xl md:text-5xl font-black italic tracking-tighter uppercase animate-pulse">
+          Entering <span className="text-red-600 underline decoration-8 underline-offset-[12px]">CodeVault</span>
+        </div>
+        <div className="w-64 h-2 bg-white/20 mt-12 rounded-full overflow-hidden relative">
+          <div className={`absolute left-0 top-0 h-full bg-red-600 transition-all duration-[1500ms] ease-out ${isSuccess ? 'w-full' : 'w-0'}`} />
+        </div>
       </div>
     </div>
   );

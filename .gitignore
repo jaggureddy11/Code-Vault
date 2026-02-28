@@ -1,5 +1,9 @@
 # Dependencies
 node_modules/
+.venv/
+venv/
+venv*/
+__pycache__/
 .pnp
 .pnp.js
 
@@ -37,3 +41,8 @@ codevault/backend/.env.example
 .background_processes/
 *.webp
 package-lock.json
+
+# Exclude current hackathon scratch files
+codevault/backend/my_indian.wav
+codevault/backend/tts_server.py
+codevault/frontend/public/assets/
