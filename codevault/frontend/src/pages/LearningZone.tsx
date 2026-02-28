@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { useLearning } from '@/hooks/useLearning';
 import { Video } from '@/types';
 import { fetchJson, getApiBaseUrl } from '@/lib/utils';
-import ReactPlayer from 'react-player';
+import YouTube, { YouTubeProps } from 'react-youtube';
 
 const SUGGESTED_VIDEOS: Video[] = [
     {
@@ -84,22 +84,44 @@ export default function LearningZone() {
     const [hasSearched, setHasSearched] = useState(false);
     const contentRef = useRef<HTMLDivElement>(null);
     const playerRef = useRef<any>(null);
-    const Player = ReactPlayer as any;
+    const progressIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
-    const handleProgress = ({ playedSeconds }: any) => {
+    const handleReady: YouTubeProps['onReady'] = (event) => {
+        playerRef.current = event.target;
         if (selectedVideo) {
-            localStorage.setItem(`yt_progress_${selectedVideo.id}`, playedSeconds.toString());
-        }
-    };
-
-    const handleReady = () => {
-        if (selectedVideo && playerRef.current) {
             const savedTime = localStorage.getItem(`yt_progress_${selectedVideo.id}`);
             if (savedTime) {
-                playerRef.current.seekTo(parseFloat(savedTime), 'seconds');
+                event.target.seekTo(parseFloat(savedTime));
             }
         }
     };
+
+    const handleStateChange: YouTubeProps['onStateChange'] = (event) => {
+        if (event.data === (window as any).YT?.PlayerState?.PLAYING || event.data === 1) {
+            if (!progressIntervalRef.current) {
+                progressIntervalRef.current = setInterval(() => {
+                    if (playerRef.current && selectedVideo) {
+                        const time = playerRef.current.getCurrentTime();
+                        localStorage.setItem(`yt_progress_${selectedVideo.id}`, time.toString());
+                    }
+                }, 5000);
+            }
+        } else {
+            if (progressIntervalRef.current) {
+                clearInterval(progressIntervalRef.current);
+                progressIntervalRef.current = null;
+            }
+        }
+    };
+
+    useEffect(() => {
+        return () => {
+            if (progressIntervalRef.current) {
+                clearInterval(progressIntervalRef.current);
+                progressIntervalRef.current = null;
+            }
+        };
+    }, [selectedVideo]);
 
     const scrollToContent = () => {
         contentRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -227,27 +249,22 @@ export default function LearningZone() {
                 {selectedVideo && (
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-0 border-4 border-black dark:border-white mb-20 bg-white dark:bg-black">
                         <div className="lg:col-span-8 aspect-video bg-black relative">
-                            <Player
-                                ref={playerRef}
-                                url={`https://www.youtube.com/watch?v=${selectedVideo.id}`}
-                                width="100%"
-                                height="100%"
-                                controls={true}
-                                onProgress={handleProgress}
-                                onReady={handleReady}
-                                progressInterval={5000}
-                                config={{
-                                    youtube: {
-                                        playerVars: {
-                                            autoplay: 0,
-                                            rel: 0,
-                                            modestbranding: 1
-                                        },
-                                        embedOptions: {
-                                            host: 'https://www.youtube-nocookie.com'
-                                        }
-                                    } as any
+                            <YouTube
+                                videoId={selectedVideo.id}
+                                opts={{
+                                    width: '100%',
+                                    height: '100%',
+                                    host: 'https://www.youtube-nocookie.com',
+                                    playerVars: {
+                                        autoplay: 0,
+                                        rel: 0,
+                                        modestbranding: 1
+                                    }
                                 }}
+                                onReady={handleReady}
+                                onStateChange={handleStateChange}
+                                className="w-full h-full absolute top-0 left-0"
+                                iframeClassName="w-full h-full"
                             />
                         </div>
                         <div className="lg:col-span-4 p-8 flex flex-col justify-between border-t-4 lg:border-t-0 lg:border-l-4 border-black dark:border-white">
