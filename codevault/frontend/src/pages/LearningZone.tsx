@@ -233,7 +233,6 @@ export default function LearningZone() {
                                 width="100%"
                                 height="100%"
                                 controls={true}
-                                playing={false}
                                 onProgress={handleProgress}
                                 onReady={handleReady}
                                 progressInterval={5000}
@@ -243,7 +242,12 @@ export default function LearningZone() {
                                             autoplay: 0,
                                             rel: 0,
                                             modestbranding: 1,
-                                            iv_load_policy: 3
+                                            iv_load_policy: 3,
+                                            controls: 1,
+                                            disablekb: 0
+                                        },
+                                        embedOptions: {
+                                            host: 'https://www.youtube-nocookie.com'
                                         }
                                     } as any
                                 }}
