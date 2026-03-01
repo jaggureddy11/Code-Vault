@@ -3,6 +3,7 @@ import { Search, Star, Eye, TrendingUp, Clock, Trash2, ChevronDown } from 'lucid
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useLearning } from '@/hooks/useLearning';
+import { useAuth } from '@/contexts/AuthContext';
 import { Video } from '@/types';
 import { fetchJson, getApiBaseUrl } from '@/lib/utils';
 import YouTube, { YouTubeProps } from 'react-youtube';
@@ -77,9 +78,11 @@ const SUGGESTED_VIDEOS: Video[] = [
 ];
 
 export default function LearningZone() {
+    const { user } = useAuth();
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedVideo, setSelectedVideo] = useState<Video | null>(() => {
-        const saved = localStorage.getItem('yt_recent_video');
+        const storageKey = user ? `yt_recent_video_${user.id}` : 'yt_recent_video_anonymous';
+        const saved = localStorage.getItem(storageKey);
         if (saved) {
             try {
                 return JSON.parse(saved);
@@ -89,17 +92,33 @@ export default function LearningZone() {
         }
         return null;
     });
+
+    useEffect(() => {
+        const storageKey = user ? `yt_recent_video_${user.id}` : 'yt_recent_video_anonymous';
+        const saved = localStorage.getItem(storageKey);
+        if (saved) {
+            try {
+                setSelectedVideo(JSON.parse(saved));
+            } catch (e) {
+                setSelectedVideo(null);
+            }
+        } else {
+            setSelectedVideo(null);
+        }
+    }, [user?.id]);
     const [searchResults, setSearchResults] = useState<Video[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [hasSearched, setHasSearched] = useState(false);
     const contentRef = useRef<HTMLDivElement>(null);
+    const searchResultsRef = useRef<HTMLDivElement>(null);
     const playerRef = useRef<any>(null);
     const progressIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
     const handleReady: YouTubeProps['onReady'] = (event) => {
         playerRef.current = event.target;
         if (selectedVideo) {
-            const savedTime = localStorage.getItem(`yt_progress_${selectedVideo.id}`);
+            const progressKey = user ? `yt_progress_${user.id}_${selectedVideo.id}` : `yt_progress_anonymous_${selectedVideo.id}`;
+            const savedTime = localStorage.getItem(progressKey);
             if (savedTime) {
                 event.target.seekTo(parseFloat(savedTime));
             }
@@ -112,7 +131,8 @@ export default function LearningZone() {
                 progressIntervalRef.current = setInterval(() => {
                     if (playerRef.current && selectedVideo) {
                         const time = playerRef.current.getCurrentTime();
-                        localStorage.setItem(`yt_progress_${selectedVideo.id}`, time.toString());
+                        const progressKey = user ? `yt_progress_${user.id}_${selectedVideo.id}` : `yt_progress_anonymous_${selectedVideo.id}`;
+                        localStorage.setItem(progressKey, time.toString());
                     }
                 }, 5000);
             }
@@ -143,13 +163,15 @@ export default function LearningZone() {
     useEffect(() => {
         if (!selectedVideo && recentlyViewed.length > 0) {
             setSelectedVideo(recentlyViewed[0]);
-            localStorage.setItem('yt_recent_video', JSON.stringify(recentlyViewed[0]));
+            const storageKey = user ? `yt_recent_video_${user.id}` : 'yt_recent_video_anonymous';
+            localStorage.setItem(storageKey, JSON.stringify(recentlyViewed[0]));
         }
-    }, [recentlyViewed, selectedVideo]);
+    }, [recentlyViewed, selectedVideo, user?.id]);
 
     const handleVideoSelect = (video: Video) => {
         setSelectedVideo(video);
-        localStorage.setItem('yt_recent_video', JSON.stringify(video));
+        const storageKey = user ? `yt_recent_video_${user.id}` : 'yt_recent_video_anonymous';
+        localStorage.setItem(storageKey, JSON.stringify(video));
         saveVideoSession(video);
         window.scrollTo({ top: 400, behavior: 'smooth' });
     };
@@ -192,6 +214,9 @@ export default function LearningZone() {
             }
         } finally {
             setIsLoading(false);
+            setTimeout(() => {
+                searchResultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
         }
     };
 
@@ -310,7 +335,7 @@ export default function LearningZone() {
 
                 {/* Search Results Display */}
                 {hasSearched && (
-                    <div className="mb-20">
+                    <div className="mb-20" ref={searchResultsRef}>
                         <div className="flex items-center justify-between mb-8 border-b-2 border-black dark:border-white pb-4">
                             <h2 className="text-3xl font-black italic">Best results for "{searchQuery}"</h2>
                             <Button variant="ghost" onClick={() => setHasSearched(false)} className="font-bold underline text-xs">Clear</Button>
