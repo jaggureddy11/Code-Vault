@@ -34,7 +34,9 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row bg-white dark:bg-black overflow-hidden font-sans relative">
-      <Starfield />
+      <div className="hidden lg:block">
+        <Starfield />
+      </div>
 
       {/* Visual Side */}
       <div className="hidden lg:flex lg:w-1/2 bg-black dark:bg-white relative overflow-hidden items-center justify-center p-24">
