@@ -24,10 +24,10 @@ import { TbBrandCSharp } from 'react-icons/tb';
 const MonacoEditor = lazy(() => import('@monaco-editor/react'));
 
 const COMPILER_LANGUAGES = {
+    java: { name: 'Java', id: 91, icon: FaJava, color: '#007396', defaultCode: 'public class Main {\n    public static void main(String[] args) {\n        System.out.println("Hello from Java!");\n    }\n}' },
+    python: { name: 'Python', id: 92, icon: SiPython, color: '#3776AB', defaultCode: 'def main():\n    print("Hello from Python!")\n\nif __name__ == "__main__":\n    main()' },
     javascript: { name: 'JavaScript', id: 93, icon: SiJavascript, color: '#F7DF1E', defaultCode: 'console.log("Hello from JavaScript!");' },
     typescript: { name: 'TypeScript', id: 94, icon: SiTypescript, color: '#3178C6', defaultCode: 'const message: string = "Hello from TypeScript!";\nconsole.log(message);' },
-    python: { name: 'Python', id: 92, icon: SiPython, color: '#3776AB', defaultCode: 'def main():\n    print("Hello from Python!")\n\nif __name__ == "__main__":\n    main()' },
-    java: { name: 'Java', id: 91, icon: FaJava, color: '#007396', defaultCode: 'public class Main {\n    public static void main(String[] args) {\n        System.out.println("Hello from Java!");\n    }\n}' },
     go: { name: 'Go', id: 95, icon: SiGo, color: '#00ADD8', defaultCode: 'package main\n\nimport "fmt"\n\nfunc main() {\n    fmt.Println("Hello from Go!")\n}' },
     rust: { name: 'Rust', id: 73, icon: SiRust, color: '#CE412B', defaultCode: 'fn main() {\n    println!("Hello from Rust!");\n}' },
     cpp: { name: 'C++', id: 54, icon: SiCplusplus, color: '#00599C', defaultCode: '#include <iostream>\n\nint main() {\n    std::cout << "Hello from C++!\\n";\n    return 0;\n}' },
@@ -45,12 +45,28 @@ export default function CompilerPage() {
     const { theme } = useTheme();
     const { toast } = useToast();
     const { user } = useAuth();
-    const [language, setLanguage] = useState<LanguageKey>('javascript');
-    const [code, setCode] = useState(COMPILER_LANGUAGES['javascript'].defaultCode);
+    const [language, setLanguage] = useState<LanguageKey>(() => {
+        const saved = localStorage.getItem('codevault_compiler_language');
+        return (saved as LanguageKey) || 'java';
+    });
+    const [code, setCode] = useState(() => {
+        const savedLang = localStorage.getItem('codevault_compiler_language') || 'java';
+        const savedCode = localStorage.getItem('codevault_compiler_code');
+        return savedCode || COMPILER_LANGUAGES[savedLang as LanguageKey].defaultCode;
+    });
     const [output, setOutput] = useState<string>('');
     const [isLoading, setIsLoading] = useState(false);
     const [isFullscreen, setIsFullscreen] = useState(false);
-    const [fileName, setFileName] = useState('main.js');
+    const [fileName, setFileName] = useState(() => {
+        const saved = localStorage.getItem('codevault_compiler_filename');
+        return saved || 'main.java';
+    });
+
+    useEffect(() => {
+        localStorage.setItem('codevault_compiler_language', language);
+        localStorage.setItem('codevault_compiler_code', code);
+        localStorage.setItem('codevault_compiler_filename', fileName);
+    }, [language, code, fileName]);
 
     useEffect(() => {
         const urlParams = new URLSearchParams(window.location.search);
@@ -160,7 +176,7 @@ export default function CompilerPage() {
                     title: fileName,
                     code: code,
                     language: language,
-                    is_public: true
+                    is_public: false
                 }])
                 .select()
                 .single();
