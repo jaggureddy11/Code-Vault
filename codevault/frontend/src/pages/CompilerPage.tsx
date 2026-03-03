@@ -228,7 +228,7 @@ export default function CompilerPage() {
             "bg-white dark:bg-black",
             isFullscreen
                 ? "fixed inset-0 z-[99999] w-screen h-screen overflow-hidden flex flex-col"
-                : "min-h-screen pt-40 sm:pt-48 pb-20 px-4 sm:px-6 lg:px-8 max-w-[1700px] mx-auto"
+                : "min-h-screen pt-28 sm:pt-36 pb-20 px-4 sm:px-6 lg:px-8 max-w-[1700px] mx-auto"
         )}>
             {!isFullscreen && (
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-10 mb-8 lg:mb-12 px-2">
