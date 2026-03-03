@@ -234,8 +234,9 @@ export default function CompilerPage() {
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-10 mb-8 lg:mb-12 px-2">
                     <div className="space-y-4">
 
-                        <h1 className="text-4xl sm:text-6xl font-black uppercase tracking-tighter italic">
-                            RUN <span className="text-transparent bg-clip-text bg-gradient-to-r from-black to-neutral-500 dark:from-white dark:to-neutral-500">CODE</span>
+                        <h1 className="text-4xl sm:text-4xl font-black uppercase tracking-tighter italic">
+                            ONLINE <span className="text-orange-500">COMPILER</span>
+
                         </h1>
                     </div>
                 </div>
