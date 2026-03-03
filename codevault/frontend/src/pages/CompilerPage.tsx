@@ -41,6 +41,12 @@ const COMPILER_LANGUAGES = {
 
 type LanguageKey = keyof typeof COMPILER_LANGUAGES;
 
+const EXT_MAP: Record<LanguageKey, string> = {
+    javascript: 'js', typescript: 'ts', python: 'py', java: 'java', go: 'go',
+    rust: 'rs', cpp: 'cpp', csharp: 'cs', php: 'php', ruby: 'rb', swift: 'swift',
+    kotlin: 'kt', bash: 'sh'
+};
+
 export default function CompilerPage() {
     const { theme } = useTheme();
     const { toast } = useToast();
@@ -120,13 +126,7 @@ export default function CompilerPage() {
             setLanguage(langKey);
             setCode(COMPILER_LANGUAGES[langKey].defaultCode);
             setOutput('');
-
-            const extMap: Record<LanguageKey, string> = {
-                javascript: 'js', typescript: 'ts', python: 'py', java: 'java', go: 'go',
-                rust: 'rs', cpp: 'cpp', csharp: 'cs', php: 'php', ruby: 'rb', swift: 'swift',
-                kotlin: 'kt', bash: 'sh'
-            };
-            setFileName(`main.${extMap[langKey]}`);
+            setFileName(`main.${EXT_MAP[langKey]}`);
         }
     };
 
