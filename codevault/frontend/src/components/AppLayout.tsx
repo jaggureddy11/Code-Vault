@@ -129,18 +129,18 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             {/* Athletic Header */}
             <header
                 className={cn(
-                    "fixed top-0 left-0 right-0 z-[100] transition-all duration-300 px-4 sm:px-6 lg:px-8",
-                    isScrolled ? "bg-white/95 dark:bg-black/95 backdrop-blur-md border-b-2 border-black dark:border-white py-3" : "bg-transparent py-6"
+                    "fixed top-0 left-0 right-0 z-[100] transition-all duration-300 px-4 sm:px-10 lg:px-12",
+                    isScrolled ? "bg-white/95 dark:bg-black/95 backdrop-blur-md border-b-2 border-black dark:border-white py-3" : "bg-transparent py-8 sm:py-10"
                 )}
             >
-                <div className="max-w-7xl mx-auto flex justify-between items-center">
+                <div className="max-w-[1700px] mx-auto flex justify-between items-center">
                     {/* Logo Area */}
-                    <NavLink to="/" className="z-[110]" onClick={() => window.scrollTo(0, 0)}>
+                    <NavLink to="/" className="z-[110] pr-12" onClick={() => window.scrollTo(0, 0)}>
                         <Logo />
                     </NavLink>
 
                     {/* Desktop Navigation */}
-                    <nav className="hidden lg:flex items-center gap-1">
+                    <nav className="hidden lg:flex items-center gap-2">
                         {navLinks.map((link) => (
                             <NavLink
                                 key={link.path}
@@ -226,7 +226,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             {/* Mobile Menu Overlay */}
             <div
                 className={cn(
-                    "fixed inset-0 z-[90] bg-white dark:bg-black lg:hidden transition-all duration-500 flex flex-col pt-32 px-8 overflow-y-auto",
+                    "fixed inset-0 z-[90] bg-white dark:bg-black lg:hidden transition-all duration-500 flex flex-col pt-40 px-8 overflow-y-auto",
                     mobileMenuOpen ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-full pointer-events-none"
                 )}
             >
@@ -279,7 +279,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             </main>
 
             {/* Mobile Bottom Navigation (Instagram Style) */}
-            <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-black border-t-4 border-black dark:border-white z-50 flex justify-around items-center h-16 px-2">
+            <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-black border-t-4 border-black dark:border-white z-[100] flex justify-around items-center h-16 px-1">
                 {navLinks.map((link) => (
                     <NavLink
                         key={link.path}
@@ -290,7 +290,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                             isActive ? "bg-black text-white dark:bg-white dark:text-black" : "text-black dark:text-white"
                         )}
                     >
-                        <link.icon className="h-6 w-6" />
+                        <link.icon className="h-5 w-5 sm:h-6 sm:w-6" />
                     </NavLink>
                 ))}
             </nav>

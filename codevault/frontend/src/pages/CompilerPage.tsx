@@ -212,10 +212,10 @@ export default function CompilerPage() {
             "bg-white dark:bg-black",
             isFullscreen
                 ? "fixed inset-0 z-[99999] w-screen h-screen overflow-hidden flex flex-col"
-                : "min-h-screen pt-32 pb-20 px-4 sm:px-6 lg:px-8 max-w-[1700px] mx-auto"
+                : "min-h-screen pt-40 sm:pt-48 pb-20 px-4 sm:px-6 lg:px-8 max-w-[1700px] mx-auto"
         )}>
             {!isFullscreen && (
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6 mb-12">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-10 mb-20 lg:mb-24 px-2">
                     <div className="space-y-4">
                         <div className="inline-flex items-center gap-2 px-3 py-1 bg-black text-white dark:bg-white dark:text-black">
                             <Terminal className="h-4 w-4" />
@@ -230,7 +230,7 @@ export default function CompilerPage() {
 
             <div className={cn(
                 "w-full flex shrink-0",
-                isFullscreen ? "flex-1 overflow-hidden" : "h-[600px] gap-6 lg:gap-8 flex-col lg:flex-row"
+                isFullscreen ? "flex-1 overflow-hidden" : "lg:h-[700px] h-auto gap-10 lg:gap-12 flex-col lg:flex-row"
             )}>
 
                 {/* Sidebar languages */}
