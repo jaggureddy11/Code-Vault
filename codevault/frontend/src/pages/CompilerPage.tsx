@@ -231,7 +231,7 @@ export default function CompilerPage() {
                 : "min-h-screen pt-40 sm:pt-48 pb-20 px-4 sm:px-6 lg:px-8 max-w-[1700px] mx-auto"
         )}>
             {!isFullscreen && (
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-10 mb-20 lg:mb-24 px-2">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-10 mb-8 lg:mb-12 px-2">
                     <div className="space-y-4">
                         <div className="inline-flex items-center gap-2 px-3 py-1 bg-black text-white dark:bg-white dark:text-black">
                             <Terminal className="h-4 w-4" />
