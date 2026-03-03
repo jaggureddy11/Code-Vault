@@ -187,7 +187,7 @@ export default function ProjectExplorer() {
                                 <CardFooter className="pt-0 flex justify-between items-center text-[8px] font-black uppercase italic tracking-widest border-t border-black/5 dark:border-white/5 py-4 px-8 bg-neutral-50/50 dark:bg-neutral-950/50 mt-auto">
                                     <div className="flex items-center gap-3">
                                         <button className="hover:scale-110 transition-transform text-red-500 mr-2">
-                                            <Heart className="h-4 w-4 fill-red-500" />
+                                            {/* <Heart className="h-4 w-4 fill-red-500" /> */}
                                         </button>
                                         <img src={repo.owner.avatar_url} className="w-6 h-6 rounded-none border border-black/10 dark:border-white/10 grayscale group-hover:grayscale-0 transition-all" alt="" />
                                         <span className="font-black opacity-60">{repo.owner.login}</span>

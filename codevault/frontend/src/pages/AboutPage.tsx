@@ -1,4 +1,4 @@
-import { Code2, Folder, Youtube, FileText, ArrowUpRight } from 'lucide-react';
+import { Code2, Compass, Youtube, StickyNote, ArrowUpRight, Globe, Terminal, Bot, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 
@@ -39,13 +39,44 @@ export default function AboutPage() {
                                     <Code2 className="h-7 w-7 text-white dark:text-black" />
                                 </div>
                                 <h4 className="text-2xl font-black italic uppercase tracking-tight">
-                                    Vault Engine
+                                    The Vault
                                 </h4>
                             </div>
-                            <p className="text-sm font-mono opacity-80 leading-relaxed max-w-xl">
-                                Store and retrieve code snippets instantly. CodeVault uses AI to
-                                automatically tag and categorize your snippets, making reuse
-                                effortless across languages inside a powerful editor.
+                            <p className="text-sm font-medium tracking-tight opacity-80 leading-relaxed max-w-xl">
+                                Your personal high-security archive for code snippets. Store, tag, and organize
+                                your most valuable logic in a beautiful, searchable interface with AI-powered categorization.
+                            </p>
+                        </div>
+
+                        {/* Explore Hub */}
+                        <div className="space-y-5">
+                            <div className="flex items-center gap-4">
+                                <div className="w-14 h-14 bg-black dark:bg-white flex items-center justify-center">
+                                    <Globe className="h-7 w-7 text-white dark:text-black" />
+                                </div>
+                                <h4 className="text-2xl font-black italic uppercase tracking-tight">
+                                    Explore Hub
+                                </h4>
+                            </div>
+                            <p className="text-sm font-medium tracking-tight opacity-80 leading-relaxed max-w-xl">
+                                Step out of your local vault and into the community. Discover trending snippets,
+                                learn from fellow developers, and clone the best logic directly into your collection.
+                            </p>
+                        </div>
+
+                        {/* Live Compiler */}
+                        <div className="space-y-5">
+                            <div className="flex items-center gap-4">
+                                <div className="w-14 h-14 bg-black dark:bg-white flex items-center justify-center">
+                                    <Terminal className="h-7 w-7 text-white dark:text-black" />
+                                </div>
+                                <h4 className="text-2xl font-black italic uppercase tracking-tight">
+                                    Live Compiler
+                                </h4>
+                            </div>
+                            <p className="text-sm font-medium tracking-tight opacity-80 leading-relaxed max-w-xl">
+                                Execute code in real-time without leaving your browser. Our integrated multi-language
+                                compiler supports Python, JS, C++, and more, allowing for instant logic validation.
                             </p>
                         </div>
 
@@ -53,16 +84,31 @@ export default function AboutPage() {
                         <div className="space-y-5">
                             <div className="flex items-center gap-4">
                                 <div className="w-14 h-14 bg-black dark:bg-white flex items-center justify-center">
-                                    <Folder className="h-7 w-7 text-white dark:text-black" />
+                                    <Compass className="h-7 w-7 text-white dark:text-black" />
                                 </div>
                                 <h4 className="text-2xl font-black italic uppercase tracking-tight">
                                     Project Explorer
                                 </h4>
                             </div>
-                            <p className="text-sm font-mono opacity-80 leading-relaxed max-w-xl">
-                                Organize snippets, assets, and documentation into structured
-                                project modules. Keep your architecture clean, searchable, and
-                                securely managed.
+                            <p className="text-sm font-medium tracking-tight opacity-80 leading-relaxed max-w-xl">
+                                Stay inspired by the open-source world. Discover starred GitHub repositories,
+                                explore new architectures, and keep pulse on the technologies shaping the future.
+                            </p>
+                        </div>
+
+                        {/* AI Assistant */}
+                        <div className="space-y-5">
+                            <div className="flex items-center gap-4">
+                                <div className="w-14 h-14 bg-black dark:bg-white flex items-center justify-center">
+                                    <Bot className="h-7 w-7 text-white dark:text-black" />
+                                </div>
+                                <h4 className="text-2xl font-black italic uppercase tracking-tight">
+                                    AI Assistant
+                                </h4>
+                            </div>
+                            <p className="text-sm font-medium tracking-tight opacity-80 leading-relaxed max-w-xl">
+                                Meet your personal elite tutor. Built with advanced LLMs, our AI assistant
+                                analyzes code, explains complex logic, and helps you debug in real-time via chat.
                             </p>
                         </div>
 
@@ -76,27 +122,41 @@ export default function AboutPage() {
                                     Learning Zone
                                 </h4>
                             </div>
-                            <p className="text-sm font-mono opacity-80 leading-relaxed max-w-xl">
-                                Learn without breaking flow. Discover relevant tutorials directly
-                                inside CodeVault and move seamlessly from learning to
-                                implementation.
+                            <p className="text-sm font-medium tracking-tight opacity-80 leading-relaxed max-w-xl">
+                                Master new skills with integrated tutorials. Watch, code, and learn in a
+                                unified environment designed to maximize retention and minimize distraction.
                             </p>
                         </div>
 
-                        {/* Document Vault */}
+                        {/* Smart Notes */}
                         <div className="space-y-5">
                             <div className="flex items-center gap-4">
                                 <div className="w-14 h-14 bg-black dark:bg-white flex items-center justify-center">
-                                    <FileText className="h-7 w-7 text-white dark:text-black" />
+                                    <StickyNote className="h-7 w-7 text-white dark:text-black" />
                                 </div>
                                 <h4 className="text-2xl font-black italic uppercase tracking-tight">
-                                    Document Vault
+                                    Smart Notes
                                 </h4>
                             </div>
-                            <p className="text-sm font-mono opacity-80 leading-relaxed max-w-xl">
-                                Upload PDFs, write notes, and attach documentation alongside your
-                                code. Keep technical context, decisions, and references in one
-                                place.
+                            <p className="text-sm font-medium tracking-tight opacity-80 leading-relaxed max-w-xl">
+                                Documentation is part of the code. Attach technical context, architectural
+                                decisions, and personal study notes directly to your projects and snippets.
+                            </p>
+                        </div>
+
+                        {/* Favorites */}
+                        <div className="space-y-5">
+                            <div className="flex items-center gap-4">
+                                <div className="w-14 h-14 bg-black dark:bg-white flex items-center justify-center">
+                                    <Heart className="h-7 w-7 text-white dark:text-black" />
+                                </div>
+                                <h4 className="text-2xl font-black italic uppercase tracking-tight">
+                                    Favorites
+                                </h4>
+                            </div>
+                            <p className="text-sm font-medium tracking-tight opacity-80 leading-relaxed max-w-xl">
+                                Keep your mission-critical logic one click away. Curate your most-loved
+                                snippets into a prioritized collection for instant access during high-stakes dev work.
                             </p>
                         </div>
 
