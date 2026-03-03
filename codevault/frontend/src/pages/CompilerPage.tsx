@@ -233,10 +233,7 @@ export default function CompilerPage() {
             {!isFullscreen && (
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-10 mb-8 lg:mb-12 px-2">
                     <div className="space-y-4">
-                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-black text-white dark:bg-white dark:text-black">
-                            <Terminal className="h-4 w-4" />
-                            <span className="text-[10px] font-black uppercase tracking-widest">Compiler</span>
-                        </div>
+
                         <h1 className="text-4xl sm:text-6xl font-black uppercase tracking-tighter italic">
                             RUN <span className="text-transparent bg-clip-text bg-gradient-to-r from-black to-neutral-500 dark:from-white dark:to-neutral-500">CODE</span>
                         </h1>
