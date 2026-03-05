@@ -51,6 +51,7 @@ export default function CompilerPage() {
     const { theme } = useTheme();
     const { toast } = useToast();
     const { user } = useAuth();
+    const [activeTab, setActiveTab] = useState<'editor' | 'output'>('editor');
     const [language, setLanguage] = useState<LanguageKey>(() => {
         const saved = localStorage.getItem('codevault_compiler_language');
         return (saved as LanguageKey) || 'java';
@@ -132,6 +133,7 @@ export default function CompilerPage() {
 
     const runCode = async () => {
         setIsLoading(true);
+        setActiveTab('output');
         setOutput('Executing code...');
         try {
             const langConfig = COMPILER_LANGUAGES[language];
@@ -244,8 +246,32 @@ export default function CompilerPage() {
 
             <div className={cn(
                 "w-full flex shrink-0",
-                isFullscreen ? "flex-1 overflow-hidden" : "lg:h-[700px] h-auto gap-10 lg:gap-12 flex-col lg:flex-row"
+                isFullscreen ? "flex-1 overflow-hidden" : "lg:h-[700px] h-auto gap-4 lg:gap-12 flex-col lg:flex-row"
             )}>
+
+                {/* Mobile Tabs */}
+                {!isFullscreen && (
+                    <div className="flex lg:hidden w-full border-2 border-black dark:border-white bg-neutral-100 dark:bg-neutral-900">
+                        <button
+                            onClick={() => setActiveTab('editor')}
+                            className={cn(
+                                "flex-1 py-3 text-[10px] font-black uppercase tracking-widest transition-colors border-r-2 border-black dark:border-white",
+                                activeTab === 'editor' ? "bg-black text-white dark:bg-white dark:text-black" : "text-neutral-500 hover:bg-black/5 dark:hover:bg-white/5"
+                            )}
+                        >
+                            Editor
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('output')}
+                            className={cn(
+                                "flex-1 py-3 text-[10px] font-black uppercase tracking-widest transition-colors",
+                                activeTab === 'output' ? "bg-black text-white dark:bg-white dark:text-black" : "text-neutral-500 hover:bg-black/5 dark:hover:bg-white/5"
+                            )}
+                        >
+                            Output
+                        </button>
+                    </div>
+                )}
 
                 {/* Sidebar languages */}
                 {!isFullscreen && (
@@ -275,15 +301,16 @@ export default function CompilerPage() {
 
                 <div className={cn(
                     "flex-1 flex",
-                    isFullscreen ? "flex-col lg:flex-row h-full overflow-hidden" : "grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8"
+                    isFullscreen ? "flex-col lg:flex-row h-full overflow-hidden" : "grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 h-[65vh] lg:h-full"
                 )}>
 
                     {/* Editor Panel */}
                     <div className={cn(
-                        "flex flex-col bg-white dark:bg-black overflow-hidden",
+                        "flex-col bg-white dark:bg-black overflow-hidden",
                         isFullscreen
                             ? "flex-1 border-b-2 lg:border-b-0 lg:border-r-2 border-black dark:border-white h-full"
-                            : "border-2 border-black dark:border-white h-full"
+                            : "border-2 border-black dark:border-white h-full",
+                        (activeTab === 'editor' || isFullscreen) ? 'flex' : 'hidden lg:flex'
                     )}>
                         <div className="flex flex-wrap items-center justify-between p-3 border-b-2 border-black/10 dark:border-white/10 bg-neutral-50 dark:bg-neutral-900 gap-3">
                             <div className="flex items-center gap-3">
@@ -367,10 +394,11 @@ export default function CompilerPage() {
 
                     {/* Output Panel */}
                     <div className={cn(
-                        "flex flex-col bg-black text-white relative",
+                        "flex-col bg-black text-white relative",
                         isFullscreen
                             ? "h-[40vh] lg:h-full lg:w-[40%] xl:w-[35%] shrink-0"
-                            : "border-2 border-black dark:border-white h-full"
+                            : "border-2 border-black dark:border-white h-full",
+                        (activeTab === 'output' || isFullscreen) ? 'flex' : 'hidden lg:flex'
                     )}>
                         <div className="flex items-center justify-between p-3 border-b-2 border-white/20">
                             <div className="flex items-center gap-3">
