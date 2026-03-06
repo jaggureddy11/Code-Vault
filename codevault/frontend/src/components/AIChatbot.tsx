@@ -92,6 +92,7 @@ export function AIChatbot() {
                 content: "Hello! I'm your CodeVault AI Assistant. I'm here to help you learn coding concepts, explain snippets, and clear your doubts. What would you like to discuss today?"
             }]);
             localStorage.removeItem('codevault_chat_messages');
+            stopSpeaking();
         }
     };
 
@@ -129,7 +130,22 @@ export function AIChatbot() {
 
     useEffect(() => {
         localStorage.setItem('codevault_tts_enabled', isTTSActive.toString());
+        if (!isTTSActive) {
+            stopSpeaking();
+        }
     }, [isTTSActive]);
+
+    useEffect(() => {
+        if (!isOpen) {
+            stopSpeaking();
+        }
+    }, [isOpen]);
+
+    useEffect(() => {
+        if (input.trim() && isSpeaking) {
+            stopSpeaking();
+        }
+    }, [input, isSpeaking]);
 
     const speakResponse = (text: string) => {
         if (!isTTSActive || !window.speechSynthesis) return;
