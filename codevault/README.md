@@ -24,6 +24,12 @@ Stop typing, start building.
 - **Learning Zone:** Search and pin YouTube coding tutorials natively to stay out of the distractions of the main feed.
 - **Project Explorer:** IDE-style structured file trees to group related modules and architectures.
 
+### 4. Task Sheet (Protocol Tracker)
+- **Weekly Grid:** Manage your long-term focus protocols with a dedicated 7-day task sheet.
+- **Local Persistence:** All your tasks and daily progress are securely saved to your browser's persistent storage.
+- **Momentum Tracking:** Integrated streak systems to visualize your 100% completion performance over time.
+- **Responsive Sheet:** A professional, brutalist design optimized for both high-end desktops and mobile mobile usage.
+
 ---
 
 ## 🎨 Tech Stack & Aesthetic

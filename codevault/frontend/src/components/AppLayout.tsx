@@ -7,7 +7,7 @@ import {
     Code2, Compass, Youtube, User,
     HelpCircle, MessageSquare, Heart, LogOut,
     Sun, Moon, Menu, X, Sparkles, Globe,
-    StickyNote, Terminal
+    StickyNote, Terminal, ListTodo
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -116,6 +116,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         { name: 'Learn', path: '/learn', icon: Youtube },
         { name: 'Notes', path: '/notes', icon: StickyNote },
         { name: 'Compiler', path: '/compiler', icon: Terminal },
+        { name: 'To-Do', path: '/todo', icon: ListTodo },
     ];
 
     const footerLinks = [

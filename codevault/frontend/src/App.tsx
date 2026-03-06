@@ -20,6 +20,7 @@ import FavoritesPage from '@/pages/FavoritesPage';
 import ExplorePage from '@/pages/ExplorePage';
 import NotesPage from '@/pages/NotesPage';
 import CompilerPage from '@/pages/CompilerPage';
+import TodoPage from '@/pages/TodoPage';
 import './index.css';
 
 const queryClient = new QueryClient({
@@ -181,6 +182,14 @@ function App() {
                   element={
                     <ProtectedRoute>
                       <CompilerPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/todo"
+                  element={
+                    <ProtectedRoute>
+                      <TodoPage />
                     </ProtectedRoute>
                   }
                 />
