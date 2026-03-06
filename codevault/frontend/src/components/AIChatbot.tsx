@@ -65,7 +65,7 @@ const MarkdownCodeBlock = ({ children, className, theme }: { children: any, clas
     );
 };
 
-export function AIChatbot() {
+export default function AIChatbot() {
     const navigate = useNavigate();
     const location = useLocation();
     const { toggleTheme, theme } = useTheme();
@@ -295,36 +295,25 @@ export function AIChatbot() {
                 content: m.content
             }));
 
-            const systemInstruction = `You are CodeVault AI, an elite personal tutor and study assistant. You have agentic capabilities to control the UI. 
-            The user is currently on the page: ${location.pathname}.
+            const systemInstruction = `You are CodeVault AI, an elite personal tutor and study assistant. You have agentic capabilities to control the UI.
             
             **CRITICAL CAPABILITIES**:
-            1. **UI CONTROL**: If the user asks to open a page, toggle the theme, or find something, you MUST use these command tags at the VERY END of your response (hidden from user):
-               - [NAV_VAULT] : Open Home/Vault
-               - [NAV_EXPLORE] : Open Explore
-               - [NAV_FAVORITES] : Open Favorites
-               - [NAV_PROJECTS] : Open Projects
-               - [NAV_LEARN] : Open Learning Zone (YouTube tutorials)
-               - [NAV_NOTES] : Open Notes (PDF storage)
-               - [NAV_COMPILER] : Open Terminal/Compiler
-               - [NAV_TODO] : Open Daily To-Do Tracker
-               - [NAV_PROFILE] : Open User Profile
-               - [NAV_SUPPORT] : Open Support Page
-               - [TOGGLE_THEME] : Toggle Dark/Light Mode
-               - [CLEAR_CHAT] : Clear current conversation history
-               - [EXPAND_AI] : Make the AI window larger/fullscreen
-               - [MINIMIZE_AI] : Make the AI window smaller
-               - [RESTART_TOUR] : Start the interactive product tour
+            1. **UI CONTROL**: Trigger tags at the VERY END.
+               - Pages: [NAV_VAULT], [NAV_EXPLORE], [NAV_FAVORITES], [NAV_PROJECTS], [NAV_LEARN], [NAV_NOTES], [NAV_COMPILER], [NAV_TODO], [NAV_PROFILE], [NAV_SUPPORT]
+               - Actions: [TOGGLE_THEME], [CLEAR_CHAT], [EXPAND_AI], [MINIMIZE_AI], [RESTART_TOUR]
 
-            3. **DEEP INTEGRATION**:
-               - **WRITING CODE**: When you generate code, you can automatically paste it into the compiler. 
-                 To do this, use: [CMD_WRITE_CODE]{"language": "python", "code": "...", "fileName": "app.py"}[/CMD_WRITE_CODE]
-               - **ADDING TASKS**: You can automatically add tasks to the user's To-Do list.
-                 To do this, use: [CMD_ADD_TASKS]{"tasks": ["Task 1", "Task 2"]}[/CMD_ADD_TASKS]
+            2. **AGENTIC COMMANDS (CMD TAGS)**:
+               - **WRITING CODE**: [CMD_WRITE_CODE]{"language": "python", "code": "...", "fileName": "app.py", "autoRun": true}[/CMD_WRITE_CODE]
+               - **RUNNING CODE**: [CMD_RUN_CODE]{}[/CMD_RUN_CODE] (Triggers compiler logic)
+               - **TASKS**: [CMD_ADD_TASKS]{"tasks": ["..."]}[/CMD_ADD_TASKS] or [CMD_CLEAR_TASKS]{}[/CMD_CLEAR_TASKS]
+               - **SEARCH**: [CMD_SEARCH_COMMUNITY]{"query": "..."}[/CMD_SEARCH_COMMUNITY], [CMD_SEARCH_NOTES]{"query": "..."}[/CMD_SEARCH_NOTES], [CMD_SEARCH_FAVORITES]{"query": "..."}[/CMD_SEARCH_FAVORITES]
             
-            2. **CONTEXT AWARENESS**: You know exactly where the user is. If they are on /todo, help them manage tasks. If they are on /notes, help them with PDF study. If they ask "What can I do here?", explain the specific features of ${location.pathname}.
-            
-            4. **ELITE TUTORING**: You don't just give answers; you explain the "why". Use high-performance, engineering-centric language. Keep it conversational but elite.`;
+            3. **CONTEXT AWARENESS**: Current page: ${location.pathname}. 
+
+            **MANDATORY ETIQUETTE**:
+            - Tags MUST be at the end.
+            - If generating code, ALWAYS use [CMD_WRITE_CODE] with autoRun:true.
+            - You represent the "Agentic" side of CodeVault. Be proactive, elite, and engineering-centric.`;
 
             let textOutput = "";
 
@@ -347,7 +336,8 @@ export function AIChatbot() {
             if (!textOutput) throw new Error("Sorry, I couldn't generate a response.");
 
             // AGENTIC DISPATCHER: Parse command tags and execute actions
-            const commands = [
+            let targetPath = '';
+            const navCommands = [
                 { tag: '[NAV_VAULT]', path: '/' },
                 { tag: '[NAV_EXPLORE]', path: '/explore' },
                 { tag: '[NAV_FAVORITES]', path: '/favorites' },
@@ -360,48 +350,35 @@ export function AIChatbot() {
                 { tag: '[NAV_SUPPORT]', path: '/support' },
             ];
 
-            commands.forEach(cmd => {
-                if (textOutput.includes(cmd.tag)) {
-                    setTimeout(() => {
-                        navigate(cmd.path);
-                        window.scrollTo(0, 0);
-                        if (window.innerWidth < 1024) setIsOpen(false); // Close on mobile navigation
-                    }, 50);
-                }
+            // 1. Check basic navigation
+            navCommands.forEach(cmd => {
+                if (textOutput.includes(cmd.tag)) targetPath = cmd.path;
             });
 
-            if (textOutput.includes('[TOGGLE_THEME]')) {
-                setTimeout(() => toggleTheme(), 50);
-            }
-
+            // 2. Simple Actions
+            if (textOutput.includes('[TOGGLE_THEME]')) setTimeout(() => toggleTheme(), 50);
             if (textOutput.includes('[CLEAR_CHAT]')) {
                 setTimeout(() => {
                     setMessages([{ id: 'welcome', role: 'model', content: "Chat history cleared. How can I help you fresh?" }]);
                     localStorage.removeItem('codevault_chat_messages');
                 }, 50);
             }
-
-            if (textOutput.includes('[EXPAND_AI]')) {
-                setIsExpanded(true);
-            }
-
-            if (textOutput.includes('[MINIMIZE_AI]')) {
-                setIsExpanded(false);
-            }
-
+            if (textOutput.includes('[EXPAND_AI]')) setIsExpanded(true);
+            if (textOutput.includes('[MINIMIZE_AI]')) setIsExpanded(false);
             if (textOutput.includes('[RESTART_TOUR]')) {
                 localStorage.setItem('showTour', 'true');
                 window.location.reload();
             }
 
-            // AGENTIC DEEP ACTIONS: Code and Tasks
+            // 3. Deep Agentic Commands
+            let agenticAction: any = null;
+
             if (textOutput.includes('[CMD_WRITE_CODE]')) {
                 const match = textOutput.match(/\[CMD_WRITE_CODE\]([\s\S]*?)\[\/CMD_WRITE_CODE\]/);
                 if (match) {
                     try {
-                        const payload = JSON.parse(match[1]);
-                        localStorage.setItem('codevault_pending_action', JSON.stringify({ type: 'WRITE_CODE', payload }));
-                        setTimeout(() => navigate('/compiler'), 50);
+                        agenticAction = { type: 'WRITE_CODE', payload: JSON.parse(match[1]) };
+                        targetPath = '/compiler';
                     } catch (e) { console.error("Agentic code error", e); }
                 }
             }
@@ -410,25 +387,85 @@ export function AIChatbot() {
                 const match = textOutput.match(/\[CMD_ADD_TASKS\]([\s\S]*?)\[\/CMD_ADD_TASKS\]/);
                 if (match) {
                     try {
-                        const payload = JSON.parse(match[1]);
-                        localStorage.setItem('codevault_pending_action', JSON.stringify({ type: 'ADD_TASKS', payload }));
-                        setTimeout(() => navigate('/todo'), 50);
+                        agenticAction = { type: 'ADD_TASKS', payload: JSON.parse(match[1]) };
+                        targetPath = '/todo';
                     } catch (e) { console.error("Agentic task error", e); }
                 }
             }
 
+            if (textOutput.includes('[CMD_CLEAR_TASKS]')) {
+                agenticAction = { type: 'CLEAR_TASKS' };
+                targetPath = '/todo';
+            }
+
+            if (textOutput.includes('[CMD_RUN_CODE]')) {
+                agenticAction = { type: 'RUN_CODE' };
+                targetPath = '/compiler';
+            }
+
+            if (textOutput.includes('[CMD_SEARCH_COMMUNITY]')) {
+                const match = textOutput.match(/\[CMD_SEARCH_COMMUNITY\]([\s\S]*?)\[\/CMD_SEARCH_COMMUNITY\]/);
+                if (match) {
+                    try {
+                        agenticAction = { type: 'SEARCH_COMMUNITY', payload: JSON.parse(match[1]) };
+                        targetPath = '/explore';
+                    } catch (e) { console.error("Agentic search error", e); }
+                }
+            }
+
+            if (textOutput.includes('[CMD_SEARCH_NOTES]')) {
+                const match = textOutput.match(/\[CMD_SEARCH_NOTES\]([\s\S]*?)\[\/CMD_SEARCH_NOTES\]/);
+                if (match) {
+                    try {
+                        agenticAction = { type: 'SEARCH_NOTES', payload: JSON.parse(match[1]) };
+                        targetPath = '/notes';
+                    } catch (e) { console.error("Agentic notes search error", e); }
+                }
+            }
+
+            if (textOutput.includes('[CMD_SEARCH_FAVORITES]')) {
+                const match = textOutput.match(/\[CMD_SEARCH_FAVORITES\]([\s\S]*?)\[\/CMD_SEARCH_FAVORITES\]/);
+                if (match) {
+                    try {
+                        agenticAction = { type: 'SEARCH_FAVORITES', payload: JSON.parse(match[1]) };
+                        targetPath = '/favorites';
+                    } catch (e) { console.error("Agentic favorites search error", e); }
+                }
+            }
+
+            // 4. Execution
+            if (agenticAction) {
+                localStorage.setItem('codevault_pending_action', JSON.stringify(agenticAction));
+                // Dispatch event for components already on the path
+                window.dispatchEvent(new Event('codevault_agentic_action'));
+            }
+
+            if (targetPath) {
+                setTimeout(() => {
+                    navigate(targetPath);
+                    window.scrollTo(0, 0);
+                    if (window.innerWidth < 1024) setIsOpen(false);
+                }, 50);
+            }
+
             // Cleanup: Remove command tags from the visible response
             let cleanResponse = textOutput;
-            commands.forEach(cmd => {
-                cleanResponse = cleanResponse.replace(cmd.tag, '');
+            navCommands.forEach(cmd => {
+                const escapedTag = cmd.tag.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                cleanResponse = cleanResponse.replace(new RegExp(escapedTag, 'g'), '');
             });
-            cleanResponse = cleanResponse.replace('[TOGGLE_THEME]', '')
-                .replace('[CLEAR_CHAT]', '')
-                .replace('[EXPAND_AI]', '')
-                .replace('[MINIMIZE_AI]', '')
-                .replace('[RESTART_TOUR]', '')
-                .replace(/\[CMD_WRITE_CODE\][\s\S]*?\[\/CMD_WRITE_CODE\]/, '')
-                .replace(/\[CMD_ADD_TASKS\][\s\S]*?\[\/CMD_ADD_TASKS\]/, '')
+            cleanResponse = cleanResponse.replace(/\[TOGGLE_THEME\]/g, '')
+                .replace(/\[CLEAR_CHAT\]/g, '')
+                .replace(/\[EXPAND_AI\]/g, '')
+                .replace(/\[MINIMIZE_AI\]/g, '')
+                .replace(/\[RESTART_TOUR\]/g, '')
+                .replace(/\[CMD_WRITE_CODE\][\s\S]*?\[\/CMD_WRITE_CODE\]/g, '')
+                .replace(/\[CMD_ADD_TASKS\][\s\S]*?\[\/CMD_ADD_TASKS\]/g, '')
+                .replace(/\[CMD_CLEAR_TASKS\]/g, '')
+                .replace(/\[CMD_RUN_CODE\][\s\S]*?\[\/CMD_RUN_CODE\]/g, '')
+                .replace(/\[CMD_SEARCH_COMMUNITY\][\s\S]*?\[\/CMD_SEARCH_COMMUNITY\]/g, '')
+                .replace(/\[CMD_SEARCH_NOTES\][\s\S]*?\[\/CMD_SEARCH_NOTES\]/g, '')
+                .replace(/\[CMD_SEARCH_FAVORITES\][\s\S]*?\[\/CMD_SEARCH_FAVORITES\]/g, '')
                 .trim();
 
             setMessages((prev: ChatMessage[]) => [...prev.filter((m: ChatMessage) => m.id !== 'voice-start'), { id: Date.now().toString(), role: 'model', content: cleanResponse }]);
@@ -438,7 +475,7 @@ export function AIChatbot() {
             resumeListening();
         } catch (error: any) {
             console.error('HuggingFace API Error:', error);
-            const errorMessage = error.message ? `API Error: ${error.message}` : "An error occurred while connecting to the AI. Please try again.";
+            const errorMessage = error.message ? `API Error: ${error.message} ` : "An error occurred while connecting to the AI. Please try again.";
             setMessages(prev => [...prev.filter(m => m.id !== 'voice-start'), { id: Date.now().toString(), role: 'model', content: errorMessage }]);
             resumeListening();
         } finally {

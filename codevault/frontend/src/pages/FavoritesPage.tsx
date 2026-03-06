@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Search, Heart, Cloud, CheckCircle2, AlertCircle, ChevronDown } from 'lucide-react';
 import { useSnippets } from '@/hooks/useSnippets';
 import SnippetCard from '@/components/SnippetCard';
@@ -12,6 +13,7 @@ import { useRef } from 'react';
 import { cn } from '@/lib/utils';
 
 export default function FavoritesPage() {
+    const location = useLocation();
     const {
         snippets,
         isLoading,
@@ -59,6 +61,27 @@ export default function FavoritesPage() {
     useEffect(() => {
         return () => setSearchFilters({});
     }, [setSearchFilters]);
+
+    // AGENTIC: Check for pending search
+    useEffect(() => {
+        const checkAgentic = () => {
+            const pendingActionStr = localStorage.getItem('codevault_pending_action');
+            if (pendingActionStr) {
+                try {
+                    const action = JSON.parse(pendingActionStr);
+                    if (action.type === 'SEARCH_FAVORITES' && action.payload.query) {
+                        setLocalSearch(action.payload.query);
+                        localStorage.removeItem('codevault_pending_action');
+                        setTimeout(() => scrollToContent(), 500);
+                    }
+                } catch (e) { console.error("Agentic search error", e); }
+            }
+        };
+
+        checkAgentic();
+        window.addEventListener('codevault_agentic_action', checkAgentic);
+        return () => window.removeEventListener('codevault_agentic_action', checkAgentic);
+    }, [location]);
 
 
 

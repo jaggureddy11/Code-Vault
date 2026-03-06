@@ -1,4 +1,5 @@
 import { useState, Suspense, lazy, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Loader2, Play, Terminal, Code2, Maximize2, Minimize2, Share2, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -49,8 +50,9 @@ const EXT_MAP: Record<LanguageKey, string> = {
 
 export default function CompilerPage() {
     const { theme } = useTheme();
-    const { toast } = useToast();
     const { user } = useAuth();
+    const location = useLocation();
+    const { toast } = useToast();
     const [activeTab, setActiveTab] = useState<'editor' | 'output'>('editor');
     const [language, setLanguage] = useState<LanguageKey>(() => {
         const saved = localStorage.getItem('codevault_compiler_language');
@@ -74,73 +76,6 @@ export default function CompilerPage() {
         localStorage.setItem('codevault_compiler_code', code);
         localStorage.setItem('codevault_compiler_filename', fileName);
     }, [language, code, fileName]);
-
-    useEffect(() => {
-        const urlParams = new URLSearchParams(window.location.search);
-        const urlId = urlParams.get('id');
-        const urlLang = urlParams.get('lang');
-        const urlCode = urlParams.get('code');
-        const urlFile = urlParams.get('file');
-
-        if (urlId) {
-            const fetchShared = async () => {
-                const { data, error } = await supabase.from('snippets').select('*').eq('id', urlId).single();
-                if (!error && data) {
-                    if (data.language in COMPILER_LANGUAGES) {
-                        setLanguage(data.language as LanguageKey);
-                    }
-                    setCode(data.code);
-                    if (data.title) setFileName(data.title);
-                }
-            };
-            fetchShared();
-            return;
-        }
-
-        if (urlLang && urlLang in COMPILER_LANGUAGES) {
-            setLanguage(urlLang as LanguageKey);
-        }
-        if (urlCode) {
-            try {
-                setCode(decodeURIComponent(escape(atob(urlCode))));
-            } catch (e) {
-                console.error("Failed to parse code from URL");
-            }
-        }
-        if (urlFile) {
-            setFileName(urlFile);
-        }
-
-        // AGENTIC: Check for pending agentic code paste
-        const pendingActionStr = localStorage.getItem('codevault_pending_action');
-        if (pendingActionStr) {
-            try {
-                const action = JSON.parse(pendingActionStr);
-                if (action.type === 'WRITE_CODE') {
-                    if (action.payload.language && action.payload.language in COMPILER_LANGUAGES) {
-                        setLanguage(action.payload.language);
-                        if (action.payload.fileName) setFileName(action.payload.fileName);
-                    }
-                    if (action.payload.code) {
-                        setCode(action.payload.code);
-                        toast({ title: "Code Synchronized", description: "The AI has populated the editor with your requested logic." });
-                    }
-                    localStorage.removeItem('codevault_pending_action');
-                }
-            } catch (e) {
-                console.error("Failed to parse agentic action", e);
-            }
-        }
-    }, []);
-
-    useEffect(() => {
-        if (isFullscreen) {
-            document.body.classList.add('is-compiler-fullscreen');
-        } else {
-            document.body.classList.remove('is-compiler-fullscreen');
-        }
-        return () => document.body.classList.remove('is-compiler-fullscreen');
-    }, [isFullscreen]);
 
     const handleLanguageChange = (newLanguage: string) => {
         if (newLanguage in COMPILER_LANGUAGES) {
@@ -185,6 +120,91 @@ export default function CompilerPage() {
             setIsLoading(false);
         }
     };
+
+    useEffect(() => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlId = urlParams.get('id');
+        const urlLang = urlParams.get('lang');
+        const urlCode = urlParams.get('code');
+        const urlFile = urlParams.get('file');
+
+        if (urlId) {
+            const fetchShared = async () => {
+                const { data, error } = await supabase.from('snippets').select('*').eq('id', urlId).single();
+                if (!error && data) {
+                    if (data.language in COMPILER_LANGUAGES) {
+                        setLanguage(data.language as LanguageKey);
+                    }
+                    setCode(data.code);
+                    if (data.title) setFileName(data.title);
+                }
+            };
+            fetchShared();
+            return;
+        }
+
+        if (urlLang && urlLang in COMPILER_LANGUAGES) {
+            setLanguage(urlLang as LanguageKey);
+        }
+        if (urlCode) {
+            try {
+                setCode(decodeURIComponent(escape(atob(urlCode))));
+            } catch (e) {
+                console.error("Failed to parse code from URL");
+            }
+        }
+        if (urlFile) {
+            setFileName(urlFile);
+        }
+
+        // AGENTIC: Check for pending agentic code paste
+        const checkAgentic = () => {
+            const pendingActionStr = localStorage.getItem('codevault_pending_action');
+            if (pendingActionStr) {
+                try {
+                    const action = JSON.parse(pendingActionStr);
+                    if (action.type === 'WRITE_CODE') {
+                        const providedLang = action.payload.language?.toLowerCase();
+                        if (providedLang && providedLang in COMPILER_LANGUAGES) {
+                            setLanguage(providedLang as LanguageKey);
+                            if (action.payload.fileName) setFileName(action.payload.fileName);
+                        }
+                        if (action.payload.code) {
+                            setCode(action.payload.code);
+                            toast({ title: "Code Synchronized", description: "The AI has populated the editor with your requested logic." });
+                            if (action.payload.autoRun) {
+                                setTimeout(() => runCode(), 500);
+                            }
+                        }
+                        localStorage.removeItem('codevault_pending_action');
+                    }
+                    if (action.type === 'RUN_CODE') {
+                        runCode();
+                        localStorage.removeItem('codevault_pending_action');
+                    }
+                } catch (e) {
+                    console.error("Failed to parse agentic action", e);
+                }
+            }
+        };
+
+        checkAgentic();
+        window.addEventListener('codevault_agentic_action', checkAgentic);
+        return () => window.removeEventListener('codevault_agentic_action', checkAgentic);
+    }, [location]);
+
+    useEffect(() => {
+        if (isFullscreen) {
+            document.body.classList.add('is-compiler-fullscreen');
+        } else {
+            document.body.classList.remove('is-compiler-fullscreen');
+        }
+        return () => document.body.classList.remove('is-compiler-fullscreen');
+    }, [isFullscreen]);
+
+
+
+
 
     const clearOutput = () => setOutput('');
 

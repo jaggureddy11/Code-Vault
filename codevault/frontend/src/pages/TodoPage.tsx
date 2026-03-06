@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -21,6 +22,7 @@ interface TaskProgress {
 
 export default function TodoPage() {
   const { user } = useAuth();
+  const location = useLocation();
   const { toast } = useToast();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [allProgress, setAllProgress] = useState<TaskProgress[]>([]);
@@ -57,9 +59,19 @@ export default function TodoPage() {
     };
 
     window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
+    window.addEventListener('codevault_agentic_action', loadFromLocalStorage);
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('codevault_agentic_action', loadFromLocalStorage);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
+  }, [user, location]);
+
+  const saveToLocalStorage = (newTasks: Task[], newAllProgress: TaskProgress[]) => {
+    if (!user) return;
+    localStorage.setItem(`codevault_tasks_${user.id}`, JSON.stringify(newTasks));
+    localStorage.setItem(`codevault_progress_${user.id}`, JSON.stringify(newAllProgress));
+  };
 
   const loadFromLocalStorage = () => {
     try {
@@ -102,17 +114,20 @@ export default function TodoPage() {
           toast({ title: "AI Sync", description: `Added ${freshTasks.length} tasks to your list.` });
           localStorage.removeItem('codevault_pending_action');
         }
+        if (action.type === 'CLEAR_TASKS') {
+          setTasks([]);
+          setAllProgress([]);
+          saveToLocalStorage([], []);
+          toast({ title: "Tasks Reset", description: "Your daily task sheet has been cleared." });
+          localStorage.removeItem('codevault_pending_action');
+        }
       } catch (e) {
         console.error("Failed to parse agentic action", e);
       }
     }
   };
 
-  const saveToLocalStorage = (newTasks: Task[], newAllProgress: TaskProgress[]) => {
-    if (!user) return;
-    localStorage.setItem(`codevault_tasks_${user.id}`, JSON.stringify(newTasks));
-    localStorage.setItem(`codevault_progress_${user.id}`, JSON.stringify(newAllProgress));
-  };
+
 
   const addTask = (e: React.FormEvent) => {
     e.preventDefault();

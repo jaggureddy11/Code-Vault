@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useLocation } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import {
@@ -23,6 +24,7 @@ interface Note {
 
 export default function NotesPage() {
     const { user } = useAuth();
+    const location = useLocation();
     const { toast } = useToast();
     const [notes, setNotes] = useState<Note[]>([]);
     const [loading, setLoading] = useState(true);
@@ -43,8 +45,26 @@ export default function NotesPage() {
         if (user) {
             fetchNotes();
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [user]);
+
+        // AGENTIC: Check for pending note search
+        const checkAgentic = () => {
+            const pendingActionStr = localStorage.getItem('codevault_pending_action');
+            if (pendingActionStr) {
+                try {
+                    const action = JSON.parse(pendingActionStr);
+                    if (action.type === 'SEARCH_NOTES' && action.payload.query) {
+                        setSearchQuery(action.payload.query);
+                        localStorage.removeItem('codevault_pending_action');
+                        toast({ title: "Note Filtered", description: `Searching your notes for: "${action.payload.query}"` });
+                    }
+                } catch (e) { console.error("Agentic notes error", e); }
+            }
+        };
+
+        checkAgentic();
+        window.addEventListener('codevault_agentic_action', checkAgentic);
+        return () => window.removeEventListener('codevault_agentic_action', checkAgentic);
+    }, [user, location]);
 
     const fetchNotes = async () => {
         try {

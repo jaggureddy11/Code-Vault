@@ -20,7 +20,7 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { AIChatbot } from "@/components/AIChatbot";
+import AIChatbot from "@/components/AIChatbot";
 import { driver } from "driver.js";
 import "driver.js/dist/driver.css";
 
