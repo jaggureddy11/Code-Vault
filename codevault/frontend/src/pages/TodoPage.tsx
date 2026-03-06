@@ -77,6 +77,35 @@ export default function TodoPage() {
     } finally {
       setLoading(false);
     }
+
+    // AGENTIC: Check for pending tasks from AI
+    const pendingActionStr = localStorage.getItem('codevault_pending_action');
+    if (pendingActionStr) {
+      try {
+        const action = JSON.parse(pendingActionStr);
+        if (action.type === 'ADD_TASKS' && action.payload.tasks && Array.isArray(action.payload.tasks)) {
+          const freshTasks: Task[] = action.payload.tasks.map((t: string) => ({
+            id: crypto.randomUUID(),
+            task_text: t,
+            created_at: new Date().toISOString()
+          }));
+
+          setTasks(prev => {
+            const combined = [...prev, ...freshTasks];
+            // Get latest progress
+            const storedProgressStr = localStorage.getItem(`codevault_progress_${user?.id}`);
+            const storedProgress = storedProgressStr ? JSON.parse(storedProgressStr) : [];
+            saveToLocalStorage(combined, storedProgress);
+            return combined;
+          });
+
+          toast({ title: "AI Sync", description: `Added ${freshTasks.length} tasks to your list.` });
+          localStorage.removeItem('codevault_pending_action');
+        }
+      } catch (e) {
+        console.error("Failed to parse agentic action", e);
+      }
+    }
   };
 
   const saveToLocalStorage = (newTasks: Task[], newAllProgress: TaskProgress[]) => {

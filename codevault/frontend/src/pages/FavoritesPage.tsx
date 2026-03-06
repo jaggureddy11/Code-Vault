@@ -96,10 +96,10 @@ export default function FavoritesPage() {
     };
 
     return (
-        <div className="min-h-screen pt-32 pb-20 px-4 sm:px-6 lg:px-8 bg-white dark:bg-black transition-colors duration-500">
+        <div className="min-h-screen pt-24 sm:pt-32 pb-20 px-4 sm:px-6 lg:px-8 bg-white dark:bg-black transition-colors duration-500">
             <div className="max-w-7xl mx-auto">
                 {/* Header Section */}
-                <div className="relative overflow-hidden bg-black text-white px-4 sm:px-8 py-10 sm:py-20 mb-10 sm:mb-20 border-b-8 border-white/20">
+                <div className="relative overflow-hidden bg-black text-white px-4 sm:px-8 py-8 sm:py-20 mb-8 sm:mb-20 border-b-8 border-white/20">
                     <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8 sm:gap-12">
                         <div className="flex-1 space-y-4 sm:space-y-8 text-left">
                             <div className="flex items-center gap-4 sm:gap-6">
@@ -119,10 +119,10 @@ export default function FavoritesPage() {
                                     {syncStatus}
                                 </div>
                             </div>
-                            <h1 className="text-4xl sm:text-6xl md:text-9xl font-black italic tracking-tighter leading-[0.8] uppercase">
+                            <h1 className="text-3xl sm:text-6xl md:text-9xl font-black italic tracking-tighter leading-[0.8] uppercase">
                                 Elite <br />Pinned <br /><span className="underline decoration-8 underline-offset-8 text-pink-500">Favorites.</span>
                             </h1>
-                            <p className="text-lg sm:text-xl font-bold italic max-w-xl leading-tight opacity-70">
+                            <p className="text-base sm:text-xl font-bold italic max-w-xl leading-tight opacity-70">
                                 Curated high-performance code snippets for rapid deployment.
                             </p>
                         </div>

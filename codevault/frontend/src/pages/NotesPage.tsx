@@ -234,7 +234,7 @@ export default function NotesPage() {
                     </Button>
                     <div className="flex items-center gap-2">
                         <Shield className="h-5 w-5 hidden sm:block text-blue-600" />
-                        <h1 className="text-sm sm:text-xl font-black uppercase italic tracking-tighter">Secure Vault</h1>
+                        <h1 className="text-sm sm:text-xl font-black uppercase italic tracking-tighter">Notes</h1>
                     </div>
                 </div>
                 <div className="flex items-center gap-2 sm:gap-4">
@@ -267,7 +267,7 @@ export default function NotesPage() {
                 )}>
                     <div className="p-4 border-b-2 border-black dark:border-white bg-black dark:bg-white text-white dark:text-black flex items-center justify-between">
                         <p className="text-[10px] font-black uppercase tracking-widest italic flex items-center gap-2">
-                            <Layout className="h-3 w-3" /> Vault Library
+                            <Layout className="h-3 w-3" /> Notes
                         </p>
                         <Button variant="ghost" size="icon" onClick={() => setShowSidebar(false)} className="h-6 w-6 md:hidden">
                             <X className="h-4 w-4" />
@@ -288,7 +288,7 @@ export default function NotesPage() {
                             </div>
                         ) : filteredNotes.length === 0 ? (
                             <div className="p-10 text-center opacity-20 italic font-black uppercase text-[10px] tracking-widest">
-                                Vault is Empty
+                                Notes is Empty
                             </div>
                         ) : filteredNotes.map(note => (
                             <div
@@ -401,7 +401,7 @@ export default function NotesPage() {
                             <div className="h-20 w-20 sm:h-24 sm:w-24 bg-neutral-200 dark:bg-neutral-900 rounded-full flex items-center justify-center mb-6 sm:mb-10">
                                 <FileText className="h-10 w-10 opacity-20" />
                             </div>
-                            <h2 className="text-3xl sm:text-6xl font-black uppercase italic tracking-tighter mb-4 leading-none text-black/10 dark:text-white/10">Vault Library</h2>
+                            <h2 className="text-3xl sm:text-6xl font-black uppercase italic tracking-tighter mb-4 leading-none text-black/10 dark:text-white/10">Notes</h2>
                             <p className="text-xs sm:text-lg font-bold opacity-30 max-w-sm mb-8 sm:mb-12 uppercase italic leading-tight">Add a PDF to store and study</p>
                             <Button
                                 onClick={handleStartNew}

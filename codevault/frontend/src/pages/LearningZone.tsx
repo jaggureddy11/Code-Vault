@@ -221,22 +221,22 @@ export default function LearningZone() {
     };
 
     return (
-        <div className="min-h-screen bg-white dark:bg-black pt-32 pb-20 px-4 sm:px-6 lg:px-8 transition-colors duration-500">
+        <div className="min-h-screen bg-white dark:bg-black pt-24 sm:pt-32 pb-20 px-4 sm:px-6 lg:px-8 transition-colors duration-500">
             <div className="max-w-7xl mx-auto">
 
                 {/* Hero Section */}
-                <div className="relative mb-20 overflow-hidden bg-black text-white px-8 py-20 border-b-8 border-white/20">
+                <div className="relative mb-8 sm:mb-20 overflow-hidden bg-black text-white px-4 sm:px-8 py-8 sm:py-20 border-b-8 border-white/20">
                     <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-12">
-                        <div className="flex-1 space-y-8 text-left">
+                        <div className="flex-1 space-y-4 sm:space-y-8 text-left">
                             <div className="inline-flex items-center gap-2 px-3 py-1 bg-white text-black text-[10px] font-bold italic tracking-widest uppercase">
                                 <TrendingUp className="h-3 w-3" />
                                 Featured Courses
                             </div>
 
-                            <h1 className="text-6xl md:text-9xl font-black italic tracking-tighter leading-[0.8] uppercase">
+                            <h1 className="text-3xl sm:text-6xl md:text-9xl font-black italic tracking-tighter leading-[0.8] uppercase">
                                 Level <br />Up your <br /><span className="underline decoration-8 underline-offset-8 text-amber-500">Craft.</span>
                             </h1>
-                            <p className="text-xl font-bold italic max-w-xl leading-tight opacity-70">
+                            <p className="text-base sm:text-xl font-bold italic max-w-xl leading-tight opacity-70">
                                 Deep-dive engineering tutorials and performance masterclasses.
                             </p>
                         </div>

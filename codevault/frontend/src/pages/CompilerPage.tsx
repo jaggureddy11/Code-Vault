@@ -110,6 +110,27 @@ export default function CompilerPage() {
         if (urlFile) {
             setFileName(urlFile);
         }
+
+        // AGENTIC: Check for pending agentic code paste
+        const pendingActionStr = localStorage.getItem('codevault_pending_action');
+        if (pendingActionStr) {
+            try {
+                const action = JSON.parse(pendingActionStr);
+                if (action.type === 'WRITE_CODE') {
+                    if (action.payload.language && action.payload.language in COMPILER_LANGUAGES) {
+                        setLanguage(action.payload.language);
+                        if (action.payload.fileName) setFileName(action.payload.fileName);
+                    }
+                    if (action.payload.code) {
+                        setCode(action.payload.code);
+                        toast({ title: "Code Synchronized", description: "The AI has populated the editor with your requested logic." });
+                    }
+                    localStorage.removeItem('codevault_pending_action');
+                }
+            } catch (e) {
+                console.error("Failed to parse agentic action", e);
+            }
+        }
     }, []);
 
     useEffect(() => {
@@ -208,9 +229,11 @@ export default function CompilerPage() {
         }
     };
 
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 1024;
+
     const editorOptions = {
         minimap: { enabled: false },
-        fontSize: 14,
+        fontSize: isMobile ? 12 : 14,
         lineNumbers: 'on' as const,
         scrollBeyondLastLine: false,
         automaticLayout: true,
@@ -221,6 +244,18 @@ export default function CompilerPage() {
         smoothScrolling: true,
         wordWrap: 'on' as const,
         theme: theme === 'dark' ? 'vs-dark' : 'light',
+        fixedOverflowWidgets: true,
+        scrollbar: {
+            vertical: 'visible' as const,
+            horizontal: 'visible' as const,
+            useShadows: false,
+            verticalHasArrows: false,
+            horizontalHasArrows: false,
+            verticalScrollbarSize: 10,
+            horizontalScrollbarSize: 10,
+        },
+        readOnly: false,
+        domReadOnly: false,
     };
 
     const toggleFullscreen = () => setIsFullscreen(!isFullscreen);
@@ -230,15 +265,13 @@ export default function CompilerPage() {
             "bg-white dark:bg-black",
             isFullscreen
                 ? "fixed inset-0 z-[99999] w-screen h-screen overflow-hidden flex flex-col"
-                : "min-h-screen pt-28 sm:pt-36 pb-20 px-4 sm:px-6 lg:px-8 max-w-[1700px] mx-auto"
+                : "min-h-screen pt-24 sm:pt-36 pb-20 px-2 sm:px-6 lg:px-8 max-w-[1700px] mx-auto"
         )}>
             {!isFullscreen && (
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-10 mb-8 lg:mb-12 px-2">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-10 mb-6 lg:mb-12 px-2">
                     <div className="space-y-4">
-
-                        <h1 className="text-4xl sm:text-4xl font-black uppercase tracking-tighter italic">
+                        <h1 className="text-3xl sm:text-4xl font-black uppercase tracking-tighter italic">
                             ONLINE <span className="text-orange-500">COMPILER</span>
-
                         </h1>
                     </div>
                 </div>
@@ -251,7 +284,7 @@ export default function CompilerPage() {
 
                 {/* Mobile Tabs */}
                 {!isFullscreen && (
-                    <div className="flex lg:hidden w-full border-2 border-black dark:border-white bg-neutral-100 dark:bg-neutral-900">
+                    <div className="flex lg:hidden w-full border-2 border-black dark:border-white bg-neutral-100 dark:bg-neutral-900 sticky top-0 z-20">
                         <button
                             onClick={() => setActiveTab('editor')}
                             className={cn(
@@ -273,7 +306,7 @@ export default function CompilerPage() {
                     </div>
                 )}
 
-                {/* Sidebar languages */}
+                {/* Sidebar languages (Desktop) */}
                 {!isFullscreen && (
                     <div className="hidden lg:flex flex-col gap-4 w-16 items-center shrink-0 border-r-2 border-black/10 dark:border-white/10 pr-4 overflow-y-auto no-scrollbar pb-6">
                         {Object.entries(COMPILER_LANGUAGES).map(([key, config]) => {
@@ -301,21 +334,21 @@ export default function CompilerPage() {
 
                 <div className={cn(
                     "flex-1 flex",
-                    isFullscreen ? "flex-col lg:flex-row h-full overflow-hidden" : "grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 h-[65vh] lg:h-full"
+                    isFullscreen ? "flex-col lg:flex-row h-full overflow-hidden" : "grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 min-h-[500px] lg:h-full"
                 )}>
 
                     {/* Editor Panel */}
                     <div className={cn(
-                        "flex-col bg-white dark:bg-black overflow-hidden",
+                        "flex-col bg-white dark:bg-black overflow-hidden flex-nowrap",
                         isFullscreen
                             ? "flex-1 border-b-2 lg:border-b-0 lg:border-r-2 border-black dark:border-white h-full"
-                            : "border-2 border-black dark:border-white h-full",
+                            : "border-2 border-black dark:border-white h-[500px] lg:h-full",
                         (activeTab === 'editor' || isFullscreen) ? 'flex' : 'hidden lg:flex'
                     )}>
-                        <div className="flex flex-wrap items-center justify-between p-3 border-b-2 border-black/10 dark:border-white/10 bg-neutral-50 dark:bg-neutral-900 gap-3">
-                            <div className="flex items-center gap-3">
+                        <div className="flex flex-nowrap items-center justify-between p-2 sm:p-3 border-b-2 border-black/10 dark:border-white/10 bg-neutral-50 dark:bg-neutral-900 gap-2 overflow-x-auto no-scrollbar">
+                            <div className="flex items-center gap-2 shrink-0">
                                 <Select value={language} onValueChange={handleLanguageChange}>
-                                    <SelectTrigger className="h-10 w-36 sm:w-40 rounded-none border-2 border-black dark:border-white bg-white dark:bg-black font-black italic uppercase text-[10px] tracking-widest">
+                                    <SelectTrigger className="h-9 w-28 sm:w-40 rounded-none border-2 border-black dark:border-white bg-white dark:bg-black font-black italic uppercase text-[9px] sm:text-[10px] tracking-widest px-2">
                                         <SelectValue placeholder="Language" />
                                     </SelectTrigger>
                                     <SelectContent className="rounded-none border-2 border-black dark:border-white bg-white dark:bg-black max-h-64">
@@ -337,17 +370,17 @@ export default function CompilerPage() {
                                 <Input
                                     value={fileName}
                                     onChange={(e) => setFileName(e.target.value)}
-                                    className="h-10 w-32 sm:w-48 rounded-none border-2 border-black dark:border-white bg-white dark:bg-black font-mono text-xs focus-visible:ring-0 focus-visible:ring-offset-0"
+                                    className="h-9 w-24 sm:w-48 rounded-none border-2 border-black dark:border-white bg-white dark:bg-black font-mono text-[10px] sm:text-xs focus-visible:ring-0 focus-visible:ring-offset-0 px-2"
                                     placeholder="main.js"
                                 />
                             </div>
 
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-2 shrink-0">
                                 <Button
                                     variant="ghost"
                                     size="sm"
                                     onClick={shareCode}
-                                    className="h-10 w-10 p-0 rounded-none border-2 border-transparent hover:border-black dark:hover:border-white transition-all hidden sm:flex"
+                                    className="h-9 w-9 p-0 rounded-none border-2 border-transparent hover:border-black dark:hover:border-white transition-all hidden sm:flex"
                                     title="Share snippet"
                                 >
                                     <Share2 className="h-4 w-4" />
@@ -356,7 +389,7 @@ export default function CompilerPage() {
                                     variant="ghost"
                                     size="sm"
                                     onClick={toggleFullscreen}
-                                    className="h-10 w-10 p-0 rounded-none border-2 border-transparent hover:border-black dark:hover:border-white transition-all hidden sm:flex"
+                                    className="h-9 w-9 p-0 rounded-none border-2 border-transparent hover:border-black dark:hover:border-white transition-all hidden sm:flex"
                                     title="Toggle Fullscreen"
                                 >
                                     {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
@@ -364,14 +397,14 @@ export default function CompilerPage() {
                                 <Button
                                     onClick={runCode}
                                     disabled={isLoading}
-                                    className="bg-black text-white dark:bg-white dark:text-black rounded-none h-10 px-4 sm:px-6 font-black uppercase italic tracking-widest text-[10px] flex items-center gap-2 transition-transform active:scale-95"
+                                    className="bg-black text-white dark:bg-white dark:text-black rounded-none h-9 px-3 sm:px-6 font-black uppercase italic tracking-widest text-[9px] sm:text-[10px] flex items-center gap-1.5 transition-transform active:scale-95"
                                 >
-                                    {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />}
+                                    {isLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Play className="h-3.5 w-3.5 fill-current" />}
                                     Run
                                 </Button>
                             </div>
                         </div>
-                        <div className="flex-1 relative">
+                        <div className="flex-1 relative touch-pan-y">
                             <Suspense
                                 fallback={
                                     <div className="absolute inset-0 flex flex-col items-center justify-center bg-neutral-50 dark:bg-neutral-900">
@@ -397,7 +430,7 @@ export default function CompilerPage() {
                         "flex-col bg-black text-white relative",
                         isFullscreen
                             ? "h-[40vh] lg:h-full lg:w-[40%] xl:w-[35%] shrink-0"
-                            : "border-2 border-black dark:border-white h-full",
+                            : "border-2 border-black dark:border-white h-[400px] lg:h-full",
                         (activeTab === 'output' || isFullscreen) ? 'flex' : 'hidden lg:flex'
                     )}>
                         <div className="flex items-center justify-between p-3 border-b-2 border-white/20">
@@ -431,7 +464,7 @@ export default function CompilerPage() {
 
             {/* Mobile Actions Overlay (only visible on small screens to replace hidden buttons) */}
             {!isFullscreen && (
-                <div className="flex justify-center sm:hidden mt-4 gap-4">
+                <div className="flex justify-center sm:hidden mt-4 gap-4 px-2">
                     <Button
                         variant="outline"
                         onClick={shareCode}

@@ -7,7 +7,7 @@ import {
     Code2, Compass, Youtube, User,
     HelpCircle, MessageSquare, Heart, LogOut,
     Sun, Moon, Menu, X, Sparkles, Globe,
-    StickyNote, Terminal, ListTodo
+    StickyNote, Terminal, ListTodo, ArrowLeft
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -101,12 +101,14 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         // Halfway through the animation, switch the theme
         setTimeout(() => {
             toggleTheme();
-        }, 400); // Wait for cover
+        }, 200); // Wait for cover
         // Ending the animation
         setTimeout(() => {
             setIsTransitioning(false);
-        }, 1000); // Full duration
+        }, 600); // Full duration
     };
+
+    const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
 
     const navLinks = [
         { name: 'Vault', path: '/', icon: Code2 },
@@ -125,6 +127,27 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         { name: 'Support', path: '/support', icon: Heart },
     ];
 
+    const ProfileDropdownContent = () => (
+        <DropdownMenuContent className="w-72 mt-2 rounded-none bg-white dark:bg-black border-4 border-black dark:border-white p-0 shadow-none overflow-hidden" align="end">
+            <DropdownMenuLabel className="flex flex-col p-8 bg-black text-white dark:bg-white dark:text-black relative overflow-hidden">
+                <span className="text-2xl font-black italic tracking-tighter">{user?.user_metadata?.username || user?.email?.split('@')[0]}</span>
+                <span className="text-[10px] font-black tracking-widest opacity-60 mt-1">{user?.email}</span>
+            </DropdownMenuLabel>
+            <div className="p-2 space-y-1">
+                <DropdownMenuItem onClick={() => { navigate('/profile'); window.scrollTo(0, 0); }} className="rounded-none p-5 text-[10px] font-black uppercase italic tracking-widest hover:bg-neutral-100 dark:hover:bg-neutral-900 cursor-pointer gap-4">
+                    <User className="h-4 w-4" /> View Profile
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => { navigate('/support'); window.scrollTo(0, 0); }} className="rounded-none p-5 text-[10px] font-black uppercase italic tracking-widest hover:bg-neutral-100 dark:hover:bg-neutral-900 cursor-pointer gap-4">
+                    <Sparkles className="h-4 w-4" /> Support Us
+                </DropdownMenuItem>
+                <DropdownMenuSeparator className="bg-black/10 dark:bg-white/10 mx-4" />
+                <DropdownMenuItem onClick={signOut} className="rounded-none p-5 text-[10px] font-black uppercase italic tracking-widest bg-red-600 text-white hover:bg-red-700 cursor-pointer gap-4">
+                    <LogOut className="h-4 w-4" /> Logout
+                </DropdownMenuItem>
+            </div>
+        </DropdownMenuContent>
+    );
+
     return (
         <div className="min-h-screen bg-white dark:bg-black text-foreground transition-colors duration-500 font-sans">
             {/* Athletic Header */}
@@ -135,8 +158,33 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 )}
             >
                 <div className="max-w-[1700px] mx-auto flex justify-between items-center">
+                    {/* Back Arrow & Mobile Menu Toggle (Left) */}
+                    <div className="flex items-center gap-2 z-[110]">
+                        {location.pathname !== '/' && (
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => navigate(-1)}
+                                className="rounded-none border-2 border-black dark:border-white w-10 h-10 bg-white dark:bg-black"
+                            >
+                                <ArrowLeft className="h-5 w-5" />
+                            </Button>
+                        )}
+
+                        <div className="lg:hidden">
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                                className="rounded-none border-2 border-black dark:border-white w-10 h-10 bg-white dark:bg-black"
+                            >
+                                {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+                            </Button>
+                        </div>
+                    </div>
+
                     {/* Logo Area */}
-                    <NavLink to="/" className="z-[110] pr-12" onClick={() => window.scrollTo(0, 0)}>
+                    <NavLink to="/" className="z-[110] lg:pr-12 flex-1 lg:flex-none flex justify-center lg:block" onClick={() => window.scrollTo(0, 0)}>
                         <Logo />
                     </NavLink>
 
@@ -190,36 +238,29 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                                         )}
                                     </Button>
                                 </DropdownMenuTrigger>
-                                <DropdownMenuContent className="w-72 mt-2 rounded-none bg-white dark:bg-black border-4 border-black dark:border-white p-0 shadow-none overflow-hidden" align="end">
-                                    <DropdownMenuLabel className="flex flex-col p-8 bg-black text-white dark:bg-white dark:text-black relative overflow-hidden">
-                                        <span className="text-2xl font-black italic tracking-tighter">{user?.user_metadata?.username || user?.email?.split('@')[0]}</span>
-                                        <span className="text-[10px] font-black tracking-widest opacity-60 mt-1">{user?.email}</span>
-                                    </DropdownMenuLabel>
-                                    <div className="p-2 space-y-1">
-                                        <DropdownMenuItem onClick={() => { navigate('/profile'); window.scrollTo(0, 0); }} className="rounded-none p-5 text-[10px] font-black uppercase italic tracking-widest hover:bg-neutral-100 dark:hover:bg-neutral-900 cursor-pointer gap-4">
-                                            <User className="h-4 w-4" /> View Profile
-                                        </DropdownMenuItem>
-                                        <DropdownMenuItem onClick={() => { navigate('/support'); window.scrollTo(0, 0); }} className="rounded-none p-5 text-[10px] font-black uppercase italic tracking-widest hover:bg-neutral-100 dark:hover:bg-neutral-900 cursor-pointer gap-4">
-                                            <Sparkles className="h-4 w-4" /> Support Us
-                                        </DropdownMenuItem>
-                                        <DropdownMenuSeparator className="bg-black/10 dark:bg-white/10 mx-4" />
-                                        <DropdownMenuItem onClick={signOut} className="rounded-none p-5 text-[10px] font-black uppercase italic tracking-widest bg-red-600 text-white hover:bg-red-700 cursor-pointer gap-4">
-                                            <LogOut className="h-4 w-4" /> Logout
-                                        </DropdownMenuItem>
-                                    </div>
-                                </DropdownMenuContent>
+                                <ProfileDropdownContent />
                             </DropdownMenu>
                         </div>
 
-                        {/* Mobile Toggle */}
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                            className="lg:hidden rounded-none border-2 border-black dark:border-white w-10 h-10"
-                        >
-                            {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-                        </Button>
+                        {/* Mobile: Right Profile Icon (Toggle) */}
+                        <div className="lg:hidden">
+                            <DropdownMenu onOpenChange={setProfileDropdownOpen}>
+                                <DropdownMenuTrigger asChild>
+                                    <Button variant="ghost" size="icon" className="group rounded-none border-2 border-black dark:border-white w-10 h-10 overflow-hidden bg-white dark:bg-black hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors">
+                                        {profileDropdownOpen ? (
+                                            <X className="h-5 w-5" />
+                                        ) : (
+                                            avatarUrl ? (
+                                                <img src={avatarUrl} alt="Profile" className="h-full w-full object-cover" />
+                                            ) : (
+                                                <User className="h-4 w-4 text-black group-hover:text-white dark:text-white dark:group-hover:text-black" />
+                                            )
+                                        )}
+                                    </Button>
+                                </DropdownMenuTrigger>
+                                <ProfileDropdownContent />
+                            </DropdownMenu>
+                        </div>
                     </div>
                 </div>
             </header>
@@ -240,12 +281,12 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                                 to={link.path}
                                 onClick={() => window.scrollTo(0, 0)}
                                 className={({ isActive }) => cn(
-                                    "flex items-center gap-6 sm:gap-8 p-6 sm:p-8 text-2xl sm:text-4xl font-black uppercase italic tracking-tighter transition-all border-4",
+                                    "flex items-center gap-4 p-4 text-sm sm:text-base font-black uppercase italic tracking-widest transition-all border-2",
                                     isActive ? "bg-black text-white border-black dark:bg-white dark:text-black dark:border-white" : "border-black/5 dark:border-white/5"
                                 )}
                             >
                                 <>
-                                    <link.icon className="h-6 w-6 sm:h-8 sm:w-8" />
+                                    <link.icon className="h-4 w-4" />
                                     {link.name}
                                 </>
                             </NavLink>
@@ -258,9 +299,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                                 key={link.path}
                                 to={link.path}
                                 onClick={() => window.scrollTo(0, 0)}
-                                className="flex items-center gap-6 p-6 border-2 border-black/10 dark:border-white/10 text-xl font-black uppercase italic tracking-widest"
+                                className="flex items-center gap-4 p-4 border-2 border-black/10 dark:border-white/10 text-[10px] font-black uppercase italic tracking-widest"
                             >
-                                <link.icon className="h-6 w-6" />
+                                <link.icon className="h-4 w-4" />
                                 {link.name}
                             </NavLink>
                         ))}
@@ -360,18 +401,18 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             {/* Speed Line Transition Overlay */}
             <div className={cn(
                 "fixed inset-0 z-[9999] pointer-events-none flex flex-col",
-                isTransitioning ? "opacity-100" : "opacity-0 transition-opacity delay-700 duration-0"
+                isTransitioning ? "opacity-100" : "opacity-0 transition-opacity delay-400 duration-0"
             )}>
                 <div className={cn(
-                    "flex-1 bg-black w-full transform transition-transform duration-500 ease-[cubic-bezier(0.87,0,0.13,1)]",
+                    "flex-1 bg-black w-full transform transition-transform duration-300 ease-[cubic-bezier(0.87,0,0.13,1)]",
                     isTransitioning ? "translate-x-0" : "-translate-x-full"
                 )} />
                 <div className={cn(
-                    "flex-1 bg-white w-full transform transition-transform duration-500 delay-75 ease-[cubic-bezier(0.87,0,0.13,1)]",
+                    "flex-1 bg-white w-full transform transition-transform duration-300 delay-50 ease-[cubic-bezier(0.87,0,0.13,1)]",
                     isTransitioning ? "translate-x-0" : "translate-x-full"
                 )} />
                 <div className={cn(
-                    "flex-1 bg-black w-full transform transition-transform duration-500 delay-150 ease-[cubic-bezier(0.87,0,0.13,1)]",
+                    "flex-1 bg-black w-full transform transition-transform duration-300 delay-100 ease-[cubic-bezier(0.87,0,0.13,1)]",
                     isTransitioning ? "translate-x-0" : "-translate-x-full"
                 )} />
             </div>

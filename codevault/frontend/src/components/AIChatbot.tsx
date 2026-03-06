@@ -1,10 +1,13 @@
-import { useState, useRef, useEffect } from 'react';
-import { Bot, User, Send, Minimize2, Maximize2, X, Sparkles, Loader2, Mic, Square, Plus, Trash2 } from 'lucide-react';
+import { useState, useRef, useEffect, useMemo } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useTheme } from '@/contexts/ThemeContext';
+import { Bot, User, Send, Minimize2, Maximize2, X, Sparkles, Loader2, Mic, Square, Plus, Trash2, Volume2, VolumeX, Copy, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import ReactMarkdown from 'react-markdown';
 import Draggable from 'react-draggable';
 import { HfInference } from '@huggingface/inference';
+import { Highlight, themes } from 'prism-react-renderer';
 
 interface ChatMessage {
     id: string;
@@ -15,9 +18,60 @@ interface ChatMessage {
 const HF_API_KEY = import.meta.env.VITE_HUGGINGFACE_API_KEY;
 const hf = new HfInference(HF_API_KEY);
 
+const MarkdownCodeBlock = ({ children, className, theme }: { children: any, className?: string, theme: string }) => {
+    const match = /language-(\w+)/.exec(className || '');
+    const [copied, setCopied] = useState(false);
+
+    const handleCopy = () => {
+        navigator.clipboard.writeText(String(children).replace(/\n$/, ''));
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+    };
+
+    if (!match) {
+        return <code className={cn("bg-black/5 dark:bg-white/5 px-1 rounded", className)}>{children}</code>;
+    }
+
+    return (
+        <div className="relative group/code my-4">
+            <div className="absolute right-2 top-2 z-10 opacity-0 group-hover/code:opacity-100 transition-opacity">
+                <Button
+                    variant="outline"
+                    size="icon"
+                    className="h-7 w-7 bg-white dark:bg-black border-2 border-black dark:border-white rounded-none"
+                    onClick={handleCopy}
+                >
+                    {copied ? <Check className="h-3 w-3 text-green-500" /> : <Copy className="h-3 w-3" />}
+                </Button>
+            </div>
+            <Highlight
+                theme={theme === 'dark' ? themes.nightOwl : themes.nightOwlLight}
+                code={String(children).replace(/\n$/, '')}
+                language={match[1] as any}
+            >
+                {({ className, style, tokens, getLineProps, getTokenProps }) => (
+                    <pre className={cn(className, "p-4 overflow-x-auto text-xs border-2 border-black/10 dark:border-white/10")} style={style}>
+                        {tokens.map((line, i) => (
+                            <div key={i} {...getLineProps({ line, key: i })}>
+                                {line.map((token, key) => (
+                                    <span key={key} {...getTokenProps({ token, key })} />
+                                ))}
+                            </div>
+                        ))}
+                    </pre>
+                )}
+            </Highlight>
+        </div>
+    );
+};
+
 export function AIChatbot() {
+    const navigate = useNavigate();
+    const location = useLocation();
+    const { toggleTheme, theme } = useTheme();
     const [isOpen, setIsOpen] = useState(false);
     const [isExpanded, setIsExpanded] = useState(false);
+    const [isTTSActive, setIsTTSActive] = useState(() => localStorage.getItem('codevault_tts_enabled') === 'true');
     const [messages, setMessages] = useState<ChatMessage[]>(() => {
         const saved = localStorage.getItem('codevault_chat_messages');
         if (saved) {
@@ -44,12 +98,14 @@ export function AIChatbot() {
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [isVoiceMode, setIsVoiceMode] = useState(false);
+    const [isSpeaking, setIsSpeaking] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
     const recognitionRef = useRef<any>(null);
     const initialInputRef = useRef('');
-    const isVoiceModeRef = useRef(false); // keep purely in sync for event listeners
+    const isVoiceModeRef = useRef(false);
     const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+    const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
 
     useEffect(() => {
         // Pre-warm the TTS engine's voice list on mount so human voices are ready instantly
@@ -70,6 +126,40 @@ export function AIChatbot() {
     useEffect(() => {
         localStorage.setItem('codevault_chat_messages', JSON.stringify(messages));
     }, [messages]);
+
+    useEffect(() => {
+        localStorage.setItem('codevault_tts_enabled', isTTSActive.toString());
+    }, [isTTSActive]);
+
+    const speakResponse = (text: string) => {
+        if (!isTTSActive || !window.speechSynthesis) return;
+
+        // Cancel existing speech
+        window.speechSynthesis.cancel();
+
+        const utterance = new SpeechSynthesisUtterance(text.replace(/\[.*?\]/g, '')); // Strip commands
+        const voices = window.speechSynthesis.getVoices();
+        // Prefer a premium sounding voice if available
+        const preferredVoice = voices.find(v => v.name.includes('Google') || v.name.includes('Samantha') || v.name.includes('Natural'));
+        if (preferredVoice) utterance.voice = preferredVoice;
+
+        utterance.rate = 1.1;
+        utterance.pitch = 1.0;
+
+        utterance.onstart = () => setIsSpeaking(true);
+        utterance.onend = () => setIsSpeaking(false);
+        utterance.onerror = () => setIsSpeaking(false);
+
+        utteranceRef.current = utterance;
+        window.speechSynthesis.speak(utterance);
+    };
+
+    const stopSpeaking = () => {
+        if (window.speechSynthesis) {
+            window.speechSynthesis.cancel();
+            setIsSpeaking(false);
+        }
+    };
 
     const startSpeechRecognition = () => {
         // CLEANUP: If there's an existing instance, kill it first
@@ -175,7 +265,7 @@ export function AIChatbot() {
         if (!text || isLoading) return;
 
         const userMsg: ChatMessage = { id: Date.now().toString(), role: 'user', content: text };
-        setMessages(prev => [...prev.filter(m => m.id !== 'voice-start'), userMsg]);
+        setMessages((prev: ChatMessage[]) => [...prev.filter((m: ChatMessage) => m.id !== 'voice-start'), userMsg]);
         setInput('');
         setIsLoading(true);
 
@@ -189,7 +279,36 @@ export function AIChatbot() {
                 content: m.content
             }));
 
-            const systemInstruction = "You are CodeVault AI, an elite personal tutor and study assistant. Help me with my tasks, manage my workflow, learn coding, and write code. Keep responses conversational, highly proactive, and helpful.";
+            const systemInstruction = `You are CodeVault AI, an elite personal tutor and study assistant. You have agentic capabilities to control the UI. 
+            The user is currently on the page: ${location.pathname}.
+            
+            **CRITICAL CAPABILITIES**:
+            1. **UI CONTROL**: If the user asks to open a page, toggle the theme, or find something, you MUST use these command tags at the VERY END of your response (hidden from user):
+               - [NAV_VAULT] : Open Home/Vault
+               - [NAV_EXPLORE] : Open Explore
+               - [NAV_FAVORITES] : Open Favorites
+               - [NAV_PROJECTS] : Open Projects
+               - [NAV_LEARN] : Open Learning Zone (YouTube tutorials)
+               - [NAV_NOTES] : Open Notes (PDF storage)
+               - [NAV_COMPILER] : Open Terminal/Compiler
+               - [NAV_TODO] : Open Daily To-Do Tracker
+               - [NAV_PROFILE] : Open User Profile
+               - [NAV_SUPPORT] : Open Support Page
+               - [TOGGLE_THEME] : Toggle Dark/Light Mode
+               - [CLEAR_CHAT] : Clear current conversation history
+               - [EXPAND_AI] : Make the AI window larger/fullscreen
+               - [MINIMIZE_AI] : Make the AI window smaller
+               - [RESTART_TOUR] : Start the interactive product tour
+
+            3. **DEEP INTEGRATION**:
+               - **WRITING CODE**: When you generate code, you can automatically paste it into the compiler. 
+                 To do this, use: [CMD_WRITE_CODE]{"language": "python", "code": "...", "fileName": "app.py"}[/CMD_WRITE_CODE]
+               - **ADDING TASKS**: You can automatically add tasks to the user's To-Do list.
+                 To do this, use: [CMD_ADD_TASKS]{"tasks": ["Task 1", "Task 2"]}[/CMD_ADD_TASKS]
+            
+            2. **CONTEXT AWARENESS**: You know exactly where the user is. If they are on /todo, help them manage tasks. If they are on /notes, help them with PDF study. If they ask "What can I do here?", explain the specific features of ${location.pathname}.
+            
+            4. **ELITE TUTORING**: You don't just give answers; you explain the "why". Use high-performance, engineering-centric language. Keep it conversational but elite.`;
 
             let textOutput = "";
 
@@ -211,7 +330,93 @@ export function AIChatbot() {
 
             if (!textOutput) throw new Error("Sorry, I couldn't generate a response.");
 
-            setMessages(prev => [...prev.filter(m => m.id !== 'voice-start'), { id: Date.now().toString(), role: 'model', content: textOutput }]);
+            // AGENTIC DISPATCHER: Parse command tags and execute actions
+            const commands = [
+                { tag: '[NAV_VAULT]', path: '/' },
+                { tag: '[NAV_EXPLORE]', path: '/explore' },
+                { tag: '[NAV_FAVORITES]', path: '/favorites' },
+                { tag: '[NAV_PROJECTS]', path: '/projects' },
+                { tag: '[NAV_LEARN]', path: '/learn' },
+                { tag: '[NAV_NOTES]', path: '/notes' },
+                { tag: '[NAV_COMPILER]', path: '/compiler' },
+                { tag: '[NAV_TODO]', path: '/todo' },
+                { tag: '[NAV_PROFILE]', path: '/profile' },
+                { tag: '[NAV_SUPPORT]', path: '/support' },
+            ];
+
+            commands.forEach(cmd => {
+                if (textOutput.includes(cmd.tag)) {
+                    setTimeout(() => {
+                        navigate(cmd.path);
+                        window.scrollTo(0, 0);
+                        if (window.innerWidth < 1024) setIsOpen(false); // Close on mobile navigation
+                    }, 50);
+                }
+            });
+
+            if (textOutput.includes('[TOGGLE_THEME]')) {
+                setTimeout(() => toggleTheme(), 50);
+            }
+
+            if (textOutput.includes('[CLEAR_CHAT]')) {
+                setTimeout(() => {
+                    setMessages([{ id: 'welcome', role: 'model', content: "Chat history cleared. How can I help you fresh?" }]);
+                    localStorage.removeItem('codevault_chat_messages');
+                }, 50);
+            }
+
+            if (textOutput.includes('[EXPAND_AI]')) {
+                setIsExpanded(true);
+            }
+
+            if (textOutput.includes('[MINIMIZE_AI]')) {
+                setIsExpanded(false);
+            }
+
+            if (textOutput.includes('[RESTART_TOUR]')) {
+                localStorage.setItem('showTour', 'true');
+                window.location.reload();
+            }
+
+            // AGENTIC DEEP ACTIONS: Code and Tasks
+            if (textOutput.includes('[CMD_WRITE_CODE]')) {
+                const match = textOutput.match(/\[CMD_WRITE_CODE\]([\s\S]*?)\[\/CMD_WRITE_CODE\]/);
+                if (match) {
+                    try {
+                        const payload = JSON.parse(match[1]);
+                        localStorage.setItem('codevault_pending_action', JSON.stringify({ type: 'WRITE_CODE', payload }));
+                        setTimeout(() => navigate('/compiler'), 50);
+                    } catch (e) { console.error("Agentic code error", e); }
+                }
+            }
+
+            if (textOutput.includes('[CMD_ADD_TASKS]')) {
+                const match = textOutput.match(/\[CMD_ADD_TASKS\]([\s\S]*?)\[\/CMD_ADD_TASKS\]/);
+                if (match) {
+                    try {
+                        const payload = JSON.parse(match[1]);
+                        localStorage.setItem('codevault_pending_action', JSON.stringify({ type: 'ADD_TASKS', payload }));
+                        setTimeout(() => navigate('/todo'), 50);
+                    } catch (e) { console.error("Agentic task error", e); }
+                }
+            }
+
+            // Cleanup: Remove command tags from the visible response
+            let cleanResponse = textOutput;
+            commands.forEach(cmd => {
+                cleanResponse = cleanResponse.replace(cmd.tag, '');
+            });
+            cleanResponse = cleanResponse.replace('[TOGGLE_THEME]', '')
+                .replace('[CLEAR_CHAT]', '')
+                .replace('[EXPAND_AI]', '')
+                .replace('[MINIMIZE_AI]', '')
+                .replace('[RESTART_TOUR]', '')
+                .replace(/\[CMD_WRITE_CODE\][\s\S]*?\[\/CMD_WRITE_CODE\]/, '')
+                .replace(/\[CMD_ADD_TASKS\][\s\S]*?\[\/CMD_ADD_TASKS\]/, '')
+                .trim();
+
+            setMessages((prev: ChatMessage[]) => [...prev.filter((m: ChatMessage) => m.id !== 'voice-start'), { id: Date.now().toString(), role: 'model', content: cleanResponse }]);
+            speakResponse(cleanResponse);
 
             // Remove TTS entirely; just receive the response as normal conversation.
             resumeListening();
@@ -226,6 +431,14 @@ export function AIChatbot() {
     };
 
     handleSendRef.current = handleSend;
+
+    const markdownComponents = useMemo(() => ({
+        code: ({ inline, className, children }: any) => (
+            <MarkdownCodeBlock className={className} theme={theme}>
+                {children}
+            </MarkdownCodeBlock>
+        )
+    }), [theme]);
 
     if (!isOpen) {
         return (
@@ -260,13 +473,22 @@ export function AIChatbot() {
                         </div>
                     </div>
                     <div className="flex items-center gap-1">
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => setIsTTSActive(!isTTSActive)}
+                            className={cn("h-8 w-8 hover:bg-neutral-800 dark:hover:bg-neutral-200", isTTSActive ? "text-amber-500" : "text-neutral-500")}
+                            title={isTTSActive ? "Disable Voice Output" : "Enable Voice Output"}
+                        >
+                            {isTTSActive ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
+                        </Button>
                         <Button variant="ghost" size="icon" onClick={clearChat} title="New Chat" className="h-8 w-8 hover:bg-neutral-800 dark:hover:bg-neutral-200">
                             <Plus className="h-4 w-4" />
                         </Button>
                         <Button variant="ghost" size="icon" onClick={clearChat} title="Clear Chat" className="h-8 w-8 hover:bg-neutral-800 dark:hover:bg-neutral-200 text-neutral-400 hover:text-red-500">
                             <Trash2 className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="icon" onClick={() => setIsExpanded(!isExpanded)} className="h-8 w-8 hover:bg-neutral-800 dark:hover:bg-neutral-200">
+                        <Button variant="ghost" size="icon" onClick={() => setIsExpanded(!isExpanded)} className="h-8 w-8 hover:bg-neutral-800 dark:hover:bg-neutral-200 font-bold">
                             {isExpanded ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
                         </Button>
                         <Button variant="ghost" size="icon" onClick={() => setIsOpen(false)} className="h-8 w-8 hover:bg-neutral-800 dark:hover:bg-neutral-200 text-red-500 hover:text-red-400">
@@ -283,19 +505,45 @@ export function AIChatbot() {
                                 <div className={cn("h-6 w-6 rounded-none flex items-center justify-center border-2", msg.role === 'user' ? "bg-black text-white border-black dark:bg-white dark:text-black dark:border-white" : "bg-red-600 text-white border-red-600")}>
                                     {msg.role === 'user' ? <User className="h-3 w-3" /> : <Bot className="h-3 w-3" />}
                                 </div>
+                                {msg.role === 'model' && isSpeaking && messages[messages.length - 1].id === msg.id && (
+                                    <Volume2 className="h-3 w-3 text-red-500 animate-pulse" />
+                                )}
                                 <span className="text-[10px] font-black uppercase tracking-widest opacity-40">
                                     {msg.role === 'user' ? 'You' : 'AI Assistant'}
                                 </span>
                             </div>
                             <div className={cn("max-w-[85%] px-4 py-3 text-sm rounded-none border-2 shadow-[2px_2px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_rgba(255,255,255,1)] text-black dark:text-white", msg.role === 'user' ? "bg-white dark:bg-black border-black dark:border-white" : "bg-neutral-100 dark:bg-neutral-900 border-black dark:border-white")}>
                                 <div className="prose prose-sm dark:prose-invert max-w-none break-words space-y-2">
-                                    <ReactMarkdown>
+                                    <ReactMarkdown
+                                        components={markdownComponents}
+                                    >
                                         {msg.content}
                                     </ReactMarkdown>
                                 </div>
                             </div>
                         </div>
                     ))}
+                    {messages.length === 1 && (
+                        <div className="flex flex-wrap gap-2 animate-in fade-in slide-in-from-bottom-2 duration-500">
+                            {[
+                                "Explain this page",
+                                "Manage my tasks",
+                                "Study my notes",
+                                "Switch theme",
+                                "Open compiler",
+                                "Explore global code",
+                                "Go to my profile"
+                            ].map((suggest, idx) => (
+                                <button
+                                    key={idx}
+                                    onClick={() => handleSend(suggest)}
+                                    className="px-3 py-1.5 bg-white dark:bg-black border-2 border-black dark:border-white text-[10px] font-black uppercase italic tracking-widest hover:bg-red-600 hover:text-white dark:hover:bg-red-600 transition-colors shadow-[2px_2px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_rgba(255,255,255,1)] active:translate-y-[1px]"
+                                >
+                                    {suggest}
+                                </button>
+                            ))}
+                        </div>
+                    )}
                     {isLoading && (
                         <div className="flex flex-col items-start gap-1">
                             <div className="flex items-center gap-2 mb-1">
