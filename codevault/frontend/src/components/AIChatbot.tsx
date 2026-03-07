@@ -311,9 +311,9 @@ export default function AIChatbot() {
             3. **CONTEXT AWARENESS**: Current page: ${location.pathname}. 
 
             **MANDATORY ETIQUETTE**:
-            - Tags MUST be at the end.
+            - Tags MUST be at the end EXACTLY as shown (use brackets and correct case).
             - If generating code, ALWAYS use [CMD_WRITE_CODE] with autoRun:true.
-            - You represent the "Agentic" side of CodeVault. Be proactive, elite, and engineering-centric.`;
+            - You are a helpful, friendly, and conversational AI assistant. Do NOT use overly technical or robotic language. Do NOT expose or mention raw tags in your conversational response.`;
 
             let textOutput = "";
 
@@ -352,20 +352,21 @@ export default function AIChatbot() {
 
             // 1. Check basic navigation
             navCommands.forEach(cmd => {
-                if (textOutput.includes(cmd.tag)) targetPath = cmd.path;
+                const tagCore = cmd.tag.replace(/\[|\]/g, '');
+                if (new RegExp(`\\[?${tagCore}\\]?`, 'i').test(textOutput)) targetPath = cmd.path;
             });
 
             // 2. Simple Actions
-            if (textOutput.includes('[TOGGLE_THEME]')) setTimeout(() => toggleTheme(), 50);
-            if (textOutput.includes('[CLEAR_CHAT]')) {
+            if (/\[?TOGGLE_THEME\]?/i.test(textOutput)) setTimeout(() => toggleTheme(), 50);
+            if (/\[?CLEAR_CHAT\]?/i.test(textOutput)) {
                 setTimeout(() => {
                     setMessages([{ id: 'welcome', role: 'model', content: "Chat history cleared. How can I help you fresh?" }]);
                     localStorage.removeItem('codevault_chat_messages');
                 }, 50);
             }
-            if (textOutput.includes('[EXPAND_AI]')) setIsExpanded(true);
-            if (textOutput.includes('[MINIMIZE_AI]')) setIsExpanded(false);
-            if (textOutput.includes('[RESTART_TOUR]')) {
+            if (/\[?EXPAND_AI\]?/i.test(textOutput)) setIsExpanded(true);
+            if (/\[?MINIMIZE_AI\]?/i.test(textOutput)) setIsExpanded(false);
+            if (/\[?RESTART_TOUR\]?/i.test(textOutput)) {
                 localStorage.setItem('showTour', 'true');
                 window.location.reload();
             }
@@ -373,64 +374,54 @@ export default function AIChatbot() {
             // 3. Deep Agentic Commands
             let agenticAction: any = null;
 
-            if (textOutput.includes('[CMD_WRITE_CODE]')) {
-                const match = textOutput.match(/\[CMD_WRITE_CODE\]([\s\S]*?)\[\/CMD_WRITE_CODE\]/);
-                if (match) {
-                    try {
-                        agenticAction = { type: 'WRITE_CODE', payload: JSON.parse(match[1]) };
-                        targetPath = '/compiler';
-                    } catch (e) { console.error("Agentic code error", e); }
-                }
+            const writeCodeMatch = textOutput.match(/\[?CMD_WRITE_CODE\]?([\s\S]*?)\[?\/CMD_WRITE_CODE\]?/i);
+            if (writeCodeMatch) {
+                try {
+                    agenticAction = { type: 'WRITE_CODE', payload: JSON.parse(writeCodeMatch[1]) };
+                    targetPath = '/compiler';
+                } catch (e) { console.error("Agentic code error", e); }
             }
 
-            if (textOutput.includes('[CMD_ADD_TASKS]')) {
-                const match = textOutput.match(/\[CMD_ADD_TASKS\]([\s\S]*?)\[\/CMD_ADD_TASKS\]/);
-                if (match) {
-                    try {
-                        agenticAction = { type: 'ADD_TASKS', payload: JSON.parse(match[1]) };
-                        targetPath = '/todo';
-                    } catch (e) { console.error("Agentic task error", e); }
-                }
+            const addTasksMatch = textOutput.match(/\[?CMD_ADD_TASKS\]?([\s\S]*?)\[?\/CMD_ADD_TASKS\]?/i);
+            if (addTasksMatch) {
+                try {
+                    agenticAction = { type: 'ADD_TASKS', payload: JSON.parse(addTasksMatch[1]) };
+                    targetPath = '/todo';
+                } catch (e) { console.error("Agentic task error", e); }
             }
 
-            if (textOutput.includes('[CMD_CLEAR_TASKS]')) {
+            if (/\[?CMD_CLEAR_TASKS\]?/i.test(textOutput)) {
                 agenticAction = { type: 'CLEAR_TASKS' };
                 targetPath = '/todo';
             }
 
-            if (textOutput.includes('[CMD_RUN_CODE]')) {
+            if (/\[?CMD_RUN_CODE\]?/i.test(textOutput)) {
                 agenticAction = { type: 'RUN_CODE' };
                 targetPath = '/compiler';
             }
 
-            if (textOutput.includes('[CMD_SEARCH_COMMUNITY]')) {
-                const match = textOutput.match(/\[CMD_SEARCH_COMMUNITY\]([\s\S]*?)\[\/CMD_SEARCH_COMMUNITY\]/);
-                if (match) {
-                    try {
-                        agenticAction = { type: 'SEARCH_COMMUNITY', payload: JSON.parse(match[1]) };
-                        targetPath = '/explore';
-                    } catch (e) { console.error("Agentic search error", e); }
-                }
+            const searchCommunityMatch = textOutput.match(/\[?CMD_SEARCH_COMMUNITY\]?([\s\S]*?)\[?\/CMD_SEARCH_COMMUNITY\]?/i);
+            if (searchCommunityMatch) {
+                try {
+                    agenticAction = { type: 'SEARCH_COMMUNITY', payload: JSON.parse(searchCommunityMatch[1]) };
+                    targetPath = '/explore';
+                } catch (e) { console.error("Agentic search error", e); }
             }
 
-            if (textOutput.includes('[CMD_SEARCH_NOTES]')) {
-                const match = textOutput.match(/\[CMD_SEARCH_NOTES\]([\s\S]*?)\[\/CMD_SEARCH_NOTES\]/);
-                if (match) {
-                    try {
-                        agenticAction = { type: 'SEARCH_NOTES', payload: JSON.parse(match[1]) };
-                        targetPath = '/notes';
-                    } catch (e) { console.error("Agentic notes search error", e); }
-                }
+            const searchNotesMatch = textOutput.match(/\[?CMD_SEARCH_NOTES\]?([\s\S]*?)\[?\/CMD_SEARCH_NOTES\]?/i);
+            if (searchNotesMatch) {
+                try {
+                    agenticAction = { type: 'SEARCH_NOTES', payload: JSON.parse(searchNotesMatch[1]) };
+                    targetPath = '/notes';
+                } catch (e) { console.error("Agentic notes search error", e); }
             }
 
-            if (textOutput.includes('[CMD_SEARCH_FAVORITES]')) {
-                const match = textOutput.match(/\[CMD_SEARCH_FAVORITES\]([\s\S]*?)\[\/CMD_SEARCH_FAVORITES\]/);
-                if (match) {
-                    try {
-                        agenticAction = { type: 'SEARCH_FAVORITES', payload: JSON.parse(match[1]) };
-                        targetPath = '/favorites';
-                    } catch (e) { console.error("Agentic favorites search error", e); }
-                }
+            const searchFavoritesMatch = textOutput.match(/\[?CMD_SEARCH_FAVORITES\]?([\s\S]*?)\[?\/CMD_SEARCH_FAVORITES\]?/i);
+            if (searchFavoritesMatch) {
+                try {
+                    agenticAction = { type: 'SEARCH_FAVORITES', payload: JSON.parse(searchFavoritesMatch[1]) };
+                    targetPath = '/favorites';
+                } catch (e) { console.error("Agentic favorites search error", e); }
             }
 
             // 4. Execution
@@ -451,21 +442,22 @@ export default function AIChatbot() {
             // Cleanup: Remove command tags from the visible response
             let cleanResponse = textOutput;
             navCommands.forEach(cmd => {
-                const escapedTag = cmd.tag.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                cleanResponse = cleanResponse.replace(new RegExp(escapedTag, 'g'), '');
+                const tagCore = cmd.tag.replace(/\[|\]/g, '');
+                // Escape bracket literals in string building
+                cleanResponse = cleanResponse.replace(new RegExp(`\\[?${tagCore}\\]?`, 'gi'), '');
             });
-            cleanResponse = cleanResponse.replace(/\[TOGGLE_THEME\]/g, '')
-                .replace(/\[CLEAR_CHAT\]/g, '')
-                .replace(/\[EXPAND_AI\]/g, '')
-                .replace(/\[MINIMIZE_AI\]/g, '')
-                .replace(/\[RESTART_TOUR\]/g, '')
-                .replace(/\[CMD_WRITE_CODE\][\s\S]*?\[\/CMD_WRITE_CODE\]/g, '')
-                .replace(/\[CMD_ADD_TASKS\][\s\S]*?\[\/CMD_ADD_TASKS\]/g, '')
-                .replace(/\[CMD_CLEAR_TASKS\]/g, '')
-                .replace(/\[CMD_RUN_CODE\][\s\S]*?\[\/CMD_RUN_CODE\]/g, '')
-                .replace(/\[CMD_SEARCH_COMMUNITY\][\s\S]*?\[\/CMD_SEARCH_COMMUNITY\]/g, '')
-                .replace(/\[CMD_SEARCH_NOTES\][\s\S]*?\[\/CMD_SEARCH_NOTES\]/g, '')
-                .replace(/\[CMD_SEARCH_FAVORITES\][\s\S]*?\[\/CMD_SEARCH_FAVORITES\]/g, '')
+            cleanResponse = cleanResponse.replace(/\[?TOGGLE_THEME\]?/gi, '')
+                .replace(/\[?CLEAR_CHAT\]?/gi, '')
+                .replace(/\[?EXPAND_AI\]?/gi, '')
+                .replace(/\[?MINIMIZE_AI\]?/gi, '')
+                .replace(/\[?RESTART_TOUR\]?/gi, '')
+                .replace(/\[?CMD_WRITE_CODE\]?[\s\S]*?\[?\/CMD_WRITE_CODE\]?/gi, '')
+                .replace(/\[?CMD_ADD_TASKS\]?[\s\S]*?\[?\/CMD_ADD_TASKS\]?/gi, '')
+                .replace(/\[?CMD_CLEAR_TASKS\]?/gi, '')
+                .replace(/\[?CMD_RUN_CODE\]?[\s\S]*?\[?\/CMD_RUN_CODE\]?/gi, '')
+                .replace(/\[?CMD_SEARCH_COMMUNITY\]?[\s\S]*?\[?\/CMD_SEARCH_COMMUNITY\]?/gi, '')
+                .replace(/\[?CMD_SEARCH_NOTES\]?[\s\S]*?\[?\/CMD_SEARCH_NOTES\]?/gi, '')
+                .replace(/\[?CMD_SEARCH_FAVORITES\]?[\s\S]*?\[?\/CMD_SEARCH_FAVORITES\]?/gi, '')
                 .trim();
 
             setMessages((prev: ChatMessage[]) => [...prev.filter((m: ChatMessage) => m.id !== 'voice-start'), { id: Date.now().toString(), role: 'model', content: cleanResponse }]);
