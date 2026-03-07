@@ -181,30 +181,46 @@ export default function LearningZone() {
         const query = searchQuery.trim();
         if (!query) return;
 
-        // Check if the query is a direct YouTube URL
-        const ytIdMatch = query.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
-        if (ytIdMatch && ytIdMatch[1]) {
-            const videoId = ytIdMatch[1];
-            const directVideo: Video = {
-                id: videoId,
-                title: "Imported Video Link",
-                thumbnail: `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`,
-                channel: "Unknown",
-                duration: "N/A",
-                views: "N/A",
-                likes: "N/A",
-                description: "This video was imported directly via URL paste."
-            };
-            handleVideoSelect(directVideo);
-            setSearchQuery('');
-            return;
-        }
-
         setIsLoading(true);
         setHasSearched(true);
 
         try {
             const base = getApiBaseUrl();
+
+            // Check if the query is a direct YouTube URL
+            const ytIdMatch = query.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
+            if (ytIdMatch && ytIdMatch[1]) {
+                const videoId = ytIdMatch[1];
+                try {
+                    const url = `${base}/api/youtube/details?id=${videoId}`;
+                    const videoData = await fetchJson<Video>(url, { timeoutMs: 15000 });
+                    if (videoData && videoData.id) {
+                        handleVideoSelect(videoData);
+                        setSearchQuery('');
+                        setIsLoading(false);
+                        return;
+                    }
+                } catch (err) {
+                    console.error('Details fetch error, falling back to basic data:', err);
+                }
+
+                // Fallback basic data if backend fails
+                const directVideo: Video = {
+                    id: videoId,
+                    title: "Imported Video Link",
+                    thumbnail: `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`,
+                    channel: "Unknown",
+                    duration: "N/A",
+                    views: "N/A",
+                    likes: "N/A",
+                    description: "This video was imported directly via URL paste."
+                };
+                handleVideoSelect(directVideo);
+                setSearchQuery('');
+                setIsLoading(false);
+                return;
+            }
+
             const url = `${base}/api/youtube/search?q=${encodeURIComponent(searchQuery)}`;
             const data = await fetchJson<Video[]>(url, { timeoutMs: 15000 });
             setSearchResults(Array.isArray(data) ? data : []);
