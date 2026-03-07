@@ -153,7 +153,13 @@ export default function AIChatbot() {
         // Cancel existing speech
         window.speechSynthesis.cancel();
 
-        const utterance = new SpeechSynthesisUtterance(text.replace(/\[.*?\]/g, '')); // Strip commands
+        // Strip agentic commands and code blocks from spoken text so it doesn't sound robotic
+        const spokenText = text
+            .replace(/\[.*?\]/g, '') // Strip [TAGS]
+            .replace(/```[\s\S]*?```/g, '') // Strip code blocks
+            .replace(/`/g, ''); // Strip inline code backticks
+
+        const utterance = new SpeechSynthesisUtterance(spokenText);
         const voices = window.speechSynthesis.getVoices();
         // Prefer a premium sounding voice if available
         const preferredVoice = voices.find(v => v.name.includes('Google') || v.name.includes('Samantha') || v.name.includes('Natural'));
@@ -290,7 +296,8 @@ export default function AIChatbot() {
         }
 
         try {
-            const history = messages.filter(m => m.id !== 'welcome' && !m.content.includes("*(Voice Mode Ended)*") && m.id !== 'voice-start').map(m => ({
+            // Take only the last 15 messages to prevent exceeding the model's context window on long chats
+            const history = messages.slice(-15).filter(m => m.id !== 'welcome' && !m.content.includes("*(Voice Mode Ended)*") && m.id !== 'voice-start').map(m => ({
                 role: m.role === 'model' ? 'assistant' : 'user',
                 content: m.content
             }));
@@ -378,7 +385,8 @@ export default function AIChatbot() {
             const writeCodeMatch = textOutput.match(/\[?CMD_WRITE_CODE\]?([\s\S]*?)\[?\/CMD_WRITE_CODE\]?/i);
             if (writeCodeMatch) {
                 try {
-                    agenticAction = { type: 'WRITE_CODE', payload: JSON.parse(writeCodeMatch[1]) };
+                    const cleanJson = writeCodeMatch[1].replace(/```json|```/gi, '').trim();
+                    agenticAction = { type: 'WRITE_CODE', payload: JSON.parse(cleanJson) };
                     targetPath = '/compiler';
                 } catch (e) { console.error("Agentic code error", e); }
             }
@@ -386,7 +394,8 @@ export default function AIChatbot() {
             const addTasksMatch = textOutput.match(/\[?CMD_ADD_TASKS\]?([\s\S]*?)\[?\/CMD_ADD_TASKS\]?/i);
             if (addTasksMatch) {
                 try {
-                    agenticAction = { type: 'ADD_TASKS', payload: JSON.parse(addTasksMatch[1]) };
+                    const cleanJson = addTasksMatch[1].replace(/```json|```/gi, '').trim();
+                    agenticAction = { type: 'ADD_TASKS', payload: JSON.parse(cleanJson) };
                     targetPath = '/todo';
                 } catch (e) { console.error("Agentic task error", e); }
             }
@@ -404,7 +413,8 @@ export default function AIChatbot() {
             const searchCommunityMatch = textOutput.match(/\[?CMD_SEARCH_COMMUNITY\]?([\s\S]*?)\[?\/CMD_SEARCH_COMMUNITY\]?/i);
             if (searchCommunityMatch) {
                 try {
-                    agenticAction = { type: 'SEARCH_COMMUNITY', payload: JSON.parse(searchCommunityMatch[1]) };
+                    const cleanJson = searchCommunityMatch[1].replace(/```json|```/gi, '').trim();
+                    agenticAction = { type: 'SEARCH_COMMUNITY', payload: JSON.parse(cleanJson) };
                     targetPath = '/explore';
                 } catch (e) { console.error("Agentic search error", e); }
             }
@@ -412,7 +422,8 @@ export default function AIChatbot() {
             const searchNotesMatch = textOutput.match(/\[?CMD_SEARCH_NOTES\]?([\s\S]*?)\[?\/CMD_SEARCH_NOTES\]?/i);
             if (searchNotesMatch) {
                 try {
-                    agenticAction = { type: 'SEARCH_NOTES', payload: JSON.parse(searchNotesMatch[1]) };
+                    const cleanJson = searchNotesMatch[1].replace(/```json|```/gi, '').trim();
+                    agenticAction = { type: 'SEARCH_NOTES', payload: JSON.parse(cleanJson) };
                     targetPath = '/notes';
                 } catch (e) { console.error("Agentic notes search error", e); }
             }
@@ -420,7 +431,8 @@ export default function AIChatbot() {
             const searchFavoritesMatch = textOutput.match(/\[?CMD_SEARCH_FAVORITES\]?([\s\S]*?)\[?\/CMD_SEARCH_FAVORITES\]?/i);
             if (searchFavoritesMatch) {
                 try {
-                    agenticAction = { type: 'SEARCH_FAVORITES', payload: JSON.parse(searchFavoritesMatch[1]) };
+                    const cleanJson = searchFavoritesMatch[1].replace(/```json|```/gi, '').trim();
+                    agenticAction = { type: 'SEARCH_FAVORITES', payload: JSON.parse(cleanJson) };
                     targetPath = '/favorites';
                 } catch (e) { console.error("Agentic favorites search error", e); }
             }
@@ -572,13 +584,13 @@ export default function AIChatbot() {
                     {messages.length === 1 && (
                         <div className="flex flex-wrap gap-2 animate-in fade-in slide-in-from-bottom-2 duration-500">
                             {[
-                                "Write Python palindrome & run",
-                                "Search notes for React",
-                                "Clear my tasks",
                                 "Explain this page",
+                                "Manage my tasks",
+                                "Study my notes",
                                 "Switch theme",
-                                "Search community for Auth",
-                                "Add 'Review PRs' to tasks",
+                                "Open compiler",
+                                //"Explore global code",
+                                "Go to my profile"
                             ].map((suggest, idx) => (
                                 <button
                                     key={idx}
