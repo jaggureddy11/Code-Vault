@@ -313,6 +313,7 @@ export default function AIChatbot() {
             **MANDATORY ETIQUETTE**:
             - Tags MUST be at the end EXACTLY as shown (use brackets and correct case).
             - If generating code, ALWAYS use [CMD_WRITE_CODE] with autoRun:true.
+            - CRITICAL: When using [CMD_WRITE_CODE], DO NOT print the code block in your conversational response. ONLY put the code inside the JSON payload to save space. Just say "I'm writing the code for you now."
             - You are a helpful, friendly, and conversational AI assistant. Do NOT use overly technical or robotic language. Do NOT expose or mention raw tags in your conversational response.`;
 
             let textOutput = "";
@@ -325,7 +326,7 @@ export default function AIChatbot() {
                     ...history,
                     { role: "user", content: userMsg.content }
                 ],
-                max_tokens: (isVoiceMode || isFromVoice) ? 150 : 2000,
+                max_tokens: 2000,
                 temperature: 0.7,
             })) {
                 if (chunk.choices && chunk.choices.length > 0) {
