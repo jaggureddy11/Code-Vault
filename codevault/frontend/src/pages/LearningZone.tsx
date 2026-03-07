@@ -178,7 +178,27 @@ export default function LearningZone() {
 
     const handleSearch = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!searchQuery.trim()) return;
+        const query = searchQuery.trim();
+        if (!query) return;
+
+        // Check if the query is a direct YouTube URL
+        const ytIdMatch = query.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
+        if (ytIdMatch && ytIdMatch[1]) {
+            const videoId = ytIdMatch[1];
+            const directVideo: Video = {
+                id: videoId,
+                title: "Imported Video Link",
+                thumbnail: `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`,
+                channel: "Unknown",
+                duration: "N/A",
+                views: "N/A",
+                likes: "N/A",
+                description: "This video was imported directly via URL paste."
+            };
+            handleVideoSelect(directVideo);
+            setSearchQuery('');
+            return;
+        }
 
         setIsLoading(true);
         setHasSearched(true);
@@ -258,7 +278,7 @@ export default function LearningZone() {
                     <form onSubmit={handleSearch} className="relative group">
                         <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-6 w-6 opacity-30 group-focus-within:opacity-100 transition-opacity" />
                         <Input
-                            placeholder="Search for tutorials (e.g. React, Python)"
+                            placeholder="Search tutorials or paste a YouTube Link..."
                             className="h-20 pl-16 rounded-none border-b-4 border-black dark:border-white bg-transparent text-xl font-bold italic tracking-widest placeholder:opacity-40 focus:ring-0"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
