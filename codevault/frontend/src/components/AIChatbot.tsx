@@ -572,13 +572,13 @@ export default function AIChatbot() {
                     {messages.length === 1 && (
                         <div className="flex flex-wrap gap-2 animate-in fade-in slide-in-from-bottom-2 duration-500">
                             {[
+                                "Write Python palindrome & run",
+                                "Search notes for React",
+                                "Clear my tasks",
                                 "Explain this page",
-                                "Manage my tasks",
-                                "Study my notes",
                                 "Switch theme",
-                                "Open compiler",
-                                "Explore global code",
-                                "Go to my profile"
+                                "Search community for Auth",
+                                "Add 'Review PRs' to tasks",
                             ].map((suggest, idx) => (
                                 <button
                                     key={idx}
