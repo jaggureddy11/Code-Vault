@@ -1,12 +1,6 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import 'regenerator-runtime/runtime';
-import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
-import { createSpeechlySpeechRecognition } from '@speechly/speech-recognition-polyfill';
-
-const appId = 'c28a5099-b3a1-4357-9d7a-1234567890ab'; // Placeholder appId for polyfill
-const SpeechlySpeechRecognition = createSpeechlySpeechRecognition(appId);
-SpeechRecognition.applyPolyfill(SpeechlySpeechRecognition);
 import { useTheme } from '@/contexts/ThemeContext';
 import { Bot, User, Send, Minimize2, Maximize2, X, Sparkles, Loader2, Mic, Square, Plus, Trash2, Volume2, VolumeX, Copy, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -111,35 +105,19 @@ export default function AIChatbot() {
 
     const initialInputRef = useRef('');
     const isVoiceModeRef = useRef(false);
+    const recognitionRef = useRef<any>(null);
     const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
 
-    const {
-        transcript,
-        listening,
-        resetTranscript,
-        browserSupportsSpeechRecognition
-    } = useSpeechRecognition();
-
     useEffect(() => {
-        setIsVoiceMode(listening);
-        isVoiceModeRef.current = listening;
-    }, [listening]);
-
-    useEffect(() => {
-        if (listening) {
-            const separator = initialInputRef.current && transcript ? ' ' : '';
-            setInput((initialInputRef.current + separator + transcript).trim());
-        }
-    }, [transcript, listening]);
-
-    useEffect(() => {
-        // Pre-warm the TTS engine's voice list on mount so human voices are ready instantly
+        // Pre-warm the TTS engine's voice list on mount
         if (typeof window !== 'undefined' && window.speechSynthesis) {
             window.speechSynthesis.getVoices();
         }
         return () => {
-            SpeechRecognition.stopListening();
+            if (recognitionRef.current) {
+                try { recognitionRef.current.stop(); } catch (e) { }
+            }
         };
     }, []);
 
@@ -208,23 +186,73 @@ export default function AIChatbot() {
         }
     };
 
-    const startSpeechRecognition = () => {
-        if (!browserSupportsSpeechRecognition) {
-            alert("Speech Recognition is not supported in this browser. Please use Google Chrome or a modern browser.");
+    const startSpeechRecognition = async () => {
+        const SpeechRecognitionApi = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+
+        if (!SpeechRecognitionApi) {
+            alert("Speech recognition is not supported in this browser. Please use Chrome or Safari.");
             return;
         }
 
-        initialInputRef.current = input;
-        resetTranscript();
-        SpeechRecognition.startListening({ continuous: true, language: 'en-US' });
+        try {
+            await navigator.mediaDevices.getUserMedia({ audio: true });
+        } catch (err) {
+            alert("Microphone access denied. Please enable it in your browser settings.");
+            return;
+        }
+
+        if (recognitionRef.current) {
+            try { recognitionRef.current.stop(); } catch (e) { }
+        }
+
+        const recognition = new SpeechRecognitionApi();
+        recognition.continuous = true;
+        recognition.interimResults = true;
+        recognition.lang = 'en-US';
+
+        recognition.onstart = () => {
+            setIsVoiceMode(true);
+            isVoiceModeRef.current = true;
+            initialInputRef.current = input;
+        };
+
+        recognition.onresult = (event: any) => {
+            let transcript = '';
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                transcript += event.results[i][0].transcript;
+            }
+            const separator = initialInputRef.current && transcript ? ' ' : '';
+            setInput((initialInputRef.current + separator + transcript).trim());
+        };
+
+        recognition.onerror = (event: any) => {
+            console.error("Speech recognition error", event.error);
+            if (event.error === 'not-allowed') {
+                alert("Microphone access was denied.");
+            }
+            setIsVoiceMode(false);
+            isVoiceModeRef.current = false;
+        };
+
+        recognition.onend = () => {
+            setIsVoiceMode(false);
+            isVoiceModeRef.current = false;
+        };
+
+        recognitionRef.current = recognition;
+        recognition.start();
     };
 
     const stopVoiceSession = () => {
-        SpeechRecognition.stopListening();
+        if (recognitionRef.current) {
+            try { recognitionRef.current.stop(); } catch (e) { }
+        }
+        setIsVoiceMode(false);
+        isVoiceModeRef.current = false;
     };
 
     const toggleVoiceMode = () => {
-        if (listening) {
+        if (isVoiceMode) {
             stopVoiceSession();
         } else {
             startSpeechRecognition();
@@ -268,7 +296,7 @@ export default function AIChatbot() {
         setIsLoading(true);
 
         if (isVoiceMode || isFromVoice) {
-            try { SpeechRecognition.stopListening(); } catch (e) { /* ignore */ }
+            stopVoiceSession();
         }
 
         try {
