@@ -121,6 +121,15 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         { name: 'To-Do', path: '/todo', icon: ListTodo },
     ];
 
+    // Main navigation links for mobile bottom bar
+    const mobileBottomNavLinks = [
+        { name: 'Vault', path: '/', icon: Code2 },
+        { name: 'Compiler', path: '/compiler', icon: Terminal },
+        { name: 'Learn', path: '/learn', icon: Youtube },
+        { name: 'Notes', path: '/notes', icon: StickyNote },
+        { name: 'To-Do', path: '/todo', icon: ListTodo },
+    ];
+
     const footerLinks = [
         { name: 'About', path: '/about', icon: HelpCircle },
         { name: 'Contact', path: '/contact', icon: MessageSquare },
@@ -154,7 +163,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             <header
                 className={cn(
                     "fixed top-0 left-0 right-0 z-[100] transition-all duration-300 px-4 sm:px-10 lg:px-12",
-                    isScrolled ? "bg-white/95 dark:bg-black/95 backdrop-blur-md border-b-2 border-black dark:border-white py-3" : "bg-transparent py-8 sm:py-10"
+                    isScrolled ? "bg-white/95 dark:bg-black/95 backdrop-blur-md border-b-2 border-black dark:border-white py-3" : "bg-transparent py-4 sm:py-10"
                 )}
             >
                 <div className="max-w-[1700px] mx-auto flex justify-between items-center">
@@ -165,9 +174,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                                 variant="ghost"
                                 size="icon"
                                 onClick={() => navigate(-1)}
-                                className="rounded-none border-2 border-black dark:border-white w-10 h-10 bg-white dark:bg-black"
+                                className="rounded-none border-2 border-black dark:border-white w-9 h-9 sm:w-10 sm:h-10 bg-white dark:bg-black"
                             >
-                                <ArrowLeft className="h-5 w-5" />
+                                <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5" />
                             </Button>
                         )}
 
@@ -176,15 +185,15 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                                 variant="ghost"
                                 size="icon"
                                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                                className="rounded-none border-2 border-black dark:border-white w-10 h-10 bg-white dark:bg-black"
+                                className="rounded-none border-2 border-black dark:border-white w-9 h-9 sm:w-10 sm:h-10 bg-white dark:bg-black"
                             >
-                                {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+                                {mobileMenuOpen ? <X className="h-4 w-4 sm:h-5 sm:w-5" /> : <Menu className="h-4 w-4 sm:h-5 sm:w-5" />}
                             </Button>
                         </div>
                     </div>
 
                     {/* Logo Area */}
-                    <NavLink to="/" className="z-[110] lg:pr-12 flex-1 lg:flex-none flex justify-center lg:block" onClick={() => window.scrollTo(0, 0)}>
+                    <NavLink to="/" className="z-[110] lg:pr-12 flex-1 lg:flex-none flex justify-center lg:block scale-75 sm:scale-100 origin-center transition-transform" onClick={() => window.scrollTo(0, 0)}>
                         <Logo />
                     </NavLink>
 
@@ -215,14 +224,14 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                     </nav>
 
                     {/* User Actions */}
-                    <div className="flex items-center gap-3 z-[110]">
+                    <div className="flex items-center gap-2 sm:gap-3 z-[110]">
                         <Button
                             variant="ghost"
                             size="icon"
                             onClick={handleThemeToggle}
-                            className="rounded-none border-2 border-black dark:border-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black w-10 h-10"
+                            className="rounded-none border-2 border-black dark:border-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black w-9 h-9 sm:w-10 sm:h-10"
                         >
-                            {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+                            {theme === 'dark' ? <Sun className="h-4 w-4 sm:h-5 sm:w-5" /> : <Moon className="h-4 w-4 sm:h-5 sm:w-5" />}
                         </Button>
 
                         <div className="hidden sm:block h-10 w-[2px] bg-black/10 dark:bg-white/10 mx-1" />
@@ -246,9 +255,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                         <div className="lg:hidden">
                             <DropdownMenu onOpenChange={setProfileDropdownOpen}>
                                 <DropdownMenuTrigger asChild>
-                                    <Button variant="ghost" size="icon" className="group rounded-none border-2 border-black dark:border-white w-10 h-10 overflow-hidden bg-white dark:bg-black hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors">
+                                    <Button variant="ghost" size="icon" className="group rounded-none border-2 border-black dark:border-white w-9 h-9 sm:w-10 sm:h-10 overflow-hidden bg-white dark:bg-black hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors">
                                         {profileDropdownOpen ? (
-                                            <X className="h-5 w-5" />
+                                            <X className="h-4 w-4 sm:h-5 sm:w-5" />
                                         ) : (
                                             avatarUrl ? (
                                                 <img src={avatarUrl} alt="Profile" className="h-full w-full object-cover" />
@@ -268,7 +277,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             {/* Mobile Menu Overlay */}
             <div
                 className={cn(
-                    "fixed inset-0 z-[90] bg-white dark:bg-black lg:hidden transition-all duration-500 flex flex-col pt-40 px-8 overflow-y-auto",
+                    "fixed inset-0 z-[90] bg-white dark:bg-black lg:hidden transition-all duration-500 flex flex-col pt-32 px-8 overflow-y-auto",
                     mobileMenuOpen ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-full pointer-events-none"
                 )}
             >
@@ -316,13 +325,13 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             </div>
 
             {/* Main Content Area */}
-            <main className="relative z-10 min-h-screen pb-16 lg:pb-0">
+            <main className="relative z-10 min-h-screen pb-20 lg:pb-0">
                 {children}
             </main>
 
             {/* Mobile Bottom Navigation (Instagram Style) */}
             <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-black border-t-4 border-black dark:border-white z-[100] flex justify-around items-center h-16 px-1">
-                {navLinks.map((link) => (
+                {mobileBottomNavLinks.map((link) => (
                     <NavLink
                         key={link.path}
                         to={link.path}
@@ -336,6 +345,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                     </NavLink>
                 ))}
             </nav>
+
 
             {/* Performance Footer */}
             <footer className="bg-neutral-100 dark:bg-neutral-900 py-16 sm:py-32 border-t-8 border-black dark:border-white">

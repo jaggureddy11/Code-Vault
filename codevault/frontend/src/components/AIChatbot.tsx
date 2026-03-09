@@ -1,5 +1,7 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import 'regenerator-runtime/runtime';
+import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Bot, User, Send, Minimize2, Maximize2, X, Sparkles, Loader2, Mic, Square, Plus, Trash2, Volume2, VolumeX, Copy, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -102,11 +104,29 @@ export default function AIChatbot() {
     const [isSpeaking, setIsSpeaking] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
-    const recognitionRef = useRef<any>(null);
     const initialInputRef = useRef('');
     const isVoiceModeRef = useRef(false);
     const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
+
+    const {
+        transcript,
+        listening,
+        resetTranscript,
+        browserSupportsSpeechRecognition
+    } = useSpeechRecognition();
+
+    useEffect(() => {
+        setIsVoiceMode(listening);
+        isVoiceModeRef.current = listening;
+    }, [listening]);
+
+    useEffect(() => {
+        if (listening) {
+            const separator = initialInputRef.current && transcript ? ' ' : '';
+            setInput((initialInputRef.current + separator + transcript).trim());
+        }
+    }, [transcript, listening]);
 
     useEffect(() => {
         // Pre-warm the TTS engine's voice list on mount so human voices are ready instantly
@@ -114,7 +134,7 @@ export default function AIChatbot() {
             window.speechSynthesis.getVoices();
         }
         return () => {
-            if (recognitionRef.current) recognitionRef.current.stop();
+            SpeechRecognition.stopListening();
         };
     }, []);
 
@@ -184,75 +204,26 @@ export default function AIChatbot() {
     };
 
     const startSpeechRecognition = () => {
-        // CLEANUP: If there's an existing instance, kill it first
-        if (recognitionRef.current) {
-            recognitionRef.current.onend = null;
-            recognitionRef.current.onerror = null;
-            try { recognitionRef.current.stop(); } catch (e) { /* ignore */ }
-        }
-
-        const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-        if (!SpeechRecognition) {
-            alert("Speech Recognition is not supported in this browser. Please use Google Chrome.");
+        if (!browserSupportsSpeechRecognition) {
+            alert("Speech Recognition is not supported in this browser. Please use Google Chrome or a modern browser.");
             return;
         }
 
-        const recognition = new SpeechRecognition();
-        recognition.continuous = true;
-        recognition.interimResults = true;
-        recognition.lang = 'en-US';
-
-        recognition.onstart = () => {
-            setIsVoiceMode(true);
-            isVoiceModeRef.current = true;
-            initialInputRef.current = input;
-        };
-
-        recognition.onresult = (event: any) => {
-            let totalTranscript = '';
-            for (let i = 0; i < event.results.length; ++i) {
-                totalTranscript += event.results[i][0].transcript;
-            }
-            setInput((initialInputRef.current + ' ' + totalTranscript).trim());
-        };
-
-        recognition.onerror = (e: any) => {
-            if (e.error === 'no-speech') return; // Silence is fine
-            if (e.error === 'aborted' || e.error === 'not-allowed' || e.error === 'service-not-allowed') {
-                console.error("Critical Speech Error:", e.error);
-                stopVoiceSession();
-                return;
-            }
-            console.error("Speech recognition error:", e.error);
-        };
-
-        recognition.onend = () => {
-            setIsVoiceMode(false);
-            isVoiceModeRef.current = false;
-        };
-
-        recognitionRef.current = recognition;
-        try {
-            recognition.start();
-        } catch (e) {
-            console.error("Failed to start recognition:", e);
-        }
+        initialInputRef.current = input;
+        resetTranscript();
+        SpeechRecognition.startListening({ continuous: true, language: 'en-US' });
     };
 
     const stopVoiceSession = () => {
-        setIsVoiceMode(false);
-        isVoiceModeRef.current = false;
-        if (recognitionRef.current) {
-            recognitionRef.current.onend = null;
-            recognitionRef.current.onerror = null;
-            try { recognitionRef.current.stop(); } catch (e) { /* ignore */ }
-            recognitionRef.current = null;
-        }
+        SpeechRecognition.stopListening();
     };
 
     const toggleVoiceMode = () => {
-        if (isVoiceMode) stopVoiceSession();
-        else startSpeechRecognition();
+        if (listening) {
+            stopVoiceSession();
+        } else {
+            startSpeechRecognition();
+        }
     };
 
     const resumeListening = () => {
@@ -291,8 +262,8 @@ export default function AIChatbot() {
         setInput('');
         setIsLoading(true);
 
-        if ((isVoiceMode || isFromVoice) && recognitionRef.current) {
-            try { recognitionRef.current.stop(); } catch (e) { /* ignore */ }
+        if (isVoiceMode || isFromVoice) {
+            try { SpeechRecognition.stopListening(); } catch (e) { /* ignore */ }
         }
 
         try {
@@ -503,7 +474,7 @@ export default function AIChatbot() {
             <Button
                 id="tour-chatbot-button"
                 onClick={() => setIsOpen(true)}
-                className="fixed lg:bottom-6 bottom-20 right-6 h-16 min-w-[4rem] px-0 hover:px-6 rounded-full bg-black hover:bg-neutral-900 text-white dark:bg-white dark:text-black dark:hover:bg-neutral-200 z-[9999] border-4 border-black dark:border-white transition-all duration-300 hover:-translate-y-1 shadow-[4px_4px_0px_rgba(220,38,38,1)] hover:shadow-[8px_8px_0px_rgba(220,38,38,1)] group flex items-center justify-center overflow-hidden animate-slide-in-right"
+                className="fixed lg:bottom-6 bottom-24 right-6 h-16 min-w-[4rem] px-0 hover:px-6 rounded-full bg-black hover:bg-neutral-900 text-white dark:bg-white dark:text-black dark:hover:bg-neutral-200 z-[9999] border-4 border-black dark:border-white transition-all duration-300 hover:-translate-y-1 shadow-[4px_4px_0px_rgba(220,38,38,1)] hover:shadow-[8px_8px_0px_rgba(220,38,38,1)] group flex items-center justify-center overflow-hidden animate-slide-in-right"
             >
                 <Bot className="h-8 w-8 shrink-0 transition-transform group-hover:scale-110 group-hover:text-red-500" />
                 <span className="max-w-0 overflow-hidden font-black italic tracking-widest uppercase text-sm whitespace-nowrap opacity-0 group-hover:max-w-xs group-hover:opacity-100 group-hover:ml-3 transition-all duration-300">
@@ -516,7 +487,7 @@ export default function AIChatbot() {
     return (
         <Draggable handle=".chat-header" cancel="button" bounds="body">
             <div className={cn(
-                "fixed lg:bottom-6 bottom-20 right-4 lg:right-6 max-h-[85vh] bg-white dark:bg-black border-4 border-black dark:border-white z-[9999] flex flex-col shadow-[8px_8px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_rgba(255,255,255,1)] overflow-hidden font-sans transition-all",
+                "fixed lg:bottom-6 bottom-24 right-4 lg:right-6 max-h-[85vh] bg-white dark:bg-black border-4 border-black dark:border-white z-[9999] flex flex-col shadow-[8px_8px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_rgba(255,255,255,1)] overflow-hidden font-sans transition-all",
                 isExpanded
                     ? "w-[95vw] lg:w-[80vw] h-[80vh] min-h-[600px]"
                     : "w-[calc(100vw-2rem)] lg:w-[380px] h-[600px]"

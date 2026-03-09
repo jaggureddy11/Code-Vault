@@ -82,8 +82,8 @@ export default function ExplorePage() {
         <div className="min-h-screen pt-24 sm:pt-32 pb-20 px-4 sm:px-6 lg:px-8 bg-white dark:bg-black transition-colors duration-500">
             <div className="max-w-7xl mx-auto">
                 {/* Header Section */}
-                <div className="relative overflow-hidden bg-black text-white px-4 sm:px-8 py-8 sm:py-20 mb-8 sm:mb-20 border-b-8 border-white/20">
-                    <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8 sm:gap-12">
+                <div className="relative overflow-hidden bg-black text-white px-4 sm:px-8 py-10 sm:py-20 mb-8 sm:mb-20 border-b-8 border-white/20">
+                    <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6 sm:gap-12">
                         <div className="flex-1 space-y-4 sm:space-y-8 text-left">
                             <div className="flex items-center gap-4 sm:gap-6">
                                 <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-600 text-white text-[10px] font-bold italic tracking-widest leading-none">
@@ -91,10 +91,10 @@ export default function ExplorePage() {
                                     Community
                                 </div>
                             </div>
-                            <h1 className="text-3xl sm:text-6xl md:text-9xl font-black italic tracking-tighter leading-[0.8] uppercase">
-                                Explore <br />Global <br /><span className="underline decoration-8 underline-offset-8 text-blue-600">Knowledge.</span>
+                            <h1 className="text-4xl sm:text-6xl md:text-9xl font-black italic tracking-tighter leading-none sm:leading-[0.8] uppercase">
+                                Explore <br className="hidden sm:block" />Global <br /><span className="underline decoration-4 sm:decoration-8 underline-offset-4 sm:underline-offset-8 text-blue-600">Knowledge.</span>
                             </h1>
-                            <p className="text-base sm:text-xl font-bold italic max-w-xl leading-tight opacity-70">
+                            <p className="text-sm sm:text-xl font-bold italic max-w-xl leading-tight opacity-70">
                                 Discover high-performance code snippets shared by the engineering community.
                             </p>
                         </div>
@@ -117,13 +117,13 @@ export default function ExplorePage() {
                         <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-6 w-6 opacity-30 group-focus-within:opacity-100 transition-opacity" />
                         <Input
                             ref={searchInputRef}
-                            placeholder="Search community snippets..."
-                            className="h-20 pl-16 pr-32 rounded-none border-b-4 border-black dark:border-white bg-transparent text-xl font-bold italic tracking-widest focus:ring-0 placeholder:opacity-40"
+                            placeholder="Search community..."
+                            className="h-16 sm:h-20 pl-12 sm:pl-16 pr-24 sm:pr-32 rounded-none border-b-4 border-black dark:border-white bg-transparent text-base sm:text-xl font-bold italic tracking-widest focus:ring-0 placeholder:opacity-40"
                             value={localSearch}
                             onChange={(e) => setLocalSearch(e.target.value)}
                         />
                         <Button
-                            className="absolute right-2 top-1/2 -translate-y-1/2 h-14 px-8 rounded-none bg-black dark:bg-white text-white dark:text-black font-black italic uppercase tracking-widest text-xs hover:scale-[1.02] transition-transform active:scale-95"
+                            className="absolute right-0 top-1/2 -translate-y-1/2 h-12 sm:h-14 px-4 sm:px-8 rounded-none bg-black dark:bg-white text-white dark:text-black font-black italic uppercase tracking-widest text-[10px] sm:text-xs hover:scale-[1.02] transition-transform active:scale-95"
                         >
                             Search
                         </Button>
@@ -141,7 +141,7 @@ export default function ExplorePage() {
 
                 {/* Snippets Grid */}
                 {isLoading && exploreSnippets.length === 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-12">
                         {[1, 2, 3, 4, 5, 6].map((i) => (
                             <SkeletonCard key={i} />
                         ))}

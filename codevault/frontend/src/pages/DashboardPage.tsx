@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
-import { Plus, Search, Cloud, CheckCircle2, AlertCircle, ChevronDown } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { NavLink } from 'react-router-dom';
+import { Plus, Search, Code2, CheckCircle2, Cloud, AlertCircle, Heart, Globe, ChevronDown, Compass } from 'lucide-react';
 import { useSnippets } from '@/hooks/useSnippets';
 import SnippetCard from '@/components/SnippetCard';
 import SnippetForm from '@/components/SnippetForm';
@@ -16,7 +17,6 @@ import { useToast } from '@/components/ui/use-toast';
 import { CreateSnippetInput, Snippet } from '@/types';
 import { SkeletonCard } from '@/components/ui/loading';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
-import { useRef } from 'react';
 import { cn } from '@/lib/utils';
 
 export default function DashboardPage() {
@@ -147,8 +147,8 @@ export default function DashboardPage() {
         <div className="min-h-screen pt-24 sm:pt-32 pb-20 px-4 sm:px-6 lg:px-8 bg-white dark:bg-black transition-colors duration-500">
             <div className="max-w-7xl mx-auto">
                 {/* Header Section */}
-                <div className="relative overflow-hidden bg-black text-white px-4 sm:px-8 py-8 sm:py-20 mb-8 sm:mb-20 border-b-8 border-white/20">
-                    <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8 sm:gap-12">
+                <div className="relative overflow-hidden bg-black text-white px-4 sm:px-8 py-10 sm:py-20 mb-8 sm:mb-20 border-b-8 border-white/20">
+                    <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6 sm:gap-12">
                         <div className="flex-1 space-y-4 sm:space-y-8 text-left">
                             <div className="flex items-center gap-4 sm:gap-6">
                                 <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 dark:bg-black/10 text-[10px] font-bold italic tracking-widest leading-none">
@@ -166,10 +166,10 @@ export default function DashboardPage() {
                                     {syncStatus}
                                 </div>
                             </div>
-                            <h1 className="text-3xl sm:text-6xl md:text-9xl font-black italic tracking-tighter leading-[0.8] uppercase">
-                                Your <br />Code <br /><span className="underline decoration-8 underline-offset-8 text-red-600">Vault.</span>
+                            <h1 className="text-4xl sm:text-6xl md:text-9xl font-black italic tracking-tighter leading-none sm:leading-[0.8] uppercase">
+                                Your <br className="hidden sm:block" />Code <br /><span className="underline decoration-4 sm:decoration-8 underline-offset-4 sm:underline-offset-8 text-red-600">Vault.</span>
                             </h1>
-                            <p className="text-base sm:text-xl font-bold italic max-w-xl leading-tight opacity-70">
+                            <p className="text-sm sm:text-xl font-bold italic max-w-xl leading-tight opacity-70">
                                 High performance management for your elite code snippets.
                             </p>
                         </div>
@@ -177,9 +177,9 @@ export default function DashboardPage() {
                         <div className="flex flex-col gap-4 w-full md:w-auto">
                             <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
                                 <DialogTrigger asChild>
-                                    <Button className="adidas-button h-14 sm:h-24 px-8 sm:px-12 text-base sm:text-2xl group overflow-hidden relative">
-                                        <div className="flex items-center gap-4 relative z-10">
-                                            <Plus className="h-5 w-5 sm:h-8 sm:w-8 group-hover:rotate-90 transition-transform duration-300" />
+                                    <Button className="adidas-button h-16 sm:h-24 px-8 sm:px-12 text-lg sm:text-2xl group overflow-hidden relative">
+                                        <div className="flex items-center gap-4 relative z-10 text-white">
+                                            <Plus className="h-6 w-6 sm:h-8 sm:w-8 group-hover:rotate-90 transition-transform duration-300" />
                                             <span>New Snippet</span>
                                         </div>
                                     </Button>
@@ -219,13 +219,13 @@ export default function DashboardPage() {
                         <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-6 w-6 opacity-30 group-focus-within:opacity-100 transition-opacity" />
                         <Input
                             ref={searchInputRef}
-                            placeholder="Search by title, language, or code..."
-                            className="h-20 pl-16 pr-32 rounded-none border-b-4 border-black dark:border-white bg-transparent text-xl font-bold italic tracking-widest focus:ring-0 placeholder:opacity-40"
+                            placeholder="Search snippets..."
+                            className="h-16 sm:h-20 pl-12 sm:pl-16 pr-24 sm:pr-32 rounded-none border-b-4 border-black dark:border-white bg-transparent text-base sm:text-xl font-bold italic tracking-widest focus:ring-0 placeholder:opacity-40"
                             value={localSearch}
                             onChange={(e) => setLocalSearch(e.target.value)}
                         />
                         <Button
-                            className="absolute right-2 top-1/2 -translate-y-1/2 h-14 px-8 rounded-none bg-black dark:bg-white text-white dark:text-black font-black italic uppercase tracking-widest text-xs hover:scale-[1.02] transition-transform active:scale-95"
+                            className="absolute right-0 top-1/2 -translate-y-1/2 h-12 sm:h-14 px-4 sm:px-8 rounded-none bg-black dark:bg-white text-white dark:text-black font-black italic uppercase tracking-widest text-[10px] sm:text-xs hover:scale-[1.02] transition-transform active:scale-95"
                         >
                             Search
                         </Button>
@@ -243,7 +243,7 @@ export default function DashboardPage() {
 
                 {/* Snippets Grid */}
                 {isLoading && snippets.length === 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-12">
                         {[1, 2, 3, 4, 5, 6].map((i) => (
                             <SkeletonCard key={i} />
                         ))}
@@ -274,6 +274,31 @@ export default function DashboardPage() {
                         </Button>
                     </div>
                 )}
+
+                {/* Mobile-Only Navigation Buttons (Explore, Favorites & Projects) */}
+                <div className="lg:hidden grid grid-cols-3 gap-3 mt-12 pt-8 border-t-2 border-black/5 dark:border-white/5 pb-8">
+                    <NavLink
+                        to="/explore"
+                        className="flex flex-col items-center justify-center p-4 border-2 border-black dark:border-white bg-blue-600 text-white hover:scale-[1.02] active:scale-95 transition-all text-center group"
+                    >
+                        <Globe className="h-5 w-5 mb-2 group-hover:rotate-12 transition-transform" />
+                        <span className="text-[8px] font-black uppercase italic tracking-widest leading-none">Explore</span>
+                    </NavLink>
+                    <NavLink
+                        to="/favorites"
+                        className="flex flex-col items-center justify-center p-4 border-2 border-black dark:border-white bg-pink-500 text-white hover:scale-[1.02] active:scale-95 transition-all text-center group"
+                    >
+                        <Heart className="h-5 w-5 mb-2 fill-white group-hover:scale-110 transition-transform" />
+                        <span className="text-[8px] font-black uppercase italic tracking-widest leading-none">Favorites</span>
+                    </NavLink>
+                    <NavLink
+                        to="/projects"
+                        className="flex flex-col items-center justify-center p-4 border-2 border-black dark:border-white bg-emerald-500 text-white hover:scale-[1.02] active:scale-95 transition-all text-center group"
+                    >
+                        <Compass className="h-5 w-5 mb-2 group-hover:spin-slow transition-transform" />
+                        <span className="text-[8px] font-black uppercase italic tracking-widest leading-none">Projects</span>
+                    </NavLink>
+                </div>
             </div>
         </div >
     );

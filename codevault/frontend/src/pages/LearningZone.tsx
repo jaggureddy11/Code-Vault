@@ -261,18 +261,18 @@ export default function LearningZone() {
             <div className="max-w-7xl mx-auto">
 
                 {/* Hero Section */}
-                <div className="relative mb-8 sm:mb-20 overflow-hidden bg-black text-white px-4 sm:px-8 py-8 sm:py-20 border-b-8 border-white/20">
-                    <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-12">
+                <div className="relative mb-8 sm:mb-20 overflow-hidden bg-black text-white px-4 sm:px-8 py-10 sm:py-20 border-b-8 border-white/20">
+                    <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6 sm:gap-12">
                         <div className="flex-1 space-y-4 sm:space-y-8 text-left">
                             <div className="inline-flex items-center gap-2 px-3 py-1 bg-white text-black text-[10px] font-bold italic tracking-widest uppercase">
                                 <TrendingUp className="h-3 w-3" />
                                 Featured Courses
                             </div>
 
-                            <h1 className="text-3xl sm:text-6xl md:text-9xl font-black italic tracking-tighter leading-[0.8] uppercase">
-                                Level <br />Up your <br /><span className="underline decoration-8 underline-offset-8 text-amber-500">Craft.</span>
+                            <h1 className="text-4xl sm:text-6xl md:text-9xl font-black italic tracking-tighter leading-none sm:leading-[0.8] uppercase">
+                                Level <br className="hidden sm:block" />Up your <br /><span className="underline decoration-4 sm:decoration-8 underline-offset-4 sm:underline-offset-8 text-amber-500">Craft.</span>
                             </h1>
-                            <p className="text-base sm:text-xl font-bold italic max-w-xl leading-tight opacity-70">
+                            <p className="text-sm sm:text-xl font-bold italic max-w-xl leading-tight opacity-70">
                                 Deep-dive engineering tutorials and performance masterclasses.
                             </p>
                         </div>
@@ -294,15 +294,15 @@ export default function LearningZone() {
                     <form onSubmit={handleSearch} className="relative group">
                         <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-6 w-6 opacity-30 group-focus-within:opacity-100 transition-opacity" />
                         <Input
-                            placeholder="Search tutorials or paste a YouTube Link..."
-                            className="h-20 pl-16 rounded-none border-b-4 border-black dark:border-white bg-transparent text-xl font-bold italic tracking-widest placeholder:opacity-40 focus:ring-0"
+                            placeholder="Search tutorials..."
+                            className="h-16 sm:h-20 pl-12 sm:pl-16 pr-24 sm:pr-32 rounded-none border-b-4 border-black dark:border-white bg-transparent text-base sm:text-xl font-bold italic tracking-widest placeholder:opacity-40 focus:ring-0"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                         />
                         <Button
                             type="submit"
                             disabled={isLoading}
-                            className="absolute right-2 top-1/2 -translate-y-1/2 h-14 px-8 rounded-none bg-black dark:bg-white text-white dark:text-black font-black italic uppercase tracking-widest text-xs hover:scale-[1.02] transition-transform active:scale-95"
+                            className="absolute right-0 top-1/2 -translate-y-1/2 h-12 sm:h-14 px-4 sm:px-8 rounded-none bg-black dark:bg-white text-white dark:text-black font-black italic uppercase tracking-widest text-[10px] sm:text-xs hover:scale-[1.02] transition-transform active:scale-95"
                         >
                             {isLoading ? "..." : "Search"}
                         </Button>
@@ -376,7 +376,7 @@ export default function LearningZone() {
                             <h2 className="text-3xl font-black italic">Best results for "{searchQuery}"</h2>
                             <Button variant="ghost" onClick={() => setHasSearched(false)} className="font-bold underline text-xs">Clear</Button>
                         </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
                             {searchResults.map((video) => (
                                 <div
                                     key={video.id}
@@ -446,7 +446,7 @@ export default function LearningZone() {
                         <p className="text-[10px] font-black uppercase opacity-60 tracking-widest italic">Personalized Grid</p>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-10">
                         {SUGGESTED_VIDEOS.map((video) => (
                             <div
                                 key={video.id}
