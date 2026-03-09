@@ -1,14 +1,10 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import path from 'path'
-import basicSsl from '@vitejs/plugin-basic-ssl'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [
-    react(),
-    basicSsl()
-  ],
+  plugins: [react()],
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
@@ -27,8 +23,9 @@ export default defineConfig({
   server: {
     port: 5173,
     open: true,
-    host: true,
-    https: {},
+    // Security hardening: keep dev server bound to localhost by default.
+    // If you intentionally want LAN access, run with `vite --host 0.0.0.0` and understand the risk.
+    host: '127.0.0.1',
     proxy: {
       '/api': {
         target: 'http://localhost:3000',

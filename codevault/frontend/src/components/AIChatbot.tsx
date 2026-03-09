@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import 'regenerator-runtime/runtime';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Bot, User, Send, Minimize2, Maximize2, X, Sparkles, Loader2, Mic, Square, Plus, Trash2, Volume2, VolumeX, Copy, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -103,21 +102,19 @@ export default function AIChatbot() {
     const [isSpeaking, setIsSpeaking] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
+    const recognitionRef = useRef<any>(null);
     const initialInputRef = useRef('');
     const isVoiceModeRef = useRef(false);
-    const recognitionRef = useRef<any>(null);
     const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
 
     useEffect(() => {
-        // Pre-warm the TTS engine's voice list on mount
+        // Pre-warm the TTS engine's voice list on mount so human voices are ready instantly
         if (typeof window !== 'undefined' && window.speechSynthesis) {
             window.speechSynthesis.getVoices();
         }
         return () => {
-            if (recognitionRef.current) {
-                try { recognitionRef.current.stop(); } catch (e) { }
-            }
+            if (recognitionRef.current) recognitionRef.current.stop();
         };
     }, []);
 
@@ -186,26 +183,21 @@ export default function AIChatbot() {
         }
     };
 
-    const startSpeechRecognition = async () => {
-        const SpeechRecognitionApi = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-
-        if (!SpeechRecognitionApi) {
-            alert("Speech recognition is not supported in this browser. Please use Chrome or Safari.");
-            return;
-        }
-
-        try {
-            await navigator.mediaDevices.getUserMedia({ audio: true });
-        } catch (err) {
-            alert("Microphone access denied. Please enable it in your browser settings.");
-            return;
-        }
-
+    const startSpeechRecognition = () => {
+        // CLEANUP: If there's an existing instance, kill it first
         if (recognitionRef.current) {
-            try { recognitionRef.current.stop(); } catch (e) { }
+            recognitionRef.current.onend = null;
+            recognitionRef.current.onerror = null;
+            try { recognitionRef.current.stop(); } catch (e) { /* ignore */ }
         }
 
-        const recognition = new SpeechRecognitionApi();
+        const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+        if (!SpeechRecognition) {
+            alert("Speech Recognition is not supported in this browser. Please use Google Chrome.");
+            return;
+        }
+
+        const recognition = new SpeechRecognition();
         recognition.continuous = true;
         recognition.interimResults = true;
         recognition.lang = 'en-US';
@@ -217,21 +209,21 @@ export default function AIChatbot() {
         };
 
         recognition.onresult = (event: any) => {
-            let transcript = '';
-            for (let i = event.resultIndex; i < event.results.length; i++) {
-                transcript += event.results[i][0].transcript;
+            let totalTranscript = '';
+            for (let i = 0; i < event.results.length; ++i) {
+                totalTranscript += event.results[i][0].transcript;
             }
-            const separator = initialInputRef.current && transcript ? ' ' : '';
-            setInput((initialInputRef.current + separator + transcript).trim());
+            setInput((initialInputRef.current + ' ' + totalTranscript).trim());
         };
 
-        recognition.onerror = (event: any) => {
-            console.error("Speech recognition error", event.error);
-            if (event.error === 'not-allowed') {
-                alert("Microphone access was denied.");
+        recognition.onerror = (e: any) => {
+            if (e.error === 'no-speech') return; // Silence is fine
+            if (e.error === 'aborted' || e.error === 'not-allowed' || e.error === 'service-not-allowed') {
+                console.error("Critical Speech Error:", e.error);
+                stopVoiceSession();
+                return;
             }
-            setIsVoiceMode(false);
-            isVoiceModeRef.current = false;
+            console.error("Speech recognition error:", e.error);
         };
 
         recognition.onend = () => {
@@ -240,23 +232,27 @@ export default function AIChatbot() {
         };
 
         recognitionRef.current = recognition;
-        recognition.start();
+        try {
+            recognition.start();
+        } catch (e) {
+            console.error("Failed to start recognition:", e);
+        }
     };
 
     const stopVoiceSession = () => {
-        if (recognitionRef.current) {
-            try { recognitionRef.current.stop(); } catch (e) { }
-        }
         setIsVoiceMode(false);
         isVoiceModeRef.current = false;
+        if (recognitionRef.current) {
+            recognitionRef.current.onend = null;
+            recognitionRef.current.onerror = null;
+            try { recognitionRef.current.stop(); } catch (e) { /* ignore */ }
+            recognitionRef.current = null;
+        }
     };
 
     const toggleVoiceMode = () => {
-        if (isVoiceMode) {
-            stopVoiceSession();
-        } else {
-            startSpeechRecognition();
-        }
+        if (isVoiceMode) stopVoiceSession();
+        else startSpeechRecognition();
     };
 
     const resumeListening = () => {
@@ -295,8 +291,8 @@ export default function AIChatbot() {
         setInput('');
         setIsLoading(true);
 
-        if (isVoiceMode || isFromVoice) {
-            stopVoiceSession();
+        if ((isVoiceMode || isFromVoice) && recognitionRef.current) {
+            try { recognitionRef.current.stop(); } catch (e) { /* ignore */ }
         }
 
         try {
