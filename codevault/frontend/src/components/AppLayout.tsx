@@ -139,7 +139,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     const ProfileDropdownContent = () => (
         <DropdownMenuContent className="w-72 mt-2 rounded-none bg-white dark:bg-black border-4 border-black dark:border-white p-0 shadow-none overflow-hidden" align="end">
             <DropdownMenuLabel className="flex flex-col p-8 bg-black text-white dark:bg-white dark:text-black relative overflow-hidden">
-                <span className="text-2xl font-black italic tracking-tighter">{user?.user_metadata?.username || user?.email?.split('@')[0]}</span>
+                <span className="text-2xl font-black italic tracking-tighter">{((user as any)?.user_metadata?.username) || ((user as any)?.displayName) || user?.email?.split('@')[0]}</span>
                 <span className="text-[10px] font-black tracking-widest opacity-60 mt-1">{user?.email}</span>
             </DropdownMenuLabel>
             <div className="p-2 space-y-1">
