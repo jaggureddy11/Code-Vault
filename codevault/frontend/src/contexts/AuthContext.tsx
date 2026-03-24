@@ -2,16 +2,10 @@ import { createContext, useContext, useEffect, useState } from 'react';
 import { User as SupabaseUser } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 import { getApiBaseUrl } from '@/lib/utils';
-import { 
-  onAuthStateChanged, 
-  signInWithPopup, 
-  signOut as firebaseSignOut, 
-  User as FirebaseUser 
-} from 'firebase/auth';
-import { auth, googleProvider } from '@/lib/firebase';
 
+// We now purely use SupabaseUser to guarantee strict data syncing across all auth methods
 interface AuthContextType {
-  user: (SupabaseUser | FirebaseUser) & { id: string } | null;
+  user: SupabaseUser & { id: string } | null;
   loading: boolean;
   signUp: (email: string, password: string, username: string) => Promise<void>;
   signIn: (email: string, password: string) => Promise<void>;
@@ -22,14 +16,16 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<(SupabaseUser | FirebaseUser) & { id: string } | null>(null);
+  const [user, setUser] = useState<SupabaseUser & { id: string } | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // 1. Manage Supabase Session
+    // Single Source of Truth: Manage Supabase Session
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
         setUser({ ...session.user, id: session.user.id });
+      } else {
+        setUser(null);
       }
       setLoading(false);
     });
@@ -37,31 +33,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session?.user) {
         setUser({ ...session.user, id: session.user.id });
-      } else if (!auth.currentUser) {
-        setUser(null);
-      }
-    });
-
-    // 2. Manage Firebase Auth State
-    const unsubscribeFirebase = onAuthStateChanged(auth, (firebaseUser) => {
-      if (firebaseUser) {
-        // Map uid to id for compatibility with existing code
-        setUser({ ...firebaseUser, id: firebaseUser.uid } as any);
       } else {
-        // Only clear if Supabase also doesn't have a user
-        supabase.auth.getSession().then(({ data: { session } }) => {
-          if (!session?.user) {
-            setUser(null);
-          }
-        });
+        setUser(null);
       }
       setLoading(false);
     });
 
-    return () => {
-      subscription.unsubscribe();
-      unsubscribeFirebase();
-    };
+    return () => subscription.unsubscribe();
   }, []);
 
   const signUp = async (email: string, password: string, username: string) => {
@@ -92,21 +70,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signInWithGoogle = async () => {
-    try {
-      await signInWithPopup(auth, googleProvider);
-    } catch (error: any) {
-      console.error("Firebase Google Auth Error:", error);
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: window.location.origin
+      }
+    });
+    if (error) {
+      console.error("Supabase Google Auth Error:", error);
       throw error;
     }
   };
 
   const signOut = async () => {
-    // Sign out from both services
-    await Promise.all([
-      supabase.auth.signOut(),
-      firebaseSignOut(auth)
-    ]);
-
+    await supabase.auth.signOut();
+    
     // Clear all cached queries to prevent data leaking between users
     const queryClient = (window as any).queryClient;
     if (queryClient) {
