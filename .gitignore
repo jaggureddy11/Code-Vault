@@ -23,7 +23,7 @@ build/
 .env.sample
 codevault/frontend/.env.local
 codevault/backend/.env
-codevault/backend/.env.example
+.firebase/
 
 # IDEs and Tools
 .vscode/
