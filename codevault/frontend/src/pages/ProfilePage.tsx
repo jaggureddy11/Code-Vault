@@ -19,19 +19,23 @@ export default function ProfilePage() {
     const [fullName, setFullName] = useState('');
     const [emoji, setEmoji] = useState('😀');
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+    const userId = (user as any)?.uid || (user as any)?.id;
+    const isFirebaseUser = !!(user as any)?.uid;
 
     useEffect(() => {
         async function getProfile() {
             if (!user) return;
 
-            const saved = localStorage.getItem(`profile_emoji_${user.id}`);
+            const saved = localStorage.getItem(`profile_emoji_${userId}`);
             if (saved) setEmoji(saved);
+
+            if (!userId) return;
 
             try {
                 const { data, error } = await supabase
                     .from('profiles')
                     .select('username')
-                    .eq('id', user.id)
+                    .eq('id', userId)
                     .single();
 
                 if (error && error.code !== 'PGRST116') throw error;
@@ -51,8 +55,8 @@ export default function ProfilePage() {
 
     const handleEmojiSelect = (selected: string) => {
         setEmoji(selected);
-        if (user) {
-            localStorage.setItem(`profile_emoji_${user.id}`, selected);
+        if (userId) {
+            localStorage.setItem(`profile_emoji_${userId}`, selected);
         }
         setShowEmojiPicker(false);
         toast({ title: 'Emoji updated', description: 'Your profile emoji has been saved.' });
@@ -65,15 +69,17 @@ export default function ProfilePage() {
         setUpdating(true);
         try {
             const { error } = await supabase.from('profiles').upsert({
-                id: user.id,
+                id: userId,
                 username,
                 updated_at: new Date().toISOString(),
             });
 
             if (error) throw error;
 
-            await supabase.auth.updateUser({ data: { username } });
-            queryClient.invalidateQueries({ queryKey: ['profile', user.id] });
+            if (!isFirebaseUser) {
+                await supabase.auth.updateUser({ data: { username } });
+            }
+            queryClient.invalidateQueries({ queryKey: ['profile', userId] });
 
             toast({ title: 'Saved', description: 'Your profile has been updated.' });
         } catch (err: unknown) {
@@ -109,7 +115,11 @@ export default function ProfilePage() {
                             onClick={() => setShowEmojiPicker(!showEmojiPicker)}
                             className="relative w-28 h-28 rounded-none border-2 border-black dark:border-white overflow-hidden bg-neutral-100 dark:bg-neutral-900 flex items-center justify-center group"
                         >
-                            <div className="text-6xl">{emoji}</div>
+                            {isFirebaseUser && (user as any).photoURL ? (
+                                <img src={(user as any).photoURL} alt="Profile" className="w-full h-full object-cover" />
+                            ) : (
+                                <div className="text-6xl">{emoji}</div>
+                            )}
                             <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                                 <span className="text-white font-bold text-sm tracking-widest uppercase">Change</span>
                             </div>
@@ -142,6 +152,19 @@ export default function ProfilePage() {
                     </div>
 
                     <form onSubmit={updateProfile} className="space-y-6">
+                        <div>
+                            <label htmlFor="fullName" className="block text-xs font-bold uppercase tracking-widest opacity-70 mb-1">Full Name</label>
+                            <input
+                                id="fullName"
+                                className="w-full bg-transparent border-b-2 border-black dark:border-white py-3 text-lg font-medium focus:outline-none focus:border-red-600 disabled:opacity-50"
+                                placeholder="Full Name"
+                                value={isFirebaseUser ? ((user as any).displayName || '') : username}
+                                readOnly={isFirebaseUser}
+                                disabled={isFirebaseUser}
+                            />
+                            {isFirebaseUser && <p className="text-[10px] mt-1 opacity-40 uppercase tracking-tighter">Managed by Google</p>}
+                        </div>
+
                         <div>
                             <label htmlFor="username" className="block text-xs font-bold uppercase tracking-widest opacity-70 mb-1">Username</label>
                             <input
