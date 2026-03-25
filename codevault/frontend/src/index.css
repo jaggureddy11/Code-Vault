@@ -337,7 +337,7 @@ body.is-compiler-fullscreen main {
   border: 1px solid rgb(0, 0, 0) !important;
   border-radius: 0 !important;
   font-family: 'Inter', sans-serif !important;
-  box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.885) !important;
+  box-shadow: 0 20px 50px -10px rgb(0, 0, 0) !important;
   padding: 24px !important;
   /* Removed animation to prevent driver.js positioning lag */
 }
