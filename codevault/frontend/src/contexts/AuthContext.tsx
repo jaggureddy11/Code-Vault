@@ -49,6 +49,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       body: JSON.stringify({ email, password, username }),
     });
 
+    const contentType = res.headers.get('content-type') || '';
+    if (!contentType.includes('application/json')) {
+      const textResponse = await res.text().catch(() => '');
+      console.error('Non-JSON response received from /api/auth/signup:', textResponse);
+      throw new Error(`Backend API is unreachable or returned invalid format. Please verify your connection or VITE_API_URL settings. (Status: ${res.status})`);
+    }
+
     const data = await res.json();
     if (!res.ok) {
       throw new Error(data.error || 'Failed to sign up');

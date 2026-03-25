@@ -49,6 +49,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             const tourDriver = driver({
                 showProgress: true,
                 animate: true,
+                smoothScroll: true,
+                stagePadding: 4,
+                popoverClass: 'premium-tour-popover',
                 steps: [
                     {
                         element: 'header nav a[href="/"]',
@@ -73,6 +76,14 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                     {
                         element: 'header nav a[href="/notes"]',
                         popover: { title: 'Notes', description: 'Store and study your notes.', side: "bottom" }
+                    },
+                    {
+                        element: 'header nav a[href="/compiler"]',
+                        popover: { title: 'Compiler', description: 'Write, run, and test your code instantly with our integrated live compiler.', side: "bottom" }
+                    },
+                    {
+                        element: 'header nav a[href="/todo"]',
+                        popover: { title: 'To-Do', description: 'Manage your tasks and track your coding goals efficiently.', side: "bottom" }
                     },
                     {
                         element: '#tour-chatbot-button',
