@@ -92,7 +92,7 @@ export function useSnippets() {
     try {
       let query = supabase
         .from('snippets')
-        .select('*, snippet_tags(tag_id, tags(*))')
+        .select('*, snippet_tags(tag_id, tags(*)), profiles(username)')
         .eq('is_public', true);
 
       if (filters?.query) {
@@ -106,10 +106,23 @@ export function useSnippets() {
       const { data, error } = await query.order('created_at', { ascending: false });
 
       if (error) {
-        console.error("Explore fetch error:", error);
-        return [];
+        const { data: fallbackData, error: fallbackError } = await supabase
+          .from('snippets')
+          .select('*, snippet_tags(tag_id, tags(*))')
+          .eq('is_public', true)
+          .order('created_at', { ascending: false });
+
+        if (fallbackError) throw fallbackError;
+        let results = (fallbackData || []).map(normalizeSnippet);
+        if (filters?.tags && filters.tags.length > 0) {
+          results = results.filter(snippet =>
+            filters.tags?.every(tagName =>
+              snippet.tags?.some(t => t.name.toLowerCase() === tagName.toLowerCase())
+            )
+          );
+        }
+        return results;
       }
-      
       let results = (data || []).map(normalizeSnippet);
       if (filters?.tags && filters.tags.length > 0) {
         results = results.filter(snippet =>
