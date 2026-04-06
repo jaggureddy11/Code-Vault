@@ -5,10 +5,13 @@ import { useAuth } from '@/contexts/AuthContext';
 import {
     Plus, Trash2, Edit3, Save, X,
     FileText, Loader2, Shield, Check,
-    Menu, Layout
+    Menu, Layout, StickyNote, Eye, EyeOff,
+    Maximize2, Minimize2, Copy, CheckCheck
 } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/components/ui/use-toast';
 import { cn } from '@/lib/utils';
 import PdfPreviewer from '@/components/PdfPreviewer';
@@ -16,6 +19,7 @@ import PdfPreviewer from '@/components/PdfPreviewer';
 interface Note {
     id: string;
     title: string;
+    content: string | null;
     pdf_url: string | null;
     pdf_name: string | null;
     created_at: string;
@@ -33,10 +37,14 @@ export default function NotesPage() {
 
     // UI state
     const [pdfFile, setPdfFile] = useState<File | null>(null);
+    const [noteContent, setNoteContent] = useState('');
+    const [isNotepadMode, setIsNotepadMode] = useState(false);
     const [saving, setSaving] = useState(false);
     const [isRenaming, setIsRenaming] = useState(false);
     const [newTitle, setNewTitle] = useState('');
     const [showSidebar, setShowSidebar] = useState(true);
+    const [showPreview, setShowPreview] = useState(false);
+    const [copied, setCopied] = useState(false);
 
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -67,11 +75,13 @@ export default function NotesPage() {
     }, [user, location]);
 
     const fetchNotes = async () => {
+        if (!user) return;
         try {
             setLoading(true);
             const { data, error } = await supabase
                 .from('notes')
                 .select('*')
+                .eq('user_id', user.id)
                 .order('updated_at', { ascending: false });
 
             if (error) throw error;
@@ -84,6 +94,8 @@ export default function NotesPage() {
                 if (found) {
                     setSelectedNote(found);
                     setNewTitle(found.title);
+                    setNoteContent(found.content || '');
+                    setIsNotepadMode(!!found.content && !found.pdf_url);
                 }
             }
         } catch (error: any) {
@@ -94,10 +106,14 @@ export default function NotesPage() {
     };
 
     const handleSelectNote = (note: Note) => {
+        if (!user) return;
         setSelectedNote(note);
         setPdfFile(null);
+        setNoteContent(note.content || '');
+        setIsNotepadMode(!!note.content && !note.pdf_url);
         setIsRenaming(false);
         setNewTitle(note.title);
+        setShowPreview(false);
         // Persist selection
         if (note.id !== 'temp') {
             localStorage.setItem(`codevault_last_pdf_${user?.id}`, note.id);
@@ -109,8 +125,21 @@ export default function NotesPage() {
     const handleStartNew = () => {
         setSelectedNote(null);
         setPdfFile(null);
+        setIsNotepadMode(false);
+        setNoteContent('');
         setIsRenaming(false);
         fileInputRef.current?.click();
+    };
+
+    const handleStartNotepad = () => {
+        setSelectedNote(null);
+        setPdfFile(null);
+        setIsNotepadMode(true);
+        setNoteContent('');
+        setIsRenaming(false);
+        setNewTitle('Untitled Note');
+        // Auto-hide sidebar on mobile
+        if (window.innerWidth < 768) setShowSidebar(false);
     };
 
     const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -123,9 +152,12 @@ export default function NotesPage() {
             setPdfFile(file);
             const tempTitle = file.name.replace('.pdf', '');
             setNewTitle(tempTitle);
+            setIsNotepadMode(false);
+            setNoteContent('');
             setSelectedNote({
                 id: 'temp',
                 title: tempTitle,
+                content: '',
                 pdf_url: URL.createObjectURL(file),
                 pdf_name: file.name,
                 created_at: new Date().toISOString(),
@@ -135,8 +167,9 @@ export default function NotesPage() {
     };
 
     const handleSave = async () => {
-        if (!pdfFile && (!selectedNote || selectedNote.id === 'temp')) {
-            toast({ title: 'No PDF selected', variant: 'destructive' });
+        if (!user) return;
+        if (!pdfFile && !isNotepadMode && (!selectedNote || selectedNote.id === 'temp')) {
+            toast({ title: 'No content to save', variant: 'destructive' });
             return;
         }
 
@@ -166,8 +199,8 @@ export default function NotesPage() {
             }
 
             const payload = {
-                title: newTitle || finalPdfName?.replace('.pdf', '') || 'Untitled',
-                content: '',
+                title: newTitle || (isNotepadMode ? 'Untitled Note' : (finalPdfName?.replace('.pdf', '') || 'Untitled')),
+                content: isNotepadMode ? noteContent : '',
                 pdf_url: finalPdfUrl,
                 pdf_name: finalPdfName,
                 user_id: user?.id,
@@ -180,6 +213,7 @@ export default function NotesPage() {
             toast({ title: 'Asset Secured' });
             setPdfFile(null);
             setIsRenaming(false);
+            setIsNotepadMode(false);
 
             if (data && data[0]) {
                 localStorage.setItem(`codevault_last_pdf_${user?.id}`, data[0].id);
@@ -193,25 +227,39 @@ export default function NotesPage() {
         }
     };
 
-    const handleUpdateTitle = async () => {
-        if (!selectedNote || selectedNote.id === 'temp' || !newTitle.trim()) return;
+    const handleCopy = () => {
+        navigator.clipboard.writeText(noteContent);
+        setCopied(true);
+        toast({ title: "Copied to Clipboard" });
+        setTimeout(() => setCopied(false), 2000);
+    };
+
+    const handleUpdateNote = async () => {
+        if (!selectedNote || selectedNote.id === 'temp' || !user) return;
 
         try {
             setSaving(true);
+            const updatePayload = {
+                title: newTitle,
+                content: isNotepadMode ? noteContent : (selectedNote.content || ''),
+                updated_at: new Date().toISOString()
+            };
+
             const { error } = await supabase
                 .from('notes')
-                .update({ title: newTitle, updated_at: new Date().toISOString() })
-                .eq('id', selectedNote.id);
+                .update(updatePayload)
+                .eq('id', selectedNote.id)
+                .eq('user_id', user.id);
 
             if (error) throw error;
 
             // Optimistic sync: Update the note in the local list immediately
-            setNotes(prev => prev.map(n => n.id === selectedNote.id ? { ...n, title: newTitle } : n));
+            setNotes(prev => prev.map(n => n.id === selectedNote.id ? { ...n, ...updatePayload } : n));
 
-            toast({ title: 'Title Synced to Database' });
+            toast({ title: 'Note Synced to Database' });
             setIsRenaming(false);
             fetchNotes(); // Final background sync
-            setSelectedNote({ ...selectedNote, title: newTitle });
+            setSelectedNote({ ...selectedNote, ...updatePayload });
         } catch (error: any) {
             toast({ title: 'Sync failed', description: error.message, variant: 'destructive' });
         } finally {
@@ -221,9 +269,9 @@ export default function NotesPage() {
 
     const handleDelete = async (id: string, e: React.MouseEvent) => {
         e.stopPropagation();
-        if (!confirm('Are you sure you want to delete this document?')) return;
+        if (!user || !confirm('Are you sure you want to delete this document?')) return;
         try {
-            await supabase.from('notes').delete().eq('id', id);
+            await supabase.from('notes').delete().eq('id', id).eq('user_id', user.id);
             if (selectedNote?.id === id) {
                 setSelectedNote(null);
                 localStorage.removeItem(`codevault_last_pdf_${user?.id}`);
@@ -258,7 +306,7 @@ export default function NotesPage() {
                     </div>
                 </div>
                 <div className="flex items-center gap-2 sm:gap-4">
-                    {pdfFile && (
+                    {(pdfFile || (isNotepadMode && !selectedNote)) && (
                         <Button
                             onClick={handleSave}
                             disabled={saving}
@@ -268,8 +316,21 @@ export default function NotesPage() {
                             Secure
                         </Button>
                     )}
-                    <Button onClick={handleStartNew} className="h-9 sm:h-10 rounded-none bg-black text-white dark:bg-white dark:text-black font-black uppercase italic px-4 sm:px-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] text-[10px] sm:text-xs">
+                    {selectedNote && selectedNote.id !== 'temp' && isNotepadMode && (
+                        <Button
+                            onClick={handleUpdateNote}
+                            disabled={saving}
+                            className="h-9 sm:h-10 rounded-none bg-black text-white dark:bg-white dark:text-black font-black uppercase italic px-4 sm:px-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] text-[10px] sm:text-xs"
+                        >
+                            {saving ? <Loader2 className="h-3 w-3 sm:h-4 sm:w-4 animate-spin mr-2" /> : <Save className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />}
+                            Update
+                        </Button>
+                    )}
+                    <Button onClick={handleStartNew} className="h-9 sm:h-10 rounded-none bg-neutral-200 text-black dark:bg-neutral-800 dark:text-white font-black uppercase italic px-4 sm:px-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] text-[10px] sm:text-xs">
                         <Plus className="mr-2 h-4 w-4" /> New
+                    </Button>
+                    <Button onClick={handleStartNotepad} className="h-9 sm:h-10 rounded-none bg-black text-white dark:bg-white dark:text-black font-black uppercase italic px-4 sm:px-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] text-[10px] sm:text-xs">
+                        <StickyNote className="mr-2 h-4 w-4" /> Notepad
                     </Button>
                 </div>
             </div>
@@ -326,7 +387,7 @@ export default function NotesPage() {
                                                 value={newTitle}
                                                 onChange={(e) => setNewTitle(e.target.value)}
                                                 onKeyDown={(e) => {
-                                                    if (e.key === 'Enter') handleUpdateTitle();
+                                                    if (e.key === 'Enter') handleUpdateNote();
                                                     if (e.key === 'Escape') setIsRenaming(false);
                                                 }}
                                                 className="h-7 rounded-none border-2 border-black dark:border-white text-[10px] sm:text-xs font-black uppercase italic p-1 bg-white dark:bg-black"
@@ -347,7 +408,7 @@ export default function NotesPage() {
                                             size="icon"
                                             variant="ghost"
                                             className="h-6 w-6 text-green-600"
-                                            onClick={(e) => { e.stopPropagation(); handleUpdateTitle(); }}
+                                            onClick={(e) => { e.stopPropagation(); handleUpdateNote(); }}
                                         >
                                             <Check className="h-4 w-4" />
                                         </Button>
@@ -383,7 +444,7 @@ export default function NotesPage() {
                                             <Input
                                                 value={newTitle}
                                                 onChange={(e) => setNewTitle(e.target.value)}
-                                                onKeyDown={(e) => e.key === 'Enter' && (selectedNote.id === 'temp' ? setIsRenaming(false) : handleUpdateTitle())}
+                                                onKeyDown={(e) => e.key === 'Enter' && (selectedNote.id === 'temp' ? setIsRenaming(false) : handleUpdateNote())}
                                                 className="h-8 rounded-none border-2 border-black dark:border-white text-[10px] sm:text-xs font-black uppercase italic"
                                                 autoFocus
                                             />
@@ -392,7 +453,7 @@ export default function NotesPage() {
                                                 variant="ghost"
                                                 className="h-7 w-7 text-green-600"
                                                 disabled={saving}
-                                                onClick={selectedNote.id === 'temp' ? () => setIsRenaming(false) : handleUpdateTitle}
+                                                onClick={selectedNote.id === 'temp' ? () => setIsRenaming(false) : handleUpdateNote}
                                             >
                                                 {saving ? <Loader2 className="h-3 w-3 animate-spin" /> : <Check className="h-4 w-4" />}
                                             </Button>
@@ -407,13 +468,113 @@ export default function NotesPage() {
                                         </div>
                                     )}
                                 </div>
-                                <div className="hidden sm:flex items-center gap-4 text-[9px] font-black uppercase opacity-20">
-                                    <span>{selectedNote.pdf_name}</span>
+                                <div className="flex items-center gap-2">
+                                    <div className="hidden sm:flex items-center gap-4 text-[9px] font-black uppercase opacity-20 mr-2">
+                                        <span>{selectedNote.pdf_name || 'NOTEPAD'}</span>
+                                    </div>
+                                    {isNotepadMode && (
+                                        <div className="flex items-center gap-1">
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                onClick={handleCopy}
+                                                className="h-8 w-8 border-2 border-black dark:border-white rounded-none"
+                                                title="Copy to Clipboard"
+                                            >
+                                                {copied ? <CheckCheck className="h-4 w-4 text-green-600" /> : <Copy className="h-4 w-4" />}
+                                            </Button>
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                onClick={() => setShowPreview(!showPreview)}
+                                                className="h-8 w-8 border-2 border-black dark:border-white rounded-none"
+                                                title={showPreview ? "Edit Mode" : "Preview Mode"}
+                                            >
+                                                {showPreview ? <Edit3 className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                            </Button>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
 
-                            <div className="flex-1 overflow-hidden">
-                                <PdfPreviewer file={selectedNote.pdf_url} />
+                            <div className="flex-1 overflow-hidden flex flex-col relative">
+                                {isNotepadMode ? (
+                                    <div className="flex-1 flex overflow-hidden">
+                                        <div className={cn("flex-1 flex flex-col transition-all duration-300", showPreview ? "hidden md:flex" : "flex")}>
+                                            <Textarea
+                                                value={noteContent}
+                                                onChange={(e) => setNoteContent(e.target.value)}
+                                                placeholder="Start typing your notes here... (Markdown supported)"
+                                                className="flex-1 rounded-none border-0 focus-visible:ring-0 resize-none p-6 text-base font-medium leading-relaxed bg-white dark:bg-black text-black dark:text-white selection:bg-yellow-200 dark:selection:bg-yellow-900"
+                                            />
+                                            <div className="h-8 border-t-2 border-black dark:border-white bg-neutral-50 dark:bg-neutral-900 px-4 flex items-center justify-between text-[10px] font-black uppercase opacity-40">
+                                                <div className="flex gap-4">
+                                                    <span>Words: {noteContent.trim() ? noteContent.trim().split(/\s+/).length : 0}</span>
+                                                    <span>Chars: {noteContent.length}</span>
+                                                </div>
+                                                <span className="flex items-center gap-1"><Shield className="h-2 w-2" /> Encrypted Content</span>
+                                            </div>
+                                        </div>
+                                        {showPreview && (
+                                            <div className="flex-1 overflow-y-auto p-6 bg-neutral-50 dark:bg-neutral-900 border-l-2 border-black dark:border-white prose dark:prose-invert prose-sm max-w-none">
+                                                <ReactMarkdown>{noteContent || "*No content to preview*"}</ReactMarkdown>
+                                            </div>
+                                        )}
+                                    </div>
+                                ) : (
+                                    <PdfPreviewer file={selectedNote.pdf_url} />
+                                )}
+                            </div>
+                        </div>
+                    ) : isNotepadMode ? (
+                        <div className="flex-1 flex flex-col border-2 border-black dark:border-white bg-white dark:bg-black shadow-[15px_15px_0px_0px_rgba(0,0,0,0.05)] overflow-hidden">
+                            <div className="h-11 border-b-2 border-black dark:border-white flex items-center justify-between px-3 bg-neutral-50 dark:bg-neutral-900 shrink-0">
+                                <div className="flex items-center gap-2 flex-1 max-w-2xl overflow-hidden">
+                                    <div className="flex items-center gap-1 w-full">
+                                        <Input
+                                            value={newTitle}
+                                            onChange={(e) => setNewTitle(e.target.value)}
+                                            placeholder="Enter Title..."
+                                            className="h-8 rounded-none border-2 border-black dark:border-white text-[10px] sm:text-xs font-black uppercase italic"
+                                            autoFocus
+                                        />
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        onClick={() => setShowPreview(!showPreview)}
+                                        className="h-8 w-8 border-2 border-black dark:border-white rounded-none"
+                                        title={showPreview ? "Edit Mode" : "Preview Mode"}
+                                    >
+                                        {showPreview ? <Edit3 className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                    </Button>
+                                </div>
+                            </div>
+                            <div className="flex-1 overflow-hidden flex flex-col relative">
+                                <div className="flex-1 flex overflow-hidden">
+                                    <div className={cn("flex-1 flex flex-col transition-all duration-300", showPreview ? "hidden md:flex" : "flex")}>
+                                        <Textarea
+                                            value={noteContent}
+                                            onChange={(e) => setNoteContent(e.target.value)}
+                                            placeholder="Write something legendary... (Markdown supported)"
+                                            className="flex-1 rounded-none border-0 focus-visible:ring-0 resize-none p-6 text-base font-medium leading-relaxed bg-white dark:bg-black text-black dark:text-white"
+                                        />
+                                        <div className="h-8 border-t-2 border-black dark:border-white bg-neutral-50 dark:bg-neutral-900 px-4 flex items-center justify-between text-[10px] font-black uppercase opacity-40">
+                                            <div className="flex gap-4">
+                                                <span>Words: {noteContent.trim() ? noteContent.trim().split(/\s+/).length : 0}</span>
+                                                <span>Chars: {noteContent.length}</span>
+                                            </div>
+                                            <span>Draft Mode</span>
+                                        </div>
+                                    </div>
+                                    {showPreview && (
+                                        <div className="flex-1 overflow-y-auto p-6 bg-neutral-50 dark:bg-neutral-900 border-l-2 border-black dark:border-white prose dark:prose-invert prose-sm max-w-none">
+                                            <ReactMarkdown>{noteContent || "*Drafting...*"}</ReactMarkdown>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                         </div>
                     ) : (
@@ -422,13 +583,21 @@ export default function NotesPage() {
                                 <FileText className="h-10 w-10 opacity-20" />
                             </div>
                             <h2 className="text-3xl sm:text-6xl font-black uppercase italic tracking-tighter mb-4 leading-none text-black/10 dark:text-white/10">Notes</h2>
-                            <p className="text-xs sm:text-lg font-bold opacity-30 max-w-sm mb-8 sm:mb-12 uppercase italic leading-tight">Add a PDF to store and study</p>
-                            <Button
-                                onClick={handleStartNew}
-                                className="h-16 sm:h-20 px-8 sm:px-16 rounded-none bg-black text-white dark:bg-white dark:text-black font-black uppercase italic text-lg sm:text-2xl shadow-[10px_10px_0px_0px_rgba(0,0,0,0.1)] active:translate-y-[4px] active:shadow-none transition-all"
-                            >
-                                Upload PDF
-                            </Button>
+                            <p className="text-xs sm:text-lg font-bold opacity-30 max-w-sm mb-8 sm:mb-12 uppercase italic leading-tight">Add a PDF or use Notepad to store and study</p>
+                            <div className="flex flex-col sm:flex-row gap-4">
+                                <Button
+                                    onClick={handleStartNew}
+                                    className="h-16 sm:h-20 px-8 sm:px-16 rounded-none bg-neutral-200 text-black dark:bg-neutral-800 dark:text-white font-black uppercase italic text-lg sm:text-2xl shadow-[10px_10px_0px_0px_rgba(0,0,0,0.1)] active:translate-y-[4px] active:shadow-none transition-all"
+                                >
+                                    Upload PDF
+                                </Button>
+                                <Button
+                                    onClick={handleStartNotepad}
+                                    className="h-16 sm:h-20 px-8 sm:px-16 rounded-none bg-black text-white dark:bg-white dark:text-black font-black uppercase italic text-lg sm:text-2xl shadow-[10px_10px_0px_0px_rgba(0,0,0,0.1)] active:translate-y-[4px] active:shadow-none transition-all"
+                                >
+                                    Use Notepad
+                                </Button>
+                            </div>
                         </div>
                     )}
                 </div>
@@ -438,10 +607,15 @@ export default function NotesPage() {
 
             <style dangerouslySetInnerHTML={{
                 __html: `
-                .custom-scrollbar::-webkit-scrollbar { width: 4px; }
-                .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-                .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); }
-                .dark .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); }
+                .custom-scrollbar::-webkit-scrollbar { width: 10px; }
+                .custom-scrollbar::-webkit-scrollbar-track { background: #f0f0f0; border-left: 2px solid black; }
+                .custom-scrollbar::-webkit-scrollbar-thumb { background: black; border: 2px solid black; }
+                .dark .custom-scrollbar::-webkit-scrollbar-track { background: #111; border-left: 2px solid white; }
+                .dark .custom-scrollbar::-webkit-scrollbar-thumb { background: white; border: 2px solid white; }
+                
+                .prose pre { background: #000 !important; border: 2px solid #555; border-radius: 0; }
+                .prose code { color: #f82; }
+                .dark .prose code { color: #fd0; }
             `}} />
         </div>
     );
