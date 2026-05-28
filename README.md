@@ -1,6 +1,4 @@
-<p align="center">
-  <img src="assets/banner.png" alt="CodeVault Header Banner" width="100%" />
-</p>
+# <p align="center"><img src="https://img.icons8.com/wired/64/000000/safe-box.png" width="56" /><br/>🦾 CODEVAULT</p>
 
 <p align="center">
   <strong>An industrial-grade, high-performance developer workspace and knowledge base. Securely organize code, automate intelligence, and accelerate continuous learning.</strong>
@@ -23,7 +21,6 @@
 CodeVault utilizes a hybrid **Serverless Direct + Secure Proxy API Gateway** architecture. This separates low-latency storage operations from sensitive, key-bound API operations.
 
 ```mermaid
-%%{init: {'theme': 'base', 'themeVariables': { 'background': '#000000', 'primaryColor': '#111111', 'primaryTextColor': '#FFFFFF', 'primaryBorderColor': '#DC2626', 'lineColor': '#DC2626', 'secondaryColor': '#111111', 'tertiaryColor': '#111111'}}}%%
 graph TB
   subgraph Client [Client Browser - React App]
     UI[Dashboard UI]
@@ -93,7 +90,7 @@ graph TB
 | :--- | :--- | :--- | :--- | :--- |
 | **Authentication** | [LoginPage.tsx](file:///Users/apple/Desktop/PROJECTS/codevault-hackathon-starter_1/codevault/frontend/src/pages/LoginPage.tsx)<br>[SignupPage.tsx](file:///Users/apple/Desktop/PROJECTS/codevault-hackathon-starter_1/codevault/frontend/src/pages/SignupPage.tsx) | [auth.js](file:///Users/apple/Desktop/PROJECTS/codevault-hackathon-starter_1/codevault/backend/src/routes/auth.js) | `auth.users`<br>`public.profiles` | Authenticates users and creates database profiles. Signups are managed via the backend service role key to auto-confirm users and guarantee username uniqueness. |
 | **Snippet Vault** | [DashboardPage.tsx](file:///Users/apple/Desktop/PROJECTS/codevault-hackathon-starter_1/codevault/frontend/src/pages/DashboardPage.tsx)<br>[SnippetForm.tsx](file:///Users/apple/Desktop/PROJECTS/codevault-hackathon-starter_1/codevault/frontend/src/components/SnippetForm.tsx) | *Bypassed (Direct Client SDK)* | `public.snippets`<br>`public.tags`<br>`public.snippet_tags` | The primary workspace featuring the Monaco editor for saving, updating, and managing code blocks. |
-| **Explore Hub** | [ExplorePage.tsx](file:///Users/apple/Desktop/PROJECTS/codevault-hackathon-starter_1/codevault/explore) | *Bypassed (Direct Client SDK)* | `public.snippets` | Lists public-facing code templates (`is_public = true`) shared by the global developer community. |
+| **Explore Hub** | [ExplorePage.tsx](file:///Users/apple/Desktop/PROJECTS/codevault-hackathon-starter_1/codevault/frontend/src/pages/ExplorePage.tsx) | *Bypassed (Direct Client SDK)* | `public.snippets` | Lists public-facing code templates (`is_public = true`) shared by the global developer community. |
 | **AI Assistant** | [Chatbot Interface](file:///Users/apple/Desktop/PROJECTS/codevault-hackathon-starter_1/codevault/frontend/src/components/SnippetForm.tsx#L79-L84) | [ai.js](file:///Users/apple/Desktop/PROJECTS/codevault-hackathon-starter_1/codevault/backend/src/controllers/ai.js) | *No Persistence* | Analyzes snippets, suggests titles/descriptions, and performs automated tag extraction using Google Gemini. Includes native browser dictation support. |
 | **Learning Zone** | [LearningZone.tsx](file:///Users/apple/Desktop/PROJECTS/codevault-hackathon-starter_1/codevault/frontend/src/pages/LearningZone.tsx) | [youtube.js](file:///Users/apple/Desktop/PROJECTS/codevault-hackathon-starter_1/codevault/backend/src/controllers/youtube.js) | `public.recently_viewed` | Educational video search index that filters and displays YouTube playlists. Persists video history records in real-time. |
 | **Document Vault** | [NotesPage.tsx](file:///Users/apple/Desktop/PROJECTS/codevault-hackathon-starter_1/codevault/frontend/src/pages/NotesPage.tsx) | *Bypassed (Direct Client SDK)* | `public.notes` | Dual-pane interface layout containing a PDF renderer and markdown notes pad for system design and architecture drafting. |
@@ -110,7 +107,6 @@ When a developer inserts raw code inside CodeVault:
 4. The client uses the response to pre-populate metadata before storing the record securely in PostgreSQL via Supabase.
 
 ```mermaid
-%%{init: {'theme': 'base', 'themeVariables': { 'background': '#000000', 'primaryColor': '#111111', 'primaryTextColor': '#FFFFFF', 'primaryBorderColor': '#DC2626', 'lineColor': '#DC2626', 'secondaryColor': '#111111', 'tertiaryColor': '#111111'}}}%%
 sequenceDiagram
   autonumber
   actor User as Developer
@@ -139,7 +135,6 @@ Developers can study tutorials and document complex system specifications in par
 3. Developers upload system-design PDFs and read them side-by-side with a persistent Markdown editor, which automatically syncs text updates to the `notes` table.
 
 ```mermaid
-%%{init: {'theme': 'base', 'themeVariables': { 'background': '#000000', 'primaryColor': '#111111', 'primaryTextColor': '#FFFFFF', 'primaryBorderColor': '#DC2626', 'lineColor': '#DC2626', 'secondaryColor': '#111111', 'tertiaryColor': '#111111'}}}%%
 sequenceDiagram
   autonumber
   actor User as Developer
@@ -254,37 +249,6 @@ Deploy the `/backend` folder to Render or Railway.
 
 > [!IMPORTANT]
 > Once deployed, copy the server domain (e.g. `https://your-backend.railway.app`) and set it as `VITE_API_URL` in the frontend `.env.local` file. Re-run `npm run build` and redeploy the frontend so that the application points to your live server instead of localhost.
-
----
-
-## ❓ Frequently Asked Questions & Troubleshooting
-
-<details>
-<summary><b>Why am I getting "Error: Failed to fetch" when attempting to sign in?</b></summary>
-<p>
-This is typically caused by local privacy extensions or browsers (like Brave) blocking outgoing connections to <code>*.supabase.co</code> because they mistake them for third-party tracking scripts. 
-</p>
-<p>
-<b>Solution:</b> Whitelist or turn off shields for your domain in your browser, or sign in using an Incognito/Private window.
-</p>
-</details>
-
-<details>
-<summary><b>Why are the "AI Suggest" and "Learning Zone" search features returning errors on my deployed hosting site?</b></summary>
-<p>
-Because Firebase Hosting only hosts the static frontend build. If your <code>VITE_API_URL</code> environment variable points to <code>http://localhost:3000</code> or is not configured, the frontend cannot talk to your backend Express server.
-</p>
-<p>
-<b>Solution:</b> Deploy your backend server to a cloud hosting provider (e.g. Railway or Render), copy the live URL, set it as <code>VITE_API_URL</code> in your frontend config, and redeploy.
-</p>
-</details>
-
-<details>
-<summary><b>How do I customize the brutalist visual elements or standard coloring?</b></summary>
-<p>
-You can edit the Tailwind CSS tokens or color scheme parameters in <code>frontend/src/index.css</code>. The typography and standard alignment elements are styled using <code>JetBrains Mono</code> and high-contrast styling tokens.
-</p>
-</details>
 
 ---
 
