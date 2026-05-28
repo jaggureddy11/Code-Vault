@@ -3,10 +3,9 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Bot, User, Send, Minimize2, Maximize2, X, Sparkles, Loader2, Mic, Square, Plus, Trash2, Volume2, VolumeX, Copy, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
+import { cn, getApiBaseUrl } from '@/lib/utils';
 import ReactMarkdown from 'react-markdown';
 import Draggable from 'react-draggable';
-import { HfInference } from '@huggingface/inference';
 import { Highlight, themes } from 'prism-react-renderer';
 
 interface ChatMessage {
@@ -14,9 +13,6 @@ interface ChatMessage {
     role: 'user' | 'model';
     content: string;
 }
-
-const HF_API_KEY = import.meta.env.VITE_HUGGINGFACE_API_KEY;
-const hf = new HfInference(HF_API_KEY);
 
 const MarkdownCodeBlock = ({ children, className, theme }: { children: any, className?: string, theme: string }) => {
     const match = /language-(\w+)/.exec(className || '');
@@ -323,23 +319,24 @@ export default function AIChatbot() {
             - CRITICAL: When using [CMD_WRITE_CODE], DO NOT print the code block in your conversational response. ONLY put the code inside the JSON payload to save space. Just say "I'm writing the code for you now."
             - You are a helpful, friendly, and conversational AI assistant. Do NOT use overly technical or robotic language. Do NOT expose or mention raw tags in your conversational response.`;
 
-            let textOutput = "";
+            // POST request to backend Express /api/ai/chat endpoint
+            const response = await fetch(`${getApiBaseUrl()}/api/ai/chat`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    message: text,
+                    history,
+                    pathname: location.pathname
+                })
+            });
 
-            // Using Hugging Face's Meta Llama 3 via Inference API
-            for await (const chunk of hf.chatCompletionStream({
-                model: "meta-llama/Meta-Llama-3-8B-Instruct",
-                messages: [
-                    { role: "system", content: systemInstruction },
-                    ...history,
-                    { role: "user", content: userMsg.content }
-                ],
-                max_tokens: 2000,
-                temperature: 0.7,
-            })) {
-                if (chunk.choices && chunk.choices.length > 0) {
-                    textOutput += chunk.choices[0].delta.content || "";
-                }
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.error || `Server returned error (${response.status})`);
             }
+
+            const data = await response.json();
+            const textOutput = data.response;
 
             if (!textOutput) throw new Error("Sorry, I couldn't generate a response.");
 
@@ -479,7 +476,7 @@ export default function AIChatbot() {
             // Remove TTS entirely; just receive the response as normal conversation.
             resumeListening();
         } catch (error: any) {
-            console.error('HuggingFace API Error:', error);
+            console.error('AI Chat Error:', error);
             const errorMessage = error.message ? `API Error: ${error.message} ` : "An error occurred while connecting to the AI. Please try again.";
             setMessages(prev => [...prev.filter(m => m.id !== 'voice-start'), { id: Date.now().toString(), role: 'model', content: errorMessage }]);
             resumeListening();
