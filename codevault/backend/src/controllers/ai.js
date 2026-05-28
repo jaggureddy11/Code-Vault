@@ -1,4 +1,5 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { HfInference } from '@huggingface/inference';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -89,12 +90,15 @@ export const chatWithAI = async (req, res) => {
             return res.status(400).json({ error: 'Message is required' });
         }
 
-        if (!process.env.GEMINI_API_KEY) {
+        const hfKey = process.env.HUGGINGFACE_API_KEY;
+        if (!hfKey) {
             return res.status(500).json({
-                error: 'Gemini API key is not configured',
-                details: 'Please add GEMINI_API_KEY to your backend .env file.'
+                error: 'Hugging Face API key is not configured',
+                details: 'Please add HUGGINGFACE_API_KEY to your backend .env file.'
             });
         }
+
+        const hfClient = new HfInference(hfKey);
 
         const systemInstruction = `You are CodeVault AI, an elite personal tutor and study assistant. You have agentic capabilities to control the UI.
             
@@ -117,35 +121,31 @@ export const chatWithAI = async (req, res) => {
 - CRITICAL: When using [CMD_WRITE_CODE], DO NOT print the code block in your conversational response. ONLY put the code inside the JSON payload to save space. Just say "I'm writing the code for you now."
 - You are a helpful, friendly, and conversational AI assistant. Do NOT use overly technical or robotic language. Do NOT expose or mention raw tags in your conversational response.`;
 
-        const model = genAI.getGenerativeModel({
-            model: "gemini-flash-latest",
-            systemInstruction: systemInstruction,
+        // Convert history from frontend format (role: 'user'|'model', content: string)
+        // to Hugging Face chat completion format (role: 'user'|'assistant'|'system', content: string)
+        const formattedMessages = [
+            { role: 'system', content: systemInstruction },
+            ...(history || []).map(h => ({
+                role: h.role === 'model' ? 'assistant' : 'user',
+                content: h.content
+            })),
+            { role: 'user', content: message }
+        ];
+
+        // Call Hugging Face API securely on the backend
+        const response = await hfClient.chatCompletion({
+            model: "meta-llama/Meta-Llama-3-8B-Instruct",
+            messages: formattedMessages,
+            max_tokens: 2000,
+            temperature: 0.7,
         });
 
-        // Convert history from frontend (role: 'user'|'assistant', content: string)
-        // to Gemini format (role: 'user'|'model', parts: [{ text: string }])
-        const formattedHistory = (history || []).map(h => ({
-            role: h.role === 'assistant' ? 'model' : 'user',
-            parts: [{ text: h.content }]
-        }));
-
-        const chat = model.startChat({
-            history: formattedHistory,
-            generationConfig: {
-                maxOutputTokens: 2000,
-                temperature: 0.7,
-            },
-        });
-
-        const result = await chat.sendMessage(message);
-        const response = await result.response;
-        const text = response.text();
-
-        res.json({ response: text });
+        const textOutput = response.choices?.[0]?.message?.content || "";
+        res.json({ response: textOutput });
     } catch (error) {
-        console.error('❌ Gemini Chat Error:', error.message);
+        console.error('❌ HuggingFace Chat Error:', error.message);
         res.status(500).json({
-            error: 'Failed to communicate with Gemini AI',
+            error: 'Failed to communicate with Hugging Face AI',
             details: error.message
         });
     }
