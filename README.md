@@ -1,7 +1,7 @@
 # <p align="center"><img src="https://img.icons8.com/wired/64/000000/safe-box.png" width="56" /><br/>🦾 CODEVAULT</p>
 
 <p align="center">
-  <strong>An industrial-grade, high-performance developer workspace and knowledge base. Securely organize code, automate intelligence, and accelerate continuous learning.</strong>
+  <strong>An industrial-grade, high-performance developer workspace and knowledge base. Securely organize code, automate intelligence, compile sandboxed code, and accelerate continuous learning.</strong>
 </p>
 
 <p align="center">
@@ -11,6 +11,7 @@
   <img src="https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white" />
   <img src="https://img.shields.io/badge/Express-000000?style=for-the-badge&logo=express&logoColor=white" />
   <img src="https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white" />
+  <img src="https://img.shields.io/badge/Hugging_Face-FFD21E?style=for-the-badge&logo=huggingface&logoColor=black" />
   <img src="https://img.shields.io/badge/Google_Gemini-8E75C2?style=for-the-badge&logo=googlegemini&logoColor=white" />
 </p>
 
@@ -18,7 +19,7 @@
 
 ## 🏗️ System Architecture
 
-CodeVault utilizes a hybrid **Serverless Direct + Secure Proxy API Gateway** architecture. This separates low-latency storage operations from sensitive, key-bound API operations.
+CodeVault utilizes a hybrid **Serverless Direct + Secure Proxy API Gateway** architecture to isolate low-latency storage operations from key-bound server operations.
 
 ```mermaid
 graph TB
@@ -34,12 +35,15 @@ graph TB
     Express[Express Router]
     GeminiCtrl[Gemini AI Controller]
     YTCtrl[YouTube Controller]
+    HFCtrl[Hugging Face Chat Controller]
     AdminAuth[Admin Sign-up Route]
   end
 
   subgraph ThirdParty [Third-Party APIs]
     GeminiAPI[Google Gemini Flash API]
     YouTubeAPI[Google YouTube Data v3 API]
+    HFAPI[Hugging Face Serverless Inference API]
+    JudgeAPI[Judge0 Sandboxed Compiler API]
   end
 
   subgraph Database [BaaS Cloud - Supabase]
@@ -57,6 +61,7 @@ graph TB
   UI --> Voice
   UI --> PDF
   UI --> ClientDB
+  Monaco -->|POST compile request| JudgeAPI
 
   %% Direct DB Pipeline
   ClientDB -->|Public/Private CRUD Requests| RLS
@@ -71,89 +76,83 @@ graph TB
   UI -->|POST /api/ai/analyze| Express
   UI -->|GET /api/youtube/search| Express
   UI -->|POST /api/auth/signup| Express
+  UI -->|POST /api/ai/chat| Express
 
   Express --> GeminiCtrl
   Express --> YTCtrl
+  Express --> HFCtrl
   Express --> AdminAuth
 
   %% Server Outgoing
   GeminiCtrl -->|Gemini Key in Server Header| GeminiAPI
   YTCtrl -->|YouTube Key in Server Header| YouTubeAPI
+  HFCtrl -->|Hugging Face Key in Server Header| HFAPI
   AdminAuth -->|Supabase Service Role Bypass| Auth
 ```
 
 ---
 
-## 📋 Project Modules & Structure Matrix
+## 📋 Comprehensive Module Breakdown
 
-| Module | Frontend Component / Page | Express Router / Controller | Database Table | Description |
-| :--- | :--- | :--- | :--- | :--- |
-| **Authentication** | [LoginPage.tsx](file:///Users/apple/Desktop/PROJECTS/codevault-hackathon-starter_1/codevault/frontend/src/pages/LoginPage.tsx)<br>[SignupPage.tsx](file:///Users/apple/Desktop/PROJECTS/codevault-hackathon-starter_1/codevault/frontend/src/pages/SignupPage.tsx) | [auth.js](file:///Users/apple/Desktop/PROJECTS/codevault-hackathon-starter_1/codevault/backend/src/routes/auth.js) | `auth.users`<br>`public.profiles` | Authenticates users and creates database profiles. Signups are managed via the backend service role key to auto-confirm users and guarantee username uniqueness. |
-| **Snippet Vault** | [DashboardPage.tsx](file:///Users/apple/Desktop/PROJECTS/codevault-hackathon-starter_1/codevault/frontend/src/pages/DashboardPage.tsx)<br>[SnippetForm.tsx](file:///Users/apple/Desktop/PROJECTS/codevault-hackathon-starter_1/codevault/frontend/src/components/SnippetForm.tsx) | *Bypassed (Direct Client SDK)* | `public.snippets`<br>`public.tags`<br>`public.snippet_tags` | The primary workspace featuring the Monaco editor for saving, updating, and managing code blocks. |
-| **Explore Hub** | [ExplorePage.tsx](file:///Users/apple/Desktop/PROJECTS/codevault-hackathon-starter_1/codevault/frontend/src/pages/ExplorePage.tsx) | *Bypassed (Direct Client SDK)* | `public.snippets` | Lists public-facing code templates (`is_public = true`) shared by the global developer community. |
-| **AI Assistant** | [Chatbot Interface](file:///Users/apple/Desktop/PROJECTS/codevault-hackathon-starter_1/codevault/frontend/src/components/SnippetForm.tsx#L79-L84) | [ai.js](file:///Users/apple/Desktop/PROJECTS/codevault-hackathon-starter_1/codevault/backend/src/controllers/ai.js) | *No Persistence* | Analyzes snippets, suggests titles/descriptions, and performs automated tag extraction using Google Gemini. Includes native browser dictation support. |
-| **Learning Zone** | [LearningZone.tsx](file:///Users/apple/Desktop/PROJECTS/codevault-hackathon-starter_1/codevault/frontend/src/pages/LearningZone.tsx) | [youtube.js](file:///Users/apple/Desktop/PROJECTS/codevault-hackathon-starter_1/codevault/backend/src/controllers/youtube.js) | `public.recently_viewed` | Educational video search index that filters and displays YouTube playlists. Persists video history records in real-time. |
-| **Document Vault** | [NotesPage.tsx](file:///Users/apple/Desktop/PROJECTS/codevault-hackathon-starter_1/codevault/frontend/src/pages/NotesPage.tsx) | *Bypassed (Direct Client SDK)* | `public.notes` | Dual-pane interface layout containing a PDF renderer and markdown notes pad for system design and architecture drafting. |
+### 1. Snippet Vault (Core Dashboard)
+*   **Monaco Code Editor:** The editing engine powering VS Code is embedded directly, supporting 100+ programming languages.
+*   **Snippet Management:** Easily save, update, delete, search, and stargate code snippets with tags, notes, and public/private accessibility configurations.
+*   **Client Codebase:** [DashboardPage.tsx](file:///Users/apple/Desktop/PROJECTS/codevault-hackathon-starter_1/codevault/frontend/src/pages/DashboardPage.tsx)
+
+### 2. Online Sandboxed Compiler
+*   **Multi-language Sandbox:** Write and execute code instantly in **13 programming languages** (Java, Python, JavaScript, TypeScript, Go, Rust, C++, C#, PHP, Ruby, Swift, Kotlin, and Bash).
+*   **Execution Backend:** Routes code compilation securely to the **Judge0 API** (`https://ce.judge0.com`), capturing stdout, stderr, and compiler outputs in real-time.
+*   **Client Codebase:** [CompilerPage.tsx](file:///Users/apple/Desktop/PROJECTS/codevault-hackathon-starter_1/codevault/frontend/src/pages/CompilerPage.tsx)
+
+### 3. CodeVault AI: Agentic Tutor
+An advanced conversational assistant powered server-side by **Hugging Face Llama 3** (using `meta-llama/Meta-Llama-3-8B-Instruct`).
+*   **Voice Typing & Output:** Integrates browser speech-to-text input dictation and text-to-speech output synthesis.
+*   **UI Navigation Control:** The AI can dispatch client routing directives to navigate the user (e.g. `[NAV_COMPILER]`, `[NAV_VAULT]`).
+*   **Agentic Code Writing:** Directs the compiler to pre-populate custom code structures using standard JSON payloads `[CMD_WRITE_CODE]`, and triggers automatic executions in the sandbox `[CMD_RUN_CODE]`.
+*   **Client Codebase:** [AIChatbot.tsx](file:///Users/apple/Desktop/PROJECTS/codevault-hackathon-starter_1/codevault/frontend/src/components/AIChatbot.tsx) | **Backend Controller:** [ai.js](file:///Users/apple/Desktop/PROJECTS/codevault-hackathon-starter_1/codevault/backend/src/controllers/ai.js)
+
+### 4. Learning Zone
+*   **YouTube API Proxy:** Searches and lists coding tutorials distraction-free. The Express backend restricts queries to educational keywords to ensure focus.
+*   **History Logs:** Stores watched playlist logs directly into the PostgreSQL database (`recently_viewed` table).
+*   **Client Codebase:** [LearningZone.tsx](file:///Users/apple/Desktop/PROJECTS/codevault-hackathon-starter_1/codevault/frontend/src/pages/LearningZone.tsx) | **Backend Controller:** [youtube.js](file:///Users/apple/Desktop/PROJECTS/codevault-hackathon-starter_1/codevault/backend/src/controllers/youtube.js)
+
+### 5. Document Vault
+*   **Dual-Pane View:** Render design specification PDFs side-by-side with a persistent Markdown editor.
+*   **Persistence:** Markdown notes sync dynamically to the Supabase database (`notes` table).
+*   **Client Codebase:** [NotesPage.tsx](file:///Users/apple/Desktop/PROJECTS/codevault-hackathon-starter_1/codevault/frontend/src/pages/NotesPage.tsx)
+
+### 6. Habit Streak Todo Tracker
+*   **Sprint Cycles:** Manage 7-day checklist protocols to track dev momentum.
+*   **Persistence:** Saved inside local storage alongside streak calculations.
+*   **Client Codebase:** [TodoPage.tsx](file:///Users/apple/Desktop/PROJECTS/codevault-hackathon-starter_1/codevault/frontend/src/pages/TodoPage.tsx)
 
 ---
 
-## 🔄 Interactive Core Workflows
-
-### 1. Snippet Insertion & AI Enrichment Flow
-When a developer inserts raw code inside CodeVault:
-1. The client sends the raw text payload to the Express Proxy Server.
-2. The proxy routes it to the **Google Gemini Flash API** with strict JSON schemas.
-3. Gemini processes the syntax and generates a structured analysis (Title, Description, Language, Tags).
-4. The client uses the response to pre-populate metadata before storing the record securely in PostgreSQL via Supabase.
+## 🔄 Interactive Agentic Flow
+The diagram below illustrates how the **AI Chatbot** interacts dynamically with the **Online Compiler** to write and run code for the developer:
 
 ```mermaid
 sequenceDiagram
   autonumber
   actor User as Developer
   participant Client as React Frontend
+  participant Router as React Router
   participant Backend as Express Proxy
-  participant Gemini as Google Gemini
-  participant DB as Supabase Database
+  participant HF as Hugging Face Llama 3
+  participant Compiler as Online Compiler Page
+  participant Judge0 as Judge0 Compiler API
 
-  User->>Client: Input raw code in Monaco Editor
-  Client->>Backend: POST /api/ai/analyze { code: "..." }
-  Backend->>Gemini: Requests structured JSON analysis
-  Gemini-->>Backend: Returns JSON metadata (Tags, Description)
-  Backend-->>Client: Sends JSON metadata
-  Client->>User: Renders suggested fields (auto-completed)
-  User->>Client: Click "Save Snippet"
-  Client->>DB: INSERT INTO public.snippets
-  DB-->>Client: Success Status (201 Created)
-```
-
----
-
-### 2. Learning Zone & Documentation Drafting Flow
-Developers can study tutorials and document complex system specifications in parallel:
-1. Search queries are sent through the YouTube proxy API, which automatically restricts searches to educational keywords.
-2. Selected video details are logged in the database (`recently_viewed`) to maintain history streaks.
-3. Developers upload system-design PDFs and read them side-by-side with a persistent Markdown editor, which automatically syncs text updates to the `notes` table.
-
-```mermaid
-sequenceDiagram
-  autonumber
-  actor User as Developer
-  participant Client as React Frontend
-  participant Backend as Express Proxy
-  participant YT as YouTube API
-  participant DB as Supabase Database
-
-  User->>Client: Search for coding tutorial
-  Client->>Backend: GET /api/youtube/search?q=React
-  Backend->>YT: Search for "React course tutorial" (Educational context)
-  YT-->>Backend: Return search list
-  Backend-->>Client: Return formatted video array
-  User->>Client: Play video
-  Client->>DB: INSERT INTO public.recently_viewed (logs watch session)
-  User->>Client: Open Notes Tab & upload system PDF
-  Client->>User: Displays Dual-Pane PDF Reader & Markdown Editor
-  User->>Client: Write documentation notes
-  Client->>DB: INSERT INTO public.notes (stores markdown body)
+  User->>Client: "Write a Python script that greets me and run it"
+  Client->>Backend: POST /api/ai/chat
+  Backend->>HF: Chat Completion request (System Instructions + History)
+  HF-->>Backend: Returns message + [CMD_WRITE_CODE]{"language":"python", "code":"..."} + [CMD_RUN_CODE]
+  Backend-->>Client: Returns payload
+  Client->>Router: Detects NAV commands -> Redirects to /compiler
+  Router-->>Compiler: Loads Compiler Page
+  Client->>Compiler: Reads pending action -> Pastes generated code in Monaco Editor
+  Compiler->>Judge0: Sends POST compilation request
+  Judge0-->>Compiler: Returns execution output (stdout)
+  Compiler->>User: Displays "Hello from Python!" in the console
 ```
 
 ---
@@ -190,6 +189,7 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 *   Node.js (v18.x or higher)
 *   A free **Supabase** account
 *   Google Gemini API Key
+*   Hugging Face Access Token
 *   YouTube Data v3 API Key
 
 ### 1. Project Setup
@@ -218,7 +218,9 @@ PORT=3000
 SUPABASE_URL=https://your-project-id.supabase.co
 SUPABASE_SERVICE_KEY=your-supabase-service-role-key
 GEMINI_API_KEY=your-google-gemini-key
+HUGGINGFACE_API_KEY=your-huggingface-access-token
 YOUTUBE_API_KEY=your-youtube-data-api-key
+CORS_ORIGIN="http://localhost:5173,http://127.0.0.1:5173,https://mycodevault.web.app"
 ```
 
 ### 4. Running the Stack
@@ -245,10 +247,7 @@ firebase deploy
 ```
 
 ### 3. Deploy Express Backend Server
-Deploy the `/backend` folder to Render or Railway. 
-
-> [!IMPORTANT]
-> Once deployed, copy the server domain (e.g. `https://your-backend.railway.app`) and set it as `VITE_API_URL` in the frontend `.env.local` file. Re-run `npm run build` and redeploy the frontend so that the application points to your live server instead of localhost.
+Deploy the `/backend` folder to Render or Railway. Make sure to specify the backend environment variables inside the host's settings panel.
 
 ---
 
