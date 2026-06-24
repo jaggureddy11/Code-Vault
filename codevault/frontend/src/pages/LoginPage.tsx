@@ -2,9 +2,10 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { Zap, Activity, ArrowRight, Loader2, CheckCircle2, Mail, Lock } from 'lucide-react';
+import { Zap, Activity, ArrowRight, Loader2, CheckCircle2, Mail, Lock, Copy, Check } from 'lucide-react';
 import { Starfield } from '@/components/Starfield';
 import { CursorHologram } from '@/components/CursorHologram';
+import { copyToClipboard } from '@/lib/utils';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -12,6 +13,8 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [copiedEmail, setCopiedEmail] = useState(false);
+  const [copiedPassword, setCopiedPassword] = useState(false);
   const { signIn, signInWithGoogle } = useAuth();
   const navigate = useNavigate();
 
@@ -74,6 +77,59 @@ export default function LoginPage() {
             <p className="text-sm font-medium opacity-60">
               Enter your credentials to access your library.
             </p>
+          </div>
+
+          {/* Demo Credentials Box */}
+          <div className="mt-6 p-4 border-2 border-dashed border-black/30 dark:border-white/30 text-xs space-y-2.5">
+            <div className="flex justify-between items-center">
+              <span className="font-black uppercase tracking-wider text-red-600 dark:text-red-500 italic">Demo Gateway Access</span>
+              <button
+                type="button"
+                onClick={() => {
+                  setEmail('demo@codevault.app');
+                  setPassword('demo123');
+                }}
+                className="text-[10px] font-black uppercase tracking-wider hover:underline text-black dark:text-white"
+              >
+                Autofill Credentials
+              </button>
+            </div>
+            <div className="space-y-1.5 font-mono text-[11px]">
+              <div className="flex justify-between items-center bg-black/5 dark:bg-white/5 p-2 border border-black/10 dark:border-white/10">
+                <span>Email: <span className="font-bold select-all">demo@codevault.app</span></span>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    const ok = await copyToClipboard('demo@codevault.app');
+                    if (ok) {
+                      setCopiedEmail(true);
+                      setTimeout(() => setCopiedEmail(false), 2000);
+                    }
+                  }}
+                  className="hover:text-red-600 dark:hover:text-red-400 transition-colors p-1"
+                  title="Copy email"
+                >
+                  {copiedEmail ? <Check className="h-3.5 w-3.5 text-green-500" /> : <Copy className="h-3.5 w-3.5 text-black dark:text-white" />}
+                </button>
+              </div>
+              <div className="flex justify-between items-center bg-black/5 dark:bg-white/5 p-2 border border-black/10 dark:border-white/10">
+                <span>Password: <span className="font-bold select-all">demo123</span></span>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    const ok = await copyToClipboard('demo123');
+                    if (ok) {
+                      setCopiedPassword(true);
+                      setTimeout(() => setCopiedPassword(false), 2000);
+                    }
+                  }}
+                  className="hover:text-red-600 dark:hover:text-red-400 transition-colors p-1"
+                  title="Copy password"
+                >
+                  {copiedPassword ? <Check className="h-3.5 w-3.5 text-green-500" /> : <Copy className="h-3.5 w-3.5 text-black dark:text-white" />}
+                </button>
+              </div>
+            </div>
           </div>
 
           <form className="space-y-8" onSubmit={handleSubmit}>
@@ -168,7 +224,7 @@ export default function LoginPage() {
                   }
                 }}
                 variant="outline"
-                className="mx-auto w-12 h-12 rounded-none sm:w-full sm:h-14 border-2 border-black/20 dark:border-white/20 hover:border-black dark:hover:border-white hover:bg-black/5 dark:hover:bg-white/5 text-black dark:text-white transition-colors duration-200 font-bold uppercase tracking-widest italic flex items-center justify-center sm:gap-3 p-0 sm:px-4 bg-transparent shadow-none hover:shadow-none"
+                className="mx-auto w-12 h-12 rounded-none sm:w-full sm:h-14 border-2 border-black/20 dark:border-white/20 hover:border-black dark:hover:border-white hover:bg-black/5 dark:hover:bg-white/5 hover:text-black dark:hover:text-white text-black dark:text-white transition-colors duration-200 font-bold uppercase tracking-widest italic flex items-center justify-center sm:gap-3 p-0 sm:px-4 bg-transparent shadow-none hover:shadow-none"
                 disabled={loading || isSuccess}
               >
                 <svg className="h-8 w-8 sm:h-5 sm:w-5" viewBox="0 0 48 48">
