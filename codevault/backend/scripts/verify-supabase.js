@@ -19,7 +19,7 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 async function verify() {
     console.log('🚀 Verifying Supabase connection and schema...');
 
-    const tables = ['snippets', 'tags', 'snippet_tags', 'profiles'];
+    const tables = ['snippets', 'tags', 'snippet_tags', 'profiles', 'notes', 'notes_attachments', 'reviews', 'recently_viewed'];
     let allOk = true;
 
     for (const table of tables) {
