@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Mail, Send, Github, Linkedin, Zap, ExternalLink, Loader2 } from 'lucide-react';
+import { Send, Zap, Loader2, Github, Linkedin, Instagram, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
@@ -31,7 +31,7 @@ export default function ContactPage() {
 
     const developerInfo = {
         name: "R Jagadishwar Reddy",
-        email: "jaggureddy0307@gmail.com",
+        instagram: "https://www.instagram.com/comrade_jaggu/",
         github: "https://github.com/jaggureddy11",
         linkedin: "https://www.linkedin.com/in/jaggureddy/"
     };
@@ -86,10 +86,6 @@ export default function ContactPage() {
 
                             <div className="space-y-6">
                                 <div className="flex items-center gap-4 group">
-                                    <Mail className="h-6 w-6 opacity-40 group-hover:opacity-100 transition-opacity" />
-                                    <a href={`mailto:${developerInfo.email}`} className="text-xl font-bold italic hover:underline">{developerInfo.email}</a>
-                                </div>
-                                <div className="flex items-center gap-4 group">
                                     <Linkedin className="h-6 w-6 opacity-40 group-hover:opacity-100 transition-opacity" />
                                     <a href={developerInfo.linkedin} target="_blank" rel="noreferrer" className="text-xl font-bold uppercase italic hover:underline inline-flex items-center gap-2">
                                         LinkedIn <ExternalLink className="h-4 w-4" />
@@ -99,6 +95,12 @@ export default function ContactPage() {
                                     <Github className="h-6 w-6 opacity-40 group-hover:opacity-100 transition-opacity" />
                                     <a href={developerInfo.github} target="_blank" rel="noreferrer" className="text-xl font-bold uppercase italic hover:underline inline-flex items-center gap-2">
                                         GitHub <ExternalLink className="h-4 w-4" />
+                                    </a>
+                                </div>
+                                <div className="flex items-center gap-4 group">
+                                    <Instagram className="h-6 w-6 opacity-40 group-hover:opacity-100 transition-opacity" />
+                                    <a href={developerInfo.instagram} target="_blank" rel="noreferrer" className="text-xl font-bold uppercase italic hover:underline inline-flex items-center gap-2">
+                                        Instagram <ExternalLink className="h-4 w-4" />
                                     </a>
                                 </div>
                             </div>

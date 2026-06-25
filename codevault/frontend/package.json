@@ -39,6 +39,7 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.5",
     "firebase": "^12.11.0",
+    "framer-motion": "^12.42.0",
     "lucide-react": "^0.309.0",
     "postcss": "^8.4.33",
     "prism-react-renderer": "^2.3.1",

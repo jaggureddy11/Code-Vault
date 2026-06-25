@@ -403,3 +403,38 @@ body.is-compiler-fullscreen main {
   font-size: 0.75rem !important;
   opacity: 0.5 !important;
 }
+
+/* Style the Skip (close) button in the premium tour popover */
+.premium-tour-popover .driver-popover-close-btn {
+  width: auto !important;
+  height: auto !important;
+  font-size: 0.65rem !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  font-family: 'Inter', sans-serif !important;
+  color: #737373 !important; /* Neutral gray */
+  top: 16px !important;
+  right: 20px !important;
+  padding: 4px 8px !important;
+  border: 1px solid rgba(0, 0, 0, 0.15) !important;
+  border-radius: 4px !important;
+  transition: all 0.2s ease !important;
+}
+
+.dark .premium-tour-popover .driver-popover-close-btn {
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  color: #a3a3a3 !important;
+}
+
+.premium-tour-popover .driver-popover-close-btn:hover {
+  color: black !important;
+  border-color: black !important;
+  background-color: rgba(0, 0, 0, 0.05) !important;
+}
+
+.dark .premium-tour-popover .driver-popover-close-btn:hover {
+  color: white !important;
+  border-color: white !important;
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
