@@ -473,15 +473,15 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 isTransitioning ? "opacity-100" : "opacity-0 transition-opacity delay-400 duration-0"
             )}>
                 <div className={cn(
-                    "flex-1 bg-black w-full transform transition-transform duration-300 ease-[cubic-bezier(0.87,0,0.13,1)]",
+                    "flex-1 bg-black w-full transform transition-transform duration-300 ease-steep-in-out",
                     isTransitioning ? "translate-x-0" : "-translate-x-full"
                 )} />
                 <div className={cn(
-                    "flex-1 bg-white w-full transform transition-transform duration-300 delay-50 ease-[cubic-bezier(0.87,0,0.13,1)]",
+                    "flex-1 bg-white w-full transform transition-transform duration-300 delay-50 ease-steep-in-out",
                     isTransitioning ? "translate-x-0" : "translate-x-full"
                 )} />
                 <div className={cn(
-                    "flex-1 bg-black w-full transform transition-transform duration-300 delay-100 ease-[cubic-bezier(0.87,0,0.13,1)]",
+                    "flex-1 bg-black w-full transform transition-transform duration-300 delay-100 ease-steep-in-out",
                     isTransitioning ? "translate-x-0" : "-translate-x-full"
                 )} />
             </div>

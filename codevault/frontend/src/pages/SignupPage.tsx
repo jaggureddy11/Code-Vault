@@ -256,14 +256,14 @@ export default function SignupPage() {
 
       {/* Screen Transition Overlay */}
       <div
-        className={`fixed inset-0 bg-black z-50 transition-transform duration-1000 ease-[cubic-bezier(0.22,1,0.36,1)] flex flex-col justify-center items-center ${isSuccess ? 'translate-y-0' : 'translate-y-full'
+        className={`fixed inset-0 bg-black z-50 transition-transform duration-1000 ease-smooth-out flex flex-col justify-center items-center ${isSuccess ? 'translate-y-0' : 'translate-y-full'
           }`}
       >
         <div className="text-white text-3xl md:text-5xl font-black italic tracking-tighter uppercase animate-pulse">
           Entering <span className="text-red-600 underline decoration-8 underline-offset-[12px]">CodeVault</span>
         </div>
         <div className="w-64 h-2 bg-white/20 mt-12 rounded-full overflow-hidden relative">
-          <div className={`absolute left-0 top-0 h-full bg-red-600 transition-all duration-[1500ms] ease-out ${isSuccess ? 'w-full' : 'w-0'}`} />
+          <div className={`absolute left-0 top-0 h-full bg-red-600 transition-all duration-1500 ease-out ${isSuccess ? 'w-full' : 'w-0'}`} />
         </div>
       </div>
     </div>

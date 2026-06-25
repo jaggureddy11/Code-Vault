@@ -70,6 +70,13 @@ export default {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
       },
+      transitionDuration: {
+        '1500': '1500ms',
+      },
+      transitionTimingFunction: {
+        'smooth-out': 'cubic-bezier(0.22,1,0.36,1)',
+        'steep-in-out': 'cubic-bezier(0.87,0,0.13,1)',
+      },
     },
   },
   plugins: [require("tailwindcss-animate"), require("@tailwindcss/typography")],
