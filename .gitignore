@@ -46,3 +46,5 @@ package-lock.json
 codevault/backend/my_indian.wav
 codevault/backend/tts_server.py
 codevault/frontend/public/assets/
+.vercel
+.env*
