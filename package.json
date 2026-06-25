@@ -1,6 +1,7 @@
 {
     "name": "codevault-monorepo",
     "private": true,
+    "type": "module",
     "scripts": {
         "dev:frontend": "npm run dev --prefix codevault/frontend",
         "dev:backend": "npm run dev --prefix codevault/backend",
