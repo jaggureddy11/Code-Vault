@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { cn, getApiBaseUrl } from '@/lib/utils';
 import ReactMarkdown from 'react-markdown';
 import Draggable from 'react-draggable';
+const DraggableComponent = Draggable as any;
 import { Highlight, themes } from 'prism-react-renderer';
 
 interface ChatMessage {
@@ -511,7 +512,7 @@ export default function AIChatbot() {
     }
 
     return (
-        <Draggable handle=".chat-header" cancel="button" bounds="body">
+        <DraggableComponent handle=".chat-header" cancel="button" bounds="body">
             <div className={cn(
                 "fixed lg:bottom-6 bottom-24 right-4 lg:right-6 max-h-[85vh] bg-white dark:bg-black border-4 border-black dark:border-white z-[9999] flex flex-col shadow-[8px_8px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_rgba(255,255,255,1)] overflow-hidden font-sans transition-all",
                 isExpanded
@@ -654,7 +655,6 @@ export default function AIChatbot() {
                     </form>
                 </div>
             </div>
-        </Draggable>
+        </DraggableComponent>
     );
 }
-
