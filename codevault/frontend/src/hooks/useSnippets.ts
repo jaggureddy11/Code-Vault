@@ -65,8 +65,9 @@ export function useSnippets() {
   useEffect(() => {
     if (!user) return;
 
+    const uniqueChannelName = `snippets-realtime-${user.id}-${Math.random().toString(36).substring(2, 9)}`;
     const channel = supabase
-      .channel('snippets-realtime')
+      .channel(uniqueChannelName)
       .on(
         'postgres_changes',
         {
